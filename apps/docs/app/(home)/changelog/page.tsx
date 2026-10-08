@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { ChangelogList } from "@/components/marketing/changelog-list";
 import { Band, Dim, PageHero } from "@/components/marketing/primitives";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Changelog",
-  description: "New components, Pro blocks and templates, release by release.",
-};
+  description:
+    "Every Desyne release, newest first: new React Aria components, docs guides, Pro blocks and multi-page templates, with what changed in each version.",
+  path: "/changelog",
+});
 
 export default function ChangelogPage() {
   return (

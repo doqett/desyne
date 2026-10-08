@@ -6,10 +6,15 @@ import { cn } from "@/lib/utils";
 export function Shot({
   src,
   alt = "",
+  width = 720,
+  height = 450,
   className,
 }: {
   src: string;
   alt?: string;
+  /** Intrinsic size of the screenshot, so the box is reserved before load. */
+  width?: number;
+  height?: number;
   className?: string;
 }) {
   return (
@@ -18,6 +23,8 @@ export function Shot({
       <img
         src={`${src}.webp`}
         alt={alt}
+        width={width}
+        height={height}
         loading="lazy"
         className={cn("dark:hidden", className)}
       />
@@ -25,6 +32,8 @@ export function Shot({
       <img
         src={`${src}-dark.webp`}
         alt={alt}
+        width={width}
+        height={height}
         loading="lazy"
         className={cn("hidden dark:block", className)}
       />
@@ -50,7 +59,7 @@ export function TemplateCard({
       <div className="overflow-hidden rounded-xl border bg-muted">
         <Shot
           src={`/showcase/${t.slug}`}
-          alt={`${t.name} template`}
+          alt={`${t.name} template — ${t.tagline}`}
           className="aspect-[16/10] w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
         />
       </div>
@@ -86,7 +95,9 @@ export function BlockMarquee() {
               >
                 <Shot
                   src={`/showcase/blocks/${b.name}`}
-                  alt={b.title}
+                  alt={`${b.title} block`}
+                  width={640}
+                  height={400}
                   className="aspect-[16/10] w-full object-cover"
                 />
                 <span className="block border-t px-3 py-2 text-muted-foreground text-xs">
@@ -102,6 +113,8 @@ export function BlockMarquee() {
               >
                 <Shot
                   src={`/showcase/blocks/${b.name}`}
+                  width={640}
+                  height={400}
                   className="aspect-[16/10] w-full object-cover"
                 />
                 <span className="block border-t px-3 py-2 text-muted-foreground text-xs">

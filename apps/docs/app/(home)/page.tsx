@@ -4,6 +4,7 @@ import Link from "next/link";
 import { CopyCommand } from "@/components/home/copy-command";
 import { ExhibitWall } from "@/components/home/exhibit-wall";
 import { Faq } from "@/components/home/faq";
+import { JsonLd } from "@/components/json-ld";
 import { CodeTour } from "@/components/marketing/code-tour";
 import { KeyboardLab } from "@/components/marketing/keyboard-lab";
 import {
@@ -18,9 +19,49 @@ import { RecipeWall } from "@/components/marketing/recipe-wall";
 import { BlockMarquee, TemplateCard } from "@/components/marketing/shots";
 import { ThemeStudio } from "@/components/marketing/theme-studio";
 import { examples } from "@/examples/__index__";
+import {
+  absoluteUrl,
+  homeDescription,
+  homeTitle,
+  organization,
+  pageMetadata,
+  repoUrl,
+  siteName,
+} from "@/lib/seo";
 import { installCommand, proUrl, stats, templates } from "@/lib/site";
 import { source } from "@/lib/source";
 import { cn } from "@/lib/utils";
+
+export const metadata = pageMetadata({
+  absoluteTitle: homeTitle,
+  description: homeDescription,
+  path: "/",
+});
+
+const structuredData = [
+  organization,
+  {
+    "@type": "WebSite",
+    "@id": `${absoluteUrl("/")}/#website`,
+    name: siteName,
+    url: absoluteUrl("/"),
+    description: homeDescription,
+    inLanguage: "en",
+    publisher: { "@id": organization["@id"] },
+  },
+  {
+    "@type": "SoftwareSourceCode",
+    name: "Desyne",
+    description: homeDescription,
+    url: absoluteUrl("/"),
+    codeRepository: repoUrl,
+    programmingLanguage: "TypeScript",
+    runtimePlatform: "React 19",
+    license: "https://opensource.org/licenses/MIT",
+    author: { "@id": organization["@id"] },
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  },
+];
 
 /** The three theming levers, each with the code that pulls it. */
 const levers = [
@@ -85,6 +126,7 @@ export default function HomePage() {
 
   return (
     <main className="relative flex flex-1 flex-col overflow-x-clip">
+      <JsonLd data={structuredData} />
       {/* hero */}
       <section className="relative isolate">
         <div

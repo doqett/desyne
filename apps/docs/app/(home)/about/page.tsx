@@ -8,13 +8,15 @@ import {
   Lead,
   PageHero,
 } from "@/components/marketing/primitives";
+import { pageMetadata } from "@/lib/seo";
 import { proUrl } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About & license",
   description:
-    "Why Desyne exists, the principles behind it, and the license in plain words.",
-};
+    "Why Desyne exists, the principles behind its accessible React components, and the license in plain words: what the free library and Pro let you ship.",
+  path: "/about",
+});
 
 const principles = [
   {

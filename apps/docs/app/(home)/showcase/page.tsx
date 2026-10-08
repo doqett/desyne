@@ -8,12 +8,15 @@ import {
 } from "@/components/marketing/primitives";
 import { BlockMarquee } from "@/components/marketing/shots";
 import { ShowcaseGrid } from "@/components/marketing/showcase-grid";
+import { pageMetadata } from "@/lib/seo";
 import { proUrl, stats } from "@/lib/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Showcase",
-  description: "Templates and blocks built entirely with Desyne components.",
-};
+  description:
+    "Multi-page templates and Pro blocks built only from Desyne components: marketing sites, SaaS dashboards, storefronts and portfolios you can open live.",
+  path: "/showcase",
+});
 
 export default function ShowcasePage() {
   return (
