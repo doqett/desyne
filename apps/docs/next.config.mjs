@@ -46,6 +46,10 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const config = {
+  outputFileTracingIncludes: {
+    "/**/opengraph-image*": ["./assets/fonts/*"],
+    "/og/**": ["./assets/fonts/*"],
+  },
   reactStrictMode: true,
   transpilePackages: ["@desyne/ui"],
   // The source is public; maps make production errors and Lighthouse readable.
