@@ -1,0 +1,299 @@
+---
+title: Checkbox
+description: Lets users turn a single option on or off, or pick any number of options from a group. Supports descriptions, an indeterminate state, card layouts, validation and native form submission.
+---
+
+<ComponentLinks aria="Checkbox" source="checkbox" />
+
+<ComponentPreview name="checkbox/demo" />
+
+## Installation
+
+<InstallTabs name="checkbox" />
+
+## Usage
+
+```tsx
+import { Checkbox, CheckboxGroup } from "@/components/ui/checkbox";
+```
+
+```tsx
+<Checkbox>Remember me</Checkbox>
+
+<CheckboxGroup label="Notify me about" defaultValue={["mentions"]}>
+  <Checkbox value="mentions">Mentions</Checkbox>
+  <Checkbox value="comments">Comments</Checkbox>
+</CheckboxGroup>
+```
+
+A standalone `Checkbox` owns a boolean (`isSelected`). Inside a `CheckboxGroup`, each checkbox needs a `value` and the group owns a `string[]` of the selected values.
+
+### When to use
+
+- Checkbox — independent options, any number of which can be on, usually confirmed with a submit button.
+- [Switch](/docs/components/switch) — a single setting that takes effect immediately, like turning on dark mode.
+- [Radio Group](/docs/components/radio-group) — exactly one choice from a small, visible set.
+- [Toggle Button Group](/docs/components/toggle-button-group) — compact multi-select inside toolbars.
+- [List Box](/docs/components/list-box) or [Tag Group](/docs/components/tag-group) — multi-select from a long or dynamic list.
+
+## Anatomy
+
+`Checkbox` is built on React Aria's `CheckboxField` and `CheckboxButton`. You only render `Checkbox`; it composes the parts for you:
+
+```tsx
+<CheckboxGroup>                  {/* label, description, error message */}
+  <Checkbox value="…">           {/* CheckboxField: <div>, owns state and validation */}
+    {/* CheckboxButton: <label> wrapping a hidden <input type="checkbox"> */}
+    {/*   box + children + description (Text slot="description") */}
+    {/* FieldError: standalone checkboxes only */}
+  </Checkbox>
+</CheckboxGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Checkbox` root (`CheckboxField`) | `<div data-slot="checkbox-field">` | Holds the checked state, `name` / `value`, validation and the ARIA wiring between the input, description and error. Carries `data-selected`, `data-indeterminate`, `data-disabled`, `data-readonly`, `data-invalid`, `data-required`. |
+| `CheckboxButton` | `<label data-slot="checkbox">` + hidden `<input type="checkbox">` | The clickable area: box, label and description. Receives `className`, `style`, `render`, `children` and hover handlers, and carries every interaction attribute. |
+| Box | `<span data-slot="checkbox-indicator">` | Shows a check icon, or a minus icon when `isIndeterminate`. Sized by `size`. |
+| Description | `<span slot="description">` | From the `description` prop. Rendered inside the label so the whole area stays clickable, and linked to the input with `aria-describedby`. |
+| `FieldError` | `<div data-slot="field-error">` | Standalone checkboxes only: shows `errorMessage` or the browser message when validation fails. Inside a group, the group shows one error instead. |
+| `CheckboxGroup` | `<div role="group">` | Wraps the label, description, the checkboxes and the error message. |
+| Group label / description | `<span>` | Rendered from the group's `label` and `description` props. |
+
+## Examples
+
+### States
+
+Checked, unchecked and indeterminate are the three visual values. `isInvalid` turns the box red, `isDisabled` dims it and removes it from the tab order, and `isReadOnly` keeps it focusable but ignores changes.
+
+<ComponentPreview name="checkbox/states" />
+
+### Sizes
+
+`md` (16px) is the default. `sm` fits dense tables and filters; `lg` also bumps the label to `text-base` for touch-first layouts.
+
+<ComponentPreview name="checkbox/sizes" />
+
+### With description
+
+`description` adds secondary text under the label and aligns the box to the first line. Use it to explain the consequence of an option instead of a long label.
+
+<ComponentPreview name="checkbox/description" />
+
+### Controlled
+
+Use `isSelected` and `onChange` to own the value, for example to show or persist it elsewhere. Use `defaultSelected` when you only need the initial value.
+
+<ComponentPreview name="checkbox/controlled" />
+
+### Group
+
+`CheckboxGroup` renders a shared label and description, gives the checkboxes `role="group"`, and collects the selected `value`s into an array.
+
+<ComponentPreview name="checkbox/group" align="start" />
+
+### Horizontal
+
+`orientation="horizontal"` lays the checkboxes out in a wrapping row. Keep labels short; switch back to vertical as soon as options wrap to a second line.
+
+<ComponentPreview name="checkbox/horizontal" align="start" />
+
+### Disabled and read-only in a group
+
+`isDisabled` on a single checkbox locks just that option; use the description to say why. `isReadOnly` on the group shows the current value without letting users change it, and keeps every option focusable.
+
+<ComponentPreview name="checkbox/group-disabled" align="start" />
+
+### Controlled group
+
+Pass `value` and `onChange` to the group to own the array of selected values.
+
+<ComponentPreview name="checkbox/group-controlled" align="start" />
+
+### Indeterminate
+
+A parent checkbox for a set of children. Set `isIndeterminate` when only some children are selected. It's purely visual (announced as "mixed"), so you must control it; pressing the checkbox calls `onChange` with the next value.
+
+<ComponentPreview name="checkbox/indeterminate" align="start" />
+
+### Cards
+
+`className` is merged with the base styles, so a border, padding and `data-selected:` styles turn a checkbox with a `description` into a selectable card. The whole card is the label, so it's all clickable.
+
+<ComponentPreview name="checkbox/cards" />
+
+### Required and validation
+
+`isRequired` on a group requires at least one selection; on a standalone checkbox it requires it to be checked. With the default native validation, submitting the form shows the `errorMessage` (or the browser message) under the group or the standalone checkbox and focuses the first invalid field. A required group also adds a `*` to its label.
+
+<ComponentPreview name="checkbox/validation" align="start" />
+
+### Custom validation
+
+`validate` receives the selected values and returns an error string, or `null` when valid. With `validationBehavior="aria"` the error shows as soon as the value changes instead of on submit.
+
+<ComponentPreview name="checkbox/custom-validation" align="start" />
+
+### Form submission
+
+Give the group a `name` and every checked `value` is submitted under it; read them with `FormData.getAll()`. A standalone checkbox submits its `value` (`"on"` by default) only when checked.
+
+<ComponentPreview name="checkbox/form" align="start" />
+
+## Recipes
+
+### Bulk selection
+
+A select-all checkbox in a list header, indeterminate while only some rows are selected, with bulk actions that appear once anything is selected. Row checkboxes have no visible label, so each gets an `aria-label`.
+
+<ComponentPreview name="checkbox/recipe-bulk-select" />
+
+### Notification matrix
+
+A table of events × channels. Each checkbox gets an `aria-label` combining its row and column, since the visual headers aren't associated with it.
+
+<ComponentPreview name="checkbox/recipe-notification-matrix" />
+
+### Onboarding checklist
+
+A controlled group drives a [`ProgressBar`](/docs/components/progress-bar). `children` is a render function, so completed steps are struck through.
+
+<ComponentPreview name="checkbox/recipe-checklist" />
+
+## Accessibility
+
+- Each checkbox is a native `<input type="checkbox">`, visually hidden inside a `<label>`, so clicking anywhere on the label toggles it and it works with every assistive technology and with native forms.
+- `isIndeterminate` sets the input's `indeterminate` property, which screen readers announce as "mixed".
+- Checkboxes without visible text (table rows, matrices) need an `aria-label` or `aria-labelledby`.
+- `CheckboxGroup` renders `role="group"` labelled by its `label`; its description and error message are linked with `aria-describedby`.
+- `description` on a `Checkbox` is linked to the input with `aria-describedby`, so it's announced as the description rather than as part of the name. It sits inside the `<label>` (so it's clickable) but is hidden from the name computation.
+- A standalone checkbox's error message is linked to the input with `aria-describedby` as well.
+- The focus ring only appears for keyboard focus (`data-focus-visible`).
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the next checkbox. Every checkbox in a group is its own tab stop. |
+| <kbd>Space</kbd> | Toggles the focused checkbox |
+
+## Styling
+
+### Data attributes
+
+The attributes you'll style against are on the `<label>` (`CheckboxButton`), which is also where `className` goes. Target the box or label text from it with `group-data-*/checkbox:`. The outer `CheckboxField` `<div>` repeats the state attributes (not the interaction ones) and is a `group/checkbox-field`, for styling siblings such as the error message.
+
+| Attribute | `<label>` (`CheckboxButton`) | `<div>` (`CheckboxField`) | Present when |
+| --- | --- | --- | --- |
+| `data-selected` | Yes | Yes | Checked |
+| `data-indeterminate` | Yes | Yes | `isIndeterminate` is true |
+| `data-hovered` | Yes | No | Hovered with a mouse or pen |
+| `data-pressed` | Yes | No | Being pressed |
+| `data-focused` / `data-focus-visible` | Yes | No | Focused / focused with the keyboard |
+| `data-disabled` | Yes | Yes | Disabled, directly or through the group |
+| `data-readonly` | Yes | Yes | Read-only, directly or through the group |
+| `data-invalid` | Yes | Yes | Invalid, directly or through the group |
+| `data-required` | Yes | Yes | Required |
+
+On `CheckboxGroup` (children can use `group-data-*/field:`): `data-disabled`, `data-readonly`, `data-required`, `data-invalid`.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `checkbox-field` | Each checkbox's outer `<div>` (`CheckboxField`) |
+| `checkbox` | Each checkbox's `<label>` (`CheckboxButton`), where `className` goes |
+| `checkbox-indicator` | The box |
+| `checkbox-group` | Group root |
+| `label`, `description`, `field-error` | Group label, description and error message; `description` and `field-error` are also used on a standalone checkbox |
+
+### Color
+
+The box uses the `--brand` and `--brand-foreground` theme variables (red `--destructive` when invalid). Override them on a single checkbox or a whole group for a one-off color:
+
+```tsx
+<Checkbox className="[--brand:var(--color-emerald-600)] [--brand-foreground:white]">
+  Mark as paid
+</Checkbox>
+```
+
+### Render props
+
+`className` and `children` accept a function of the `CheckboxButton` state (`isSelected`, `isIndeterminate`, `isHovered`, `isPressed`, `isFocusVisible`, `isDisabled`, `isReadOnly`, `isInvalid`, `isRequired`):
+
+```tsx
+<Checkbox className={({ isSelected }) => (isSelected ? "font-medium" : "")}>
+  {({ isIndeterminate }) => (isIndeterminate ? "Some selected" : "Select all")}
+</Checkbox>
+```
+
+## API Reference
+
+### Checkbox
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode | ((state: CheckboxButtonRenderProps) => ReactNode)", description: "The label. With a function, it receives the render state." },
+    description: { type: "ReactNode", description: "Secondary text under the label, linked with aria-describedby. Makes the label bold and aligns the box to the first line." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message of a standalone checkbox. Ignored inside a CheckboxGroup, which shows its own." },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Box size. lg also uses text-base for the label." },
+    isSelected: { type: "boolean", description: "Controlled checked state." },
+    defaultSelected: { type: "boolean", description: "Uncontrolled initial checked state." },
+    onChange: { type: "(isSelected: boolean) => void", description: "Called when the checked state changes." },
+    isIndeterminate: { type: "boolean", description: "Shows a minus icon and announces the state as mixed. Must be controlled." },
+    value: { type: "string", description: "Value submitted with the form, and the item's value inside a CheckboxGroup. Defaults to \"on\" natively." },
+    name: { type: "string", description: "Name used when submitting a form (standalone checkboxes)." },
+    form: { type: "string", description: "Id of the form the input belongs to." },
+    isDisabled: { type: "boolean", default: "false" },
+    isReadOnly: { type: "boolean", default: "false", description: "Focusable but can't be changed." },
+    isRequired: { type: "boolean", default: "false", description: "Must be checked before the form can submit." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state." },
+    validate: { type: "(isSelected: boolean) => ValidationError | true | null | undefined", description: "Custom validation for a standalone checkbox." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"' },
+    autoFocus: { type: "boolean" },
+    inputRef: { type: "Ref<HTMLInputElement>", description: "Ref to the hidden input." },
+    onPress: { type: "(e: PressEvent) => void", description: "Press events are also supported: onPressStart, onPressEnd, onPressChange, onPressUp." },
+    onHoverChange: { type: "(isHovered: boolean) => void", description: "onHoverStart and onHoverEnd are also supported. Applied to the label." },
+    onFocus: { type: "(e: FocusEvent) => void", description: "onBlur and onFocusChange are also supported." },
+    className: { type: "string | ((state: CheckboxButtonRenderProps) => string)", description: "Classes for the <label> (CheckboxButton)." },
+    style: { type: "CSSProperties | ((state: CheckboxButtonRenderProps) => CSSProperties)", description: "Inline styles for the <label>." },
+    slot: { type: "string | null", description: "Slot name, e.g. \"selection\" inside a Table or GridList row. Applied to the CheckboxField." },
+    ref: { type: "Ref<HTMLLabelElement>", description: "Ref to the <label>." },
+    "aria-label": { type: "string", description: "Accessible name when there are no children." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`CheckboxField`](https://react-aria.adobe.com/Checkbox#checkboxfield). `className`, `style`, `render`, `children` and the hover handlers go to the [`CheckboxButton`](https://react-aria.adobe.com/Checkbox#checkboxbutton) instead; everything else (state, `name`, `value`, validation, focus and press handlers, ARIA and DOM attributes) goes to the `CheckboxField`.
+
+### CheckboxGroup
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible group label. Use aria-label or aria-labelledby if there's none." },
+    description: { type: "ReactNode", description: "Helper text under the label." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message." },
+    orientation: { type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout of the checkboxes. Visual only." },
+    children: { type: "ReactNode", description: "Checkbox elements, each with a value." },
+    value: { type: "string[]", description: "Controlled selected values." },
+    defaultValue: { type: "string[]", description: "Uncontrolled initial selected values." },
+    onChange: { type: "(value: string[]) => void", description: "Called when the selection changes." },
+    name: { type: "string", description: "Name applied to every checkbox for form submission." },
+    form: { type: "string", description: "Id of the form the inputs belong to." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables every checkbox." },
+    isReadOnly: { type: "boolean", default: "false", description: "Makes every checkbox read-only." },
+    isRequired: { type: "boolean", default: "false", description: "Requires at least one checkbox to be selected." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state on the group and its checkboxes." },
+    validate: { type: "(value: string[]) => ValidationError | true | null | undefined", description: "Custom validation. Return an error message to mark the group invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live." },
+    className: { type: "string | ((state: CheckboxGroupRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`CheckboxGroup`](https://react-aria.adobe.com/CheckboxGroup).
+
+## Related
+
+- [Switch](/docs/components/switch) — for settings that apply immediately.
+- [Radio Group](/docs/components/radio-group) — for a single choice.
+- [Toggle Button Group](/docs/components/toggle-button-group) — multi-select as buttons.
+- [Table](/docs/components/table) — has built-in row selection with checkboxes.

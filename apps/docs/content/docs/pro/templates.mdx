@@ -1,0 +1,99 @@
+---
+title: Using templates
+description: Download a Pro template as a standalone Next.js project, run it, rebrand it, and replace the content.
+---
+
+Templates are complete products: a marketing site, a SaaS app, a storefront. Each one
+is a standalone Next.js project that includes every Desyne component it uses, so it
+runs without the registry or this repo.
+
+## Download
+
+1. Open a template on the Pro site's **Templates** page and try the live demo.
+2. Sign in (or unlock with your key), then press **Download**. You get
+   `<name>-template.zip`.
+
+```bash
+unzip veyra-template.zip && cd veyra-template
+npm install        # or pnpm / bun
+npm run dev        # http://localhost:3000
+```
+
+## What's inside
+
+```txt
+veyra-template/
+  app/                 Next.js routes; each page is a thin wrapper around a screen
+    layout.tsx         Fonts, theme provider, toaster
+    theme.css          Design tokens (shadcn names). Rebrand here
+    base.css           Base layer
+  src/
+    screens/           One component per page. Edit these to change a page
+    components/        Sections and layout pieces (header, footer, hero, …)
+    content.ts         Posts, changelog entries, products, customers…
+    lib/link.tsx       Link helper (see below)
+  components/ui/       The Desyne components this template uses
+  lib/                 utils.ts and primitive.ts
+  package.json         Only the dependencies the template needs
+```
+
+The `package.json` is generated from what the template imports: React, Next.js,
+Tailwind v4, React Aria and whatever else it actually uses (for example `motion`,
+`recharts`, `next-themes`).
+
+## Make it yours
+
+<Steps>
+<Step>
+### Rebrand
+
+Edit `app/theme.css`: `--brand`, `--primary`, `--radius` and the neutrals. See
+[Theming](/docs/theming). Swap the logo component in `src/components` and the font in
+`app/layout.tsx`.
+</Step>
+<Step>
+### Replace content
+
+Copy lives in the screens and sections, and repeated content (posts, products, plans,
+team) lives in `src/content.ts`. Replace it there or load it from your CMS or database.
+</Step>
+<Step>
+### Remove what you don't need
+
+Delete a route folder in `app/` and its screen in `src/screens/`, and remove the nav
+entry from the header.
+</Step>
+<Step>
+### Ship
+
+It's a normal Next.js app: `npm run build` and deploy anywhere Next.js runs.
+</Step>
+</Steps>
+
+## The link helper
+
+`src/lib/link.tsx` lets the same pages run standalone and inside the Pro site's live demo
+(which mounts them under a sub-path). In your project the base path is empty, so it
+behaves like `next/link`. You can keep it, or replace `Link` imports with `next/link`
+and `useNavigate()` with `useRouter().push`.
+
+It also includes a `RouterBridge` that connects React Aria links to the Next.js router.
+See [Routing](/docs/routing).
+
+## Motion
+
+Site templates animate with [Motion](https://motion.dev). The primitives live in
+`src/components/motion.tsx` (`Reveal`, `Stagger`/`Item`, `Words`, `CountUp`, `Float`)
+under a `MotionConfig` with `reducedMotion="user"`, so they respect the visitor's
+setting. Remove the wrappers if you prefer a static site.
+
+## Updating
+
+Templates are a starting point; once downloaded, they're your code. New versions of a
+template appear on the Pro site, and the [Changelog](/changelog) lists what changed. To
+pick up a fix, download the new zip and diff it against your project.
+
+## License
+
+Templates are covered by your Pro or Team license: use them for unlimited client and
+commercial projects, but don't resell them as templates or publish their source.

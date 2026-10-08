@@ -1,0 +1,267 @@
+---
+title: Sheet
+description: A modal panel that slides in from any edge of the screen, for navigation, filters, carts and detail views. Built on the same modal as Dialog, so it traps focus, locks scroll and restores focus on close.
+---
+
+<ComponentLinks aria="Modal" source="sheet" />
+
+<ComponentPreview name="sheet/demo" />
+
+## Installation
+
+<InstallTabs name="sheet" />
+
+## Usage
+
+```tsx
+import {
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+```
+
+```tsx
+<SheetTrigger>
+  <Button>Open</Button>
+  <SheetContent side="right">
+    <SheetHeader>
+      <SheetTitle>Title</SheetTitle>
+      <SheetDescription>Description</SheetDescription>
+    </SheetHeader>
+    <div className="p-5">{/* content */}</div>
+    <SheetFooter>
+      <SheetClose>Cancel</SheetClose>
+      <Button>Save</Button>
+    </SheetFooter>
+  </SheetContent>
+</SheetTrigger>
+```
+
+`SheetTrigger` connects the first child (any pressable, usually a [`Button`](/docs/components/button)) to the `SheetContent` after it. No state or refs needed.
+
+<Callout title="The body is yours to pad">
+  `SheetHeader` and `SheetFooter` bring their own padding and borders, but the
+  panel itself has none, so full-bleed lists and navigation are easy. Wrap the
+  content between them in a `div` with `p-5`, and add
+  `min-h-0 flex-1 overflow-y-auto` when it can grow taller than the screen.
+</Callout>
+
+### When to use
+
+- Sheet — secondary or longer content that relates to the current page: filters, a cart, a record's details, mobile navigation.
+- [Dialog](/docs/components/dialog) — a short, focused task or confirmation that belongs in the middle of the screen.
+- [Popover](/docs/components/popover) — small, non-blocking content anchored to its trigger.
+- [Sidebar](/docs/components/sidebar) — persistent navigation that stays on screen.
+
+## Anatomy
+
+```tsx
+<SheetTrigger>
+  <Button />                   {/* trigger */}
+  <SheetContent>               {/* overlay + sliding panel + dialog */}
+    <SheetHeader>
+      <SheetTitle />           {/* accessible name */}
+      <SheetDescription />
+    </SheetHeader>
+    <div />                    {/* your content */}
+    <SheetFooter>
+      <SheetClose />           {/* button that closes the sheet */}
+    </SheetFooter>
+  </SheetContent>
+</SheetTrigger>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `SheetTrigger` | — | Manages open state and wires the trigger to the sheet. Same as `DialogTrigger`. |
+| `SheetContent` | `ModalOverlay` › `Modal` › `Dialog` | Backdrop, sliding panel and the `role="dialog"` element, a flex column that fills the panel. Adds a close icon by default. |
+| `SheetHeader` | `<div>` | Title and description, with `p-5`, a bottom border and room for the close icon. |
+| `SheetTitle` | `Heading` (`slot="title"`) | Becomes the sheet's accessible name. |
+| `SheetDescription` | `<p>` | Supporting text. |
+| `SheetFooter` | `<div>` | Actions pinned to the bottom with `mt-auto` and a top border. Stacked (primary on top) on mobile, right-aligned from `sm` up. |
+| `SheetClose` | `Button slot="close"` | Any button with `slot="close"` closes the sheet. Defaults to `outline`. |
+| Close icon | `<button>` | The top-right ✕. Rendered unless `showCloseButton={false}`. |
+
+## Examples
+
+### Sides
+
+`right` (default) and `left` suit detail panels and navigation; `bottom` suits mobile action sheets; `top` suits announcements and search. Each side slides in from its own edge.
+
+<ComponentPreview name="sheet/sides" />
+
+### Sizes
+
+`size` sets the maximum width of `left` and `right` sheets from the `sm` breakpoint up: `sm` (320px), `md` (384px, default) and `lg` (576px). On phones they take 75% of the screen. `top` and `bottom` sheets are full width and size to their content.
+
+<ComponentPreview name="sheet/sizes" />
+
+### Scrollable content
+
+The panel is always the full height of the screen. Give the content `min-h-0 flex-1 overflow-y-auto` so it scrolls while the header and footer stay in place.
+
+<ComponentPreview name="sheet/scrollable" />
+
+### Forms
+
+Use the render-function child, `({ close }) => …`, and wrap everything in a React Aria `Form` with `flex min-h-0 flex-1 flex-col` so the footer stays at the bottom. Validation runs before `onSubmit`; close the sheet once the request succeeds.
+
+<ComponentPreview name="sheet/form" />
+
+### Controlled
+
+Render `SheetContent` without a trigger and control it with `isOpen` and `onOpenChange`. Use this to open a detail panel from a list row, a table or a keyboard shortcut. Focus returns to the row that opened it.
+
+<ComponentPreview name="sheet/controlled" />
+
+### Non-dismissable
+
+`isDismissable={false}` ignores backdrop clicks, `isKeyboardDismissDisabled` ignores <kbd>Esc</kbd>, and `showCloseButton={false}` hides the ✕. Reserve this for work that must finish, and always leave a visible way out once it has.
+
+<ComponentPreview name="sheet/non-dismissable" />
+
+## Recipes
+
+### Filter panel
+
+A left sheet with [`CheckboxGroup`](/docs/components/checkbox), [`Slider`](/docs/components/slider), [`RadioGroup`](/docs/components/radio-group) and [`Switch`](/docs/components/switch). Edits go into a draft that's only applied on "Show results"; "Reset" restores the defaults, and the trigger shows how many filters are active.
+
+<ComponentPreview name="sheet/recipe-filters" />
+
+### Mobile navigation
+
+A hamburger button that opens a left sheet with navigation links, an account footer and no header. Without a `SheetTitle`, the sheet is named with `aria-label`. Links close the sheet through `close()` from the render function.
+
+<ComponentPreview name="sheet/recipe-mobile-nav" />
+
+### Shopping cart
+
+A cart with quantity steppers and a scrollable item list, and a footer that stacks the subtotal above a full-width checkout button.
+
+<ComponentPreview name="sheet/recipe-cart" />
+
+## Accessibility
+
+- Focus moves into the sheet on open (to the first focusable element, or one with `autoFocus`), stays trapped inside, and returns to the trigger on close.
+- Page scroll is locked while open, and content outside is hidden from screen readers.
+- `SheetTitle` provides the accessible name. Without a visible title, pass `aria-label` to `SheetContent`.
+- The close icon has `aria-label="Close"`.
+- Nested overlays (selects, menus, popovers) inside a sheet work as expected; <kbd>Esc</kbd> closes the innermost one first.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycles focus within the sheet |
+| <kbd>Esc</kbd> | Closes the sheet (unless `isKeyboardDismissDisabled`) |
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-entering` | overlay, panel | Opening animation is running |
+| `data-exiting` | overlay, panel | Closing animation is running |
+
+Enter and exit animations are `tw-animate-css` slide classes keyed off these attributes (300ms in, 200ms out), so React Aria waits for them before unmounting.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `sheet-overlay` | Backdrop |
+| `sheet-content` | Sliding panel |
+| `sheet-header` | Header |
+| `sheet-footer` | Footer |
+| `dialog-title`, `dialog-description` | Title and description (shared with Dialog) |
+
+### Customizing
+
+- `className` on `SheetContent` styles the panel: override the width with `sm:max-w-md`, or cap a bottom sheet with `max-h-[80dvh]`.
+- The panel is `fixed flex flex-col bg-popover` with a border on the inner edge. The inner dialog is a `relative flex h-full flex-col`, so children stack from top to bottom and `SheetFooter` sits at the bottom. It scrolls as a whole as a fallback when you don't give the content its own scroll area.
+- The backdrop reuses `overlayStyles` from [Dialog](/docs/components/dialog#customizing).
+
+### `sheetVariants`
+
+The `tailwind-variants` function behind the panel. Use it to build your own edge panels.
+
+```tsx
+import { sheetVariants } from "@/components/ui/sheet";
+
+sheetVariants({ side: "left", size: "lg" });
+```
+
+## API Reference
+
+### SheetTrigger
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode", description: "A pressable trigger followed by SheetContent." },
+    isOpen: { type: "boolean", description: "Controlled open state." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the sheet opens or closes." },
+  }}
+/>
+
+### SheetContent
+
+<TypeTable
+  type={{
+    side: { type: '"top" | "right" | "bottom" | "left"', default: '"right"', description: "Edge the sheet slides in from." },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Max width of left and right sheets from the sm breakpoint: 320, 384 or 576px. No effect on top and bottom sheets." },
+    showCloseButton: { type: "boolean", default: "true", description: "Shows the ✕ button in the top-right corner." },
+    isDismissable: { type: "boolean", default: "true", description: "Close when clicking the backdrop." },
+    isKeyboardDismissDisabled: { type: "boolean", default: "false", description: "Ignore the Esc key." },
+    isOpen: { type: "boolean", description: "Controlled open state, when used without a SheetTrigger." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the sheet opens or closes." },
+    shouldCloseOnInteractOutside: { type: "(element: Element) => boolean", description: "Fine-grained control over which outside clicks close the sheet." },
+    "aria-label": { type: "string", description: "Accessible name when there is no SheetTitle." },
+    children: { type: "ReactNode | ((opts: { close: () => void }) => ReactNode)", description: "Content, or a function that receives close()." },
+    className: { type: "string", description: "Classes for the sliding panel." },
+  }}
+/>
+
+Also accepts the other props of React Aria's [`ModalOverlay`](https://react-aria.adobe.com/Modal#api).
+
+### SheetClose
+
+A [`Button`](/docs/components/button) with `slot="close"`. Accepts every button prop.
+
+<TypeTable
+  type={{
+    variant: { type: "ButtonProps['variant']", default: '"outline"' },
+  }}
+/>
+
+### SheetTitle
+
+Accepts every prop of React Aria's [`Heading`](https://react-aria.adobe.com/Dialog#heading), including `level` to change the heading element.
+
+### SheetHeader / SheetFooter / SheetDescription
+
+Accept every prop of `<div>` / `<div>` / `<p>`.
+
+### sheetVariants
+
+<TypeTable
+  type={{
+    side: { type: '"top" | "right" | "bottom" | "left"', default: '"right"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Dialog](/docs/components/dialog) — a centered modal for focused tasks.
+- [Popover](/docs/components/popover) — non-modal content anchored to a trigger.
+- [Sidebar](/docs/components/sidebar) — persistent app navigation.
+- [Toast](/docs/components/toast) — confirm the result after the sheet closes.

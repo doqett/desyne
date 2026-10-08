@@ -1,0 +1,107 @@
+---
+title: Installing blocks
+description: Browse blocks, connect the private registry with your license key, install with the shadcn CLI, and customise what lands in your project.
+---
+
+## 1. Find a block
+
+Browse by category and group on the Pro site's **Blocks** page. Each block opens in a
+viewer with:
+
+- a live preview you can switch between light and dark and resize to phone, tablet and
+  desktop widths,
+- the source, file by file (with a license, or for free teasers),
+- its install command, for example `npx shadcn@latest add @desyne-pro/pricing-02`.
+
+## 2. Connect the registry (once per project)
+
+Get your key from the **Account** page on the Pro site, then:
+
+```bash title=".env.local"
+DESYNE_PRO_LICENSE=dsp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+```json title="components.json"
+{
+  "registries": {
+    "@desyne": "https://desyne.dev/r/{name}.json",
+    "@desyne-pro": {
+      "url": "https://pro.desyne.dev/r/{name}.json",
+      "headers": {
+        "Authorization": "Bearer ${DESYNE_PRO_LICENSE}"
+      }
+    }
+  }
+}
+```
+
+The Account page shows these snippets with your real registry URL and a copy button.
+Keep both registries: Pro blocks depend on components from `@desyne`.
+
+## 3. Install
+
+```bash
+npx shadcn@latest add @desyne-pro/pricing-02
+```
+
+```txt
+✓ Checking registry
+✓ Installing dependencies
+✓ Created files
+  - components/blocks/pricing-02/pricing-02.tsx
+```
+
+The CLI also installs every component the block imports (`button`, `card`, `badge`,
+…) from `@desyne`, and npm packages it uses (`lucide-react`, sometimes
+`recharts` or `motion`). Components you already have are left alone unless you pass
+`--overwrite`.
+
+## 4. Use it
+
+Each block's main file has a default export:
+
+```tsx title="app/pricing/page.tsx"
+import Pricing from "@/components/blocks/pricing-02/pricing-02";
+
+export default function PricingPage() {
+  return <Pricing />;
+}
+```
+
+Blocks are client components (`"use client"`) when they're interactive, so they render
+from server pages without changes.
+
+## Customising
+
+Blocks are starting points, not black boxes:
+
+- **Content** is inline: headings, prices, table rows and chart data are plain
+  constants at the top of the file or in the JSX. Replace them with your copy or props.
+- **Styling** uses your tokens. Change `--brand` or `--radius` and every block follows.
+- **Structure** is ordinary JSX. Delete sections, reorder columns, swap a component.
+- **Data**: turn constants into props and pass real data from a server component.
+
+```tsx
+// Before: data inside the block
+const plans = [{ name: "Starter", price: 12 }, /* … */];
+
+// After: the block takes data as a prop
+export default function Pricing({ plans }: { plans: Plan[] }) { /* … */ }
+```
+
+## In CI and teams
+
+- Add `DESYNE_PRO_LICENSE` as a CI secret only if your pipeline runs the CLI. Installed
+  block files are committed to your repo, so builds don't need the key.
+- On a Team license, each teammate can use their own personal key (see
+  [Licensing](/docs/pro/licensing#team-seats)), so removing someone doesn't break
+  everyone else's setup.
+
+## Troubleshooting
+
+| Problem | Fix |
+| --- | --- |
+| `401` / "A valid Desyne Pro license is required." | The key isn't reaching the CLI. Check `echo $DESYNE_PRO_LICENSE` or the `.env.local` file in the directory where you run the command, and that the license is active on your account page |
+| `404` | Check the block name in its viewer; names look like `hero-01`, `dashboard-01` |
+| Imports of `@/components/ui/*` fail | Your `components.json` aliases differ. Re-run `npx shadcn@latest init` or fix the paths in the block |
+| Styles look unstyled | Make sure Tailwind scans `components/blocks` (it does by default in Tailwind v4 unless you've restricted `@source`) |

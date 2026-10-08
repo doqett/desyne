@@ -1,0 +1,185 @@
+---
+title: Overlays & focus management
+description: Choose between Dialog, Sheet, Popover, Menu, Tooltip and Toast, open them from triggers or state, and keep focus where users expect it.
+---
+
+Overlays are where accessibility usually breaks: focus escapes, Escape doesn't work,
+screen readers keep reading the page behind. Desyne's overlays are React Aria
+overlays, so focus containment, restoration, dismissal and the right roles are handled.
+Your job is choosing the right one.
+
+## Which overlay?
+
+| Use | When | Blocks the page? |
+| --- | --- | --- |
+| [Dialog](/docs/components/dialog) | A focused task or decision: edit a record, confirm a delete | Yes (modal) |
+| [Sheet](/docs/components/sheet) | Secondary content or long forms at the edge: filters, cart, mobile nav | Yes (modal) |
+| [Popover](/docs/components/popover) | Small, contextual controls next to their trigger | No |
+| [Menu](/docs/components/menu) | A list of actions or navigation from a button | No |
+| [Tooltip](/docs/components/tooltip) | A short label for an icon or truncated text. Never interactive content | No |
+| [Toast](/docs/components/toast) | Feedback after something happened: saved, failed, undo | No |
+| [Command Palette](/docs/components/command-palette) | Searchable actions and navigation, usually on <kbd>⌘</kbd> <kbd>K</kbd> | Yes |
+
+## Triggers
+
+Overlays open from a trigger wrapper that pairs a button with its overlay. The trigger
+must be a pressable React Aria element such as Desyne's `Button`.
+
+```tsx
+<DialogTrigger>
+  <Button variant="outline">Edit profile</Button>
+  <DialogContent>
+    {({ close }) => (
+      <>
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>Update how your name appears to your team.</DialogDescription>
+        </DialogHeader>
+        <TextField label="Name" defaultValue="Ada Lovelace" autoFocus />
+        <DialogFooter>
+          <DialogClose>Cancel</DialogClose>
+          <Button onPress={() => { save(); close(); }}>Save</Button>
+        </DialogFooter>
+      </>
+    )}
+  </DialogContent>
+</DialogTrigger>
+```
+
+| Overlay | Trigger | Content |
+| --- | --- | --- |
+| Dialog | `DialogTrigger` | `DialogContent` |
+| Sheet | `SheetTrigger` | `SheetContent` |
+| Popover | `PopoverTrigger` | `Popover` + `PopoverDialog` |
+| Menu | `MenuTrigger` | `MenuContent` |
+| Tooltip | `TooltipTrigger` | `Tooltip` |
+
+`DialogContent` and `SheetContent` children can be a function that receives `close`.
+`DialogClose` is a Button with `slot="close"`, so any button inside closes the dialog.
+
+## Opening from state
+
+When something other than a button opens the overlay (a menu item, a keyboard
+shortcut, a URL), control it with `isOpen` and `onOpenChange` and skip the trigger:
+
+```tsx
+const [renaming, setRenaming] = useState(false);
+
+<MenuTrigger>
+  <Button variant="ghost" size="icon" aria-label="Actions"><MoreHorizontalIcon /></Button>
+  <MenuContent>
+    <MenuItem onAction={() => setRenaming(true)}>Rename…</MenuItem>
+  </MenuContent>
+</MenuTrigger>
+
+<DialogContent isOpen={renaming} onOpenChange={setRenaming} size="sm">
+  …
+</DialogContent>
+```
+
+Focus returns to the element that was focused before the dialog opened, here the menu
+button.
+
+## Focus behaviour
+
+| Moment | What happens |
+| --- | --- |
+| Open | Focus moves into the overlay: the first focusable element, or the one with `autoFocus` |
+| While open (modal) | <kbd>Tab</kbd> cycles inside; the page behind is hidden from screen readers and can't scroll |
+| <kbd>Esc</kbd> or outside click | Closes, unless the dialog is `role="alertdialog"` or `isDismissable={false}` |
+| Close | Focus returns to the trigger |
+
+Choose the starting point deliberately:
+
+- **Forms:** `autoFocus` on the first field.
+- **Destructive confirmations:** let focus land on the first button (Cancel), not on
+  the destructive action.
+- **Read-only content:** let focus go to the dialog itself; screen readers read the
+  title.
+
+## Confirmation dialogs
+
+Use `role="alertdialog"` for decisions that interrupt. It can't be dismissed by clicking
+outside, and screen readers announce it urgently.
+
+```tsx
+<DialogTrigger>
+  <Button variant="outline" color="danger">Delete project</Button>
+  <DialogContent role="alertdialog" size="sm">
+    <div className="flex gap-4">
+      <DialogIcon tone="danger"><TriangleAlertIcon /></DialogIcon>
+      <div className="grid gap-1.5">
+        <DialogTitle>Delete this project?</DialogTitle>
+        <DialogDescription>All deployments and logs will be permanently removed.</DialogDescription>
+      </div>
+    </div>
+    <DialogFooter>
+      <DialogClose>Cancel</DialogClose>
+      <DialogClose variant="solid" color="danger">Delete</DialogClose>
+    </DialogFooter>
+  </DialogContent>
+</DialogTrigger>
+```
+
+Every dialog needs a title. If there's no visible `DialogTitle`, pass `aria-label` to
+`DialogContent`.
+
+## Sizes and sides
+
+`DialogContent` takes `size`: `sm` (384px), `md` (512px, default), `lg` (672px), `xl`
+(896px) or `full`. Content taller than the viewport scrolls inside the dialog; wrap long
+content in `DialogBody` to keep the header and footer fixed.
+
+`SheetContent` takes `side` (`right` by default, `left`, `top`, `bottom`) and `size`
+(`sm`, `md`, `lg`).
+
+## Popovers vs dialogs
+
+A popover is non-modal: the page stays interactive and the popover closes when focus
+leaves. Use it for quick settings that apply immediately. If the content has a submit
+button, several fields or must not be lost by an outside click, use a Dialog.
+
+## Tooltips
+
+Tooltips appear on hover after a short delay and immediately on keyboard focus. They
+never appear on touch, so don't put anything there that people need. Their content is
+plain text: no links or buttons.
+
+```tsx
+<TooltipTrigger delay={300}>
+  <Button variant="ghost" size="icon" aria-label="Duplicate"><CopyIcon /></Button>
+  <Tooltip>Duplicate</Tooltip>
+</TooltipTrigger>
+```
+
+## Toasts
+
+Mount `<Toaster />` once in your root layout, then call `toast()` anywhere, including
+outside React components:
+
+```tsx title="app/layout.tsx"
+import { Toaster } from "@/components/ui/toast";
+
+<body>
+  {children}
+  <Toaster />
+</body>
+```
+
+```tsx
+import { toast } from "@/components/ui/toast";
+
+toast.success("Invoice sent", { description: "INV-1042 to billing@acme.com" });
+toast("Project archived", { action: { label: "Undo", onClick: restore } });
+toast.promise(save(), { loading: "Saving…", success: "Saved", error: "Couldn't save" });
+```
+
+Don't use toasts for errors that need action (put those next to the field) or for
+critical information: they disappear.
+
+## Stacking overlays
+
+Opening a dialog from a sheet, or a menu inside a dialog, works: each overlay contains
+its own focus, and <kbd>Esc</kbd> closes only the top one. Avoid more than two levels;
+use steps inside one dialog instead (see the wizard recipe on
+[Dialog](/docs/components/dialog)).

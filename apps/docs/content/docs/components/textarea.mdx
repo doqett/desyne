@@ -1,0 +1,251 @@
+---
+title: Textarea
+description: A multi-line text input for comments, descriptions and messages. Comes as a complete field with label, help text, character count and validation, or as a bare styled textarea. Resizes vertically, stays fixed, or grows with its content.
+---
+
+<ComponentLinks aria="TextField" source="textarea" />
+
+<ComponentPreview name="textarea/demo" />
+
+## Installation
+
+<InstallTabs name="textarea" />
+
+## Usage
+
+```tsx
+import { Textarea, TextareaField } from "@/components/ui/textarea";
+```
+
+```tsx
+<TextareaField label="Description" name="description" placeholder="Describe the issue" />
+```
+
+The file exports two components:
+
+- `TextareaField` — a React Aria `TextField` with a label, description, character count and error message around a `Textarea`. Use it in forms.
+- `Textarea` — just the styled `<textarea>`. Use it when you lay out the label yourself, or inside a custom composer.
+
+<Callout title="The two onChange signatures differ">
+  `TextareaField` is a React Aria field, so `onChange` receives the new string:
+  `onChange={setValue}`. A standalone `Textarea` is a plain textarea element,
+  so `onChange` receives the event: `onChange={(e) => setValue(e.target.value)}`.
+</Callout>
+
+### When to use
+
+- Textarea — free-form text that may span several lines: comments, bios, descriptions, messages.
+- [Text Field](/docs/components/text-field) — short, single-line values such as names, emails or titles.
+- [Search Field](/docs/components/search-field) — search queries.
+- A rich-text editor — when users need formatting, mentions or embeds. A textarea holds plain text only.
+
+## Anatomy
+
+```tsx
+<TextareaField>      {/* root: React Aria TextField, owns value and validation */}
+  <Label />          {/* from `label` */}
+  <Textarea />       {/* the native <textarea> */}
+  <div>              {/* only when there is a description or a count */}
+    <Description />  {/* from `description` */}
+    <span />         {/* `value.length / maxLength` when `showCount` */}
+  </div>
+  <FieldError />     {/* shown only while invalid */}
+</TextareaField>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `TextareaField` | `<div>` | Root. Carries `data-slot="textarea-field"`, the `group/field` class and all state attributes. |
+| `Label` | `<label>` | Rendered when `label` is set. Adds a red `*` when `isRequired`. |
+| `Textarea` | `<textarea>` | The control itself, styled by `textareaVariants`. Carries `data-slot="textarea"`. Receives `placeholder`, `rows`, `variant` and `resize` from the field. |
+| `Description` | `<span slot="description">` | Rendered when `description` is set. Linked with `aria-describedby`. |
+| Count | `<span>` | Rendered when `showCount` and `maxLength` are both set. Right-aligned, tabular numbers. |
+| `FieldError` | `<span slot="errorMessage">` | Rendered only while the field is invalid. |
+
+## Examples
+
+### Variants
+
+`outline` for most forms, `filled` for dense layouts and tinted surfaces, `underlined` for minimal, inline editing. They match the variants of the other field components.
+
+<ComponentPreview name="textarea/variants" />
+
+### Resize behavior
+
+`resize="vertical"` (default) lets users drag the corner. `none` keeps a fixed height and scrolls. `auto` grows the textarea with its content using CSS `field-sizing: content`; in browsers without support it falls back to a fixed height. Use `rows` to set the initial height; the minimum is 80px.
+
+<ComponentPreview name="textarea/resize" />
+
+### Character count
+
+`showCount` shows `value.length / maxLength` under the field when `maxLength` is set. It works on controlled and uncontrolled fields: with `value` the count reads from it, otherwise the field tracks the length itself, starting from `defaultValue`. Your `onChange` is still called. `maxLength` also stops input at the limit.
+
+<ComponentPreview name="textarea/count" />
+
+### Disabled and read only
+
+`isDisabled` dims the field and removes it from the tab order. `isReadOnly` keeps the text focusable and selectable, which suits quoting an original message.
+
+<ComponentPreview name="textarea/disabled" />
+
+### Required and native validation
+
+`isRequired`, `minLength` and `maxLength` use the browser's constraint validation. With the default `validationBehavior="native"`, the form won't submit while the field is invalid and the browser's message appears on submit.
+
+<ComponentPreview name="textarea/validation" />
+
+### Custom validation
+
+`validate` receives the current value and returns an error string, or `null` when valid. With `validationBehavior="aria"` on the `Form`, errors appear live as the user types.
+
+<ComponentPreview name="textarea/custom-validation" />
+
+### Form submission
+
+Give the field a `name` and its value is included in `FormData`, line breaks and all.
+
+<ComponentPreview name="textarea/form" />
+
+### Standalone
+
+`Textarea` on its own is a styled `<textarea>` with the same `variant` and `resize` options. It has no label, so pass `aria-label` or `aria-labelledby`.
+
+<ComponentPreview name="textarea/standalone" />
+
+### Custom composition
+
+Build your own field from React Aria's `TextField`, the `Label`, `Description` and `FieldError` parts in `field.tsx`, and `Textarea`. Here the description sits above the input and the label row carries an "Optional" hint. Add `group/field` to the root so the label reacts to the disabled and required states.
+
+<ComponentPreview name="textarea/composition" />
+
+## Recipes
+
+### Comment composer
+
+A borderless `Textarea` inside a bordered box with a toolbar, growing with its content. <kbd>⌘</kbd> + <kbd>Enter</kbd> posts the comment via `onKeyDown`.
+
+<ComponentPreview name="textarea/recipe-comment" />
+
+### Feedback form
+
+A [`Select`](/docs/components/select) for the topic, a counted `TextareaField`, a pending submit button and a success state.
+
+<ComponentPreview name="textarea/recipe-feedback" />
+
+## Accessibility
+
+- `TextareaField` links the label, description and error message to the textarea with `aria-labelledby` and `aria-describedby`.
+- A standalone `Textarea` needs `aria-label` or `aria-labelledby`. A `placeholder` is not a label.
+- Invalid fields get `aria-invalid`, and the error text is announced.
+- The character count is plain text and isn't linked to the textarea. Mention the limit in `description` if screen-reader users need it up front.
+- <kbd>Enter</kbd> inserts a new line. If you add a submit shortcut, use a modifier (<kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>Enter</kbd>) and show it visibly, as in the comment recipe.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into and out of the textarea |
+| <kbd>Enter</kbd> | Inserts a new line |
+
+## Styling
+
+### Data attributes
+
+On the `TextareaField` root. Children can react with `group-data-*/field:` variants.
+
+| Attribute | Present when |
+| --- | --- |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+| `data-required` | `isRequired` is true |
+| `data-invalid` | Validation failed, or `isInvalid` is true |
+
+On the `Textarea` element (the variants style these):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-focused` | The textarea has focus |
+| `data-focus-visible` | Focus came from the keyboard |
+| `data-invalid` | The field is invalid |
+| `data-disabled` | The field is disabled |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `textarea-field` | Root of `TextareaField` |
+| `textarea` | `<textarea>` |
+| `label`, `description`, `field-error` | Field text |
+
+### `textareaVariants`
+
+The `tailwind-variants` function behind `Textarea`, with `variant` (`outline`, `filled`, `underlined`) and `resize` (`none`, `vertical`, `auto`). Use it to style a textarea from another library the same way.
+
+```tsx
+import { textareaVariants } from "@/components/ui/textarea";
+
+<textarea className={textareaVariants({ variant: "filled", resize: "none" })} />;
+```
+
+`className` on `TextareaField` styles the root; on `Textarea` it styles the textarea and also accepts a function of its render state (`isFocused`, `isHovered`, `isInvalid`, `isDisabled`).
+
+## API Reference
+
+### TextareaField
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text shown under the textarea." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message while invalid." },
+    placeholder: { type: "string", description: "Hint shown while the textarea is empty." },
+    rows: { type: "number", description: "Initial visible rows. The textarea is at least 80px tall." },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    resize: { type: '"none" | "vertical" | "auto"', default: '"vertical"', description: "auto grows with the content via CSS field-sizing." },
+    showCount: { type: "boolean", default: "false", description: "Shows value.length / maxLength. Requires maxLength; works controlled or uncontrolled." },
+    maxLength: { type: "number", description: "Maximum number of characters. Also enables the count." },
+    minLength: { type: "number", description: "Native minimum length constraint." },
+    value: { type: "string", description: "Controlled value." },
+    defaultValue: { type: "string", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: string) => void", description: "Called with the new value on every change." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    form: { type: "string", description: "Id of the form this field belongs to." },
+    isRequired: { type: "boolean", default: "false" },
+    isDisabled: { type: "boolean", default: "false" },
+    isReadOnly: { type: "boolean", default: "false" },
+    isInvalid: { type: "boolean", description: "Forces the invalid state, e.g. for server errors." },
+    validate: { type: "(value: string) => ValidationError | true | null | undefined", description: "Custom validation. Return an error message to mark the field invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live. Inherits from a parent Form." },
+    autoComplete: { type: "string" },
+    spellCheck: { type: "string", description: 'Browser spell checking, "true" or "false".' },
+    enterKeyHint: { type: '"enter" | "done" | "go" | "next" | "previous" | "search" | "send"' },
+    autoFocus: { type: "boolean" },
+    onKeyDown: { type: "(e: KeyboardEvent) => void", description: "Use for shortcuts such as Cmd + Enter to submit." },
+    className: { type: "string | ((state: TextFieldRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`TextField`](https://react-aria.adobe.com/TextField#api).
+
+### Textarea
+
+<TypeTable
+  type={{
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    resize: { type: '"none" | "vertical" | "auto"', default: '"vertical"' },
+    rows: { type: "number" },
+    value: { type: "string", description: "Controlled value (standalone use)." },
+    defaultValue: { type: "string" },
+    onChange: { type: "(e: ChangeEvent<HTMLTextAreaElement>) => void", description: "Native change event (standalone use). Inside a TextField, use the field's onChange instead." },
+    className: { type: "string | ((state: InputRenderProps) => string)" },
+  }}
+/>
+
+Accepts every native `<textarea>` attribute, plus the props of React Aria's [`TextArea`](https://react-aria.adobe.com/TextField#textarea). Inside a `TextField`, the field supplies the value, id and ARIA attributes.
+
+## Related
+
+- [Text Field](/docs/components/text-field) — the single-line version, and the shared field building blocks.
+- [Search Field](/docs/components/search-field) — for search queries.
+- [Select](/docs/components/select) — shares the same field variants.

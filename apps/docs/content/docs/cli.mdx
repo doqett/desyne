@@ -1,0 +1,170 @@
+---
+title: CLI & registry
+description: How the @desyne namespace works, what the CLI writes, how to update components, and how to connect the private Pro registry.
+---
+
+Desyne is distributed as a [shadcn registry](https://ui.shadcn.com/docs/registry): a
+set of JSON files, one per item, served at `/r/{name}.json`. The shadcn CLI fetches an
+item, copies its files into your project, installs its npm dependencies, follows its
+`registryDependencies` and merges any CSS variables it declares.
+
+## Namespaces
+
+Registries are configured in `components.json` under `registries`. The key is the
+namespace you type on the command line; the value is a URL template where `{name}` is
+replaced by the item name.
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "tsx": true,
+  "tailwind": { "css": "app/globals.css", "baseColor": "neutral", "cssVariables": true },
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "utils": "@/lib/utils"
+  },
+  "registries": {
+    "@desyne": "https://desyne.dev/r/{name}.json"
+  }
+}
+```
+
+| Namespace | Contents | Access |
+| --- | --- | --- |
+| `@desyne` | Components and `lib/primitive` | Public |
+| `@desyne-pro` | Pro blocks | License key ([below](#the-private-pro-registry)) |
+
+## Commands
+
+```bash
+# Add one or more components
+npx shadcn@latest add @desyne/button @desyne/dialog
+
+# Inspect an item before installing it (files, dependencies, CSS)
+npx shadcn@latest view @desyne/date-picker
+
+# Search the namespace
+npx shadcn@latest search @desyne -q date
+
+# Install straight from a URL, no namespace needed
+npx shadcn@latest add https://desyne.dev/r/combobox.json
+```
+
+## What an item contains
+
+Each component item lists its source file, npm dependencies and the other registry
+items it imports. Dependencies are inferred from the source, so they are always in
+sync with the code.
+
+```json title="/r/text-field.json (abridged)"
+{
+  "name": "text-field",
+  "type": "registry:ui",
+  "title": "Text Field",
+  "dependencies": ["react-aria-components"],
+  "registryDependencies": ["@desyne/field", "@desyne/primitive"],
+  "files": [{ "path": "components/ui/text-field.tsx", "type": "registry:ui" }]
+}
+```
+
+Adding `text-field` therefore also installs `field.tsx` and `lib/primitive.ts`, and
+`primitive` in turn depends on shadcn's own `utils` item (`lib/utils.ts`).
+
+### The `primitive` item
+
+`lib/primitive.ts` is the only shared library file. It exports:
+
+- `composeTailwindRenderProps(className, tw)`: merges a React Aria `className` (a string or a render-prop function) with Tailwind classes.
+- `focusRing`: the keyboard focus style, a 3px glow in `--ring` on `data-focus-visible`.
+- `tones` and the `Tone` type: the color system behind every `color` prop ([Theming](/docs/theming#tones)).
+
+The item also carries `cssVars`, so the first install adds `--brand`, `--success`,
+`--warning`, `--info` and `--destructive-foreground` (light and dark) to your CSS and
+maps them to Tailwind colors.
+
+## Updating components
+
+Installed components are your code, so the CLI never updates them behind your back. To
+pull a newer version:
+
+<Steps>
+<Step>
+Commit or stash your work so you can review the change.
+</Step>
+<Step>
+Re-add the component with `--overwrite`:
+
+```bash
+npx shadcn@latest add @desyne/select --overwrite
+```
+</Step>
+<Step>
+Review the diff with `git diff` and re-apply any local edits you want to keep.
+</Step>
+</Steps>
+
+<Callout title="Keep local changes small">
+  Prefer passing `className`, wrapping a component, or adding a variant over
+  rewriting internals. Small, local edits survive updates with an easy merge.
+  The [Changelog](/changelog) lists what changed in each release.
+</Callout>
+
+## The private Pro registry
+
+Pro blocks are served from the Pro site's own registry, which checks a license key on
+every request. Keys look like `dsp_` followed by 32 characters; you'll find yours on
+your account page after purchase.
+
+<Steps>
+<Step>
+### Store the key in an environment variable
+
+```bash title=".env.local"
+DESYNE_PRO_LICENSE=dsp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Never commit the key. In CI, add it as a secret with the same name.
+</Step>
+<Step>
+### Add the registry with an Authorization header
+
+```json title="components.json"
+{
+  "registries": {
+    "@desyne": "https://desyne.dev/r/{name}.json",
+    "@desyne-pro": {
+      "url": "https://pro.desyne.dev/r/{name}.json",
+      "headers": {
+        "Authorization": "Bearer ${DESYNE_PRO_LICENSE}"
+      }
+    }
+  }
+}
+```
+
+The CLI expands `${DESYNE_PRO_LICENSE}` from your environment and `.env` files when it makes
+the request.
+</Step>
+<Step>
+### Install blocks by name
+
+```bash
+npx shadcn@latest add @desyne-pro/pricing-02
+```
+
+Block files land in `components/blocks/<name>/`, and the components they use come from
+`@desyne` automatically.
+</Step>
+</Steps>
+
+| Response | Meaning |
+| --- | --- |
+| `200` | The block JSON, with file contents |
+| `401` | Missing, invalid or inactive key. Check the variable is set in the shell running the CLI |
+| `404` | No block with that name |
+
+A handful of blocks are free teasers and install without a key. See
+[Installing blocks](/docs/pro/blocks) for the full workflow.

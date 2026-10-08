@@ -1,0 +1,219 @@
+---
+title: Link
+description: Navigate to another page or resource. Three styles, an external mode that opens a new tab with an arrow, disabled and current states, and client-side routing through React Aria's RouterProvider.
+---
+
+<ComponentLinks aria="Link" source="link" />
+
+<ComponentPreview name="link/demo" />
+
+## Installation
+
+<InstallTabs name="link" />
+
+## Usage
+
+```tsx
+import { Link } from "@/components/ui/link";
+```
+
+```tsx
+<Link href="/pricing">Pricing</Link>
+```
+
+### When to use
+
+- Link — navigation: to another page, a section of this page, a file download or an email address.
+- [Button](/docs/components/button) — an action that doesn't navigate (submit, open a dialog, delete). If it needs to look like a link, use `<Button variant="link">`.
+- A button-styled link — navigation that should look like a button. Apply [`buttonVariants`](/docs/components/button#as-a-link) to a React Aria or Next.js link.
+- [Breadcrumbs](/docs/components/breadcrumbs) and [Pagination](/docs/components/pagination) — structured navigation, built on the same link.
+
+## Anatomy
+
+```tsx
+<Link href="…">   {/* <a>, or <span role="link"> without href */}
+  <Icon />        {/* optional, size it yourself */}
+  Label
+  {/* ↗ arrow, added when isExternal */}
+</Link>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Link` | `<a>` or `<span role="link">` | An `<a>` when `href` is set and the link isn't disabled; otherwise a focusable `<span>` with `role="link"`. Inline flex with a small gap. |
+| External arrow | `<svg>` | Appended after the children when `isExternal`. `aria-hidden`. |
+
+## Examples
+
+### Variants
+
+`default` is the brand-colored, medium-weight link for calls to action and standalone links. `subtle` is muted until hovered, for footers, metadata and dense navigation. `underline` keeps the text color with a soft underline, for links inside body copy where color alone isn't enough.
+
+<ComponentPreview name="link/variants" />
+
+### External
+
+`isExternal` sets `target="_blank"` and `rel="noreferrer"` and adds an arrow icon. Pass your own `target` or `rel` to override them.
+
+<ComponentPreview name="link/external" />
+
+### Disabled
+
+`isDisabled` renders a `<span>` instead of an `<a>`, removes it from the tab order and dims it. Prefer hiding links that can never be followed; disable ones that will become available.
+
+<ComponentPreview name="link/disabled" />
+
+### With icon
+
+Children are laid out in an inline flex row, so icons line up with the text. Icons aren't sized automatically; add `size-4` (or `size-3.5` for small text) and widen the gap with `gap-1.5`. `download` and `mailto:` links work as on a native `<a>`.
+
+<ComponentPreview name="link/with-icon" />
+
+### Current page
+
+Set `aria-current="page"` on the link for the page you're on. React Aria exposes it as `data-current`, so you can style it with `data-current:…`.
+
+<ComponentPreview name="link/current" />
+
+### With a router
+
+Wrap your app in React Aria's `RouterProvider` and every `Link` (plus breadcrumbs, tabs, menu items and other link-capable components) navigates with your client-side router. Modifier clicks, `target="_blank"` and cross-origin links still use the browser.
+
+```tsx title="app/providers.tsx"
+"use client";
+
+import { useRouter } from "next/navigation";
+import { RouterProvider } from "react-aria-components";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  return <RouterProvider navigate={router.push}>{children}</RouterProvider>;
+}
+```
+
+Pass router-specific options with `routerOptions`; they're forwarded as the second argument to `navigate`. Register their type once so they're type-checked:
+
+```tsx title="app/providers.tsx"
+declare module "react-aria-components" {
+  interface RouterConfig {
+    routerOptions: NonNullable<
+      Parameters<ReturnType<typeof useRouter>["push"]>[1]
+    >;
+  }
+}
+```
+
+```tsx
+<Link href="/settings" routerOptions={{ scroll: false }}>
+  Settings
+</Link>
+```
+
+To use Next.js prefetching, style `next/link` with `linkVariants` instead. Hover and focus styles in `linkVariants` rely on React Aria's `data-hovered` and `data-focus-visible` attributes, so add `hover:` and `focus-visible:` classes when using it on a plain element.
+
+## Recipes
+
+### Site footer
+
+Columns of `subtle` links grouped in labelled `<nav>` elements, with legal links and an external link in the bottom row.
+
+<ComponentPreview name="link/recipe-footer" />
+
+### Sign-in form
+
+Inline links around a form: "Forgot password?" aligned under the field, a sign-up prompt, and `underline` links in the legal text.
+
+<ComponentPreview name="link/recipe-sign-in" />
+
+## Accessibility
+
+- With `href`, renders a native `<a>`, so browser features like "open in new tab", copy link address and the status-bar preview work, and screen readers list it as a link.
+- Without `href` (or when disabled), renders a `<span role="link">` that's focusable and responds to <kbd>Enter</kbd>. Prefer a [Button](/docs/components/button) for actions.
+- `isDisabled` sets `aria-disabled` and removes the link from the tab order.
+- The focus ring appears only for keyboard focus (`data-focus-visible`).
+- The external arrow is `aria-hidden`. If opening a new tab could surprise users, say so in the text or add an `sr-only` "(opens in a new tab)".
+- Don't rely on color alone to identify links in body text; use the `underline` variant there.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the link |
+| <kbd>Enter</kbd> | Follows the link |
+
+## Styling
+
+### Data attributes
+
+| Attribute | Present when |
+| --- | --- |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-pressed` | Being pressed |
+| `data-focused` / `data-focus-visible` | Focused / focused with the keyboard |
+| `data-current` | `aria-current` is set |
+| `data-disabled` | `isDisabled` is true |
+| `data-slot="link"` | Always |
+
+### Render props
+
+`className` and `children` accept a function of the link's state:
+
+```tsx
+<Link href="/inbox" className={({ isCurrent }) => (isCurrent ? "font-semibold" : "")}>
+  {({ isHovered }) => (isHovered ? "Open inbox →" : "Inbox")}
+</Link>
+```
+
+### `linkVariants`
+
+The `tailwind-variants` function behind the component.
+
+```tsx
+import { linkVariants } from "@/components/ui/link";
+
+linkVariants({ variant: "subtle", className: "text-xs" });
+```
+
+## API Reference
+
+### Link
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "subtle" | "underline"', default: '"default"', description: 'Visual style. "muted" is accepted as a legacy alias for "subtle".' },
+    href: { type: "string", description: "The URL to link to. Without it, the link renders as a span." },
+    isExternal: { type: "boolean", default: "false", description: 'Opens in a new tab (target="_blank", rel="noreferrer") and shows an arrow.' },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the link and renders it as a span." },
+    target: { type: "string", description: "Where to open the link. Overrides the value set by isExternal." },
+    rel: { type: "string", description: "Relationship to the linked resource. Overrides the value set by isExternal." },
+    download: { type: "boolean | string", description: "Downloads the URL, optionally with a suggested file name." },
+    hrefLang: { type: "string", description: "Language of the linked page." },
+    ping: { type: "string", description: "URLs to ping when the link is followed." },
+    referrerPolicy: { type: "HTMLAttributeReferrerPolicy", description: "How much referrer information to send." },
+    routerOptions: { type: "RouterOptions", description: "Options passed to your router's navigate function." },
+    "aria-current": { type: 'boolean | "page" | "step" | "location" | "date" | "time" | "true" | "false"', description: "Marks the link as the current item. Exposed as data-current." },
+    onPress: { type: "(e: PressEvent) => void", description: "Called when the link is pressed." },
+    onHoverChange: { type: "(isHovering: boolean) => void", description: "Called when the hover state changes." },
+    autoFocus: { type: "boolean", description: "Focuses the link on mount." },
+    className: { type: "string | ((state: LinkRenderProps) => string)", description: "Classes, or a function of the render state." },
+    children: { type: "ReactNode | ((state: LinkRenderProps) => ReactNode)", description: "Content, or a function of the render state." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Link`](https://react-aria.adobe.com/Link#api).
+
+### linkVariants
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "subtle" | "underline" | "muted"', default: '"default"' },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Button](/docs/components/button) — for actions, and `buttonVariants` for button-styled links.
+- [Breadcrumbs](/docs/components/breadcrumbs) — a trail of links to parent pages.
+- [Pagination](/docs/components/pagination) — links between pages of results.
+- [Sidebar](/docs/components/sidebar) — navigation links for an app.

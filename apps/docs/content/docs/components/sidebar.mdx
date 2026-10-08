@@ -1,0 +1,475 @@
+---
+title: Sidebar
+description: A composable application sidebar. Collapses off-canvas or to an icon rail, comes in sidebar, floating and inset styles, turns into a modal sheet on small screens, and toggles with ⌘B / Ctrl+B. Menu items can be links or buttons, with badges, groups and tooltips in icon mode.
+---
+
+<ComponentLinks source="sidebar" />
+
+<ComponentPreview name="sidebar/demo" />
+
+## Installation
+
+<InstallTabs name="sidebar" />
+
+## Usage
+
+```tsx
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarSeparator,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
+```
+
+```tsx title="app/(app)/layout.tsx"
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>{/* workspace switcher */}</SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton href="/inbox" tooltip="Inbox">
+                  <InboxIcon />
+                  <span>Inbox</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>{/* user menu */}</SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header>
+          <SidebarTrigger />
+        </header>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
+```
+
+`SidebarProvider` owns the open state and renders the layout wrapper (`min-h-svh`, full width, flex row). `Sidebar` reserves its width in that row and positions the panel `fixed` to the viewport, so the page content in `SidebarInset` never sits underneath it.
+
+<Callout title="Rendering inside a box">
+  The sidebar is fixed to the viewport by default. To keep it inside a
+  bounded element (a preview, a modal, a dashboard widget), give an ancestor
+  `data-sidebar-contained` and `relative`. The panel then uses absolute
+  positioning and the ancestor's height. Every preview on this page does
+  this, and sets `className="h-full min-h-0"` on `SidebarProvider`.
+</Callout>
+
+### When to use
+
+- Sidebar — persistent primary navigation for an application with several top-level sections, especially when users switch between them often.
+- [Tabs](/docs/components/tabs) — a handful of sibling views within one page or object.
+- [Sheet](/docs/components/sheet) — temporary, secondary content that slides in over the page. On small screens the sidebar already uses a sheet for you.
+- [Menu](/docs/components/menu) — a list of actions, or navigation that should stay hidden until requested. Use it inside the sidebar for workspace and account switchers.
+
+## Anatomy
+
+```tsx
+<SidebarProvider>                  {/* state, shortcut, CSS variables, layout row */}
+  <Sidebar>                        {/* panel: desktop column or mobile sheet */}
+    <SidebarHeader />              {/* top: switcher, search */}
+    <SidebarContent>               {/* scrolls */}
+      <SidebarGroup>
+        <SidebarGroupLabel />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton />  {/* link (href) or button */}
+            <SidebarMenuBadge />   {/* optional count */}
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+    </SidebarContent>
+    <SidebarSeparator />
+    <SidebarFooter />              {/* bottom: user menu, help */}
+  </Sidebar>
+  <SidebarInset>                   {/* main content */}
+    <SidebarTrigger />
+  </SidebarInset>
+</SidebarProvider>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `SidebarProvider` | `<div>` | Provides context, the ⌘B / Ctrl+B shortcut and the `--sidebar-width` variables. Wraps both the sidebar and the inset. |
+| `Sidebar` | `<div>` (desktop), `Modal` › `Dialog` (mobile), `<div>` (`collapsible="none"`) | The panel. On desktop it renders a spacer (`sidebar-gap`) plus a fixed container (`sidebar-container` › `sidebar-inner`). |
+| `SidebarTrigger` | [`Button`](/docs/components/button) | Ghost icon button that calls `toggleSidebar()`. Renders its children in place of the default icon. |
+| `SidebarInset` | `<main>` | The page content next to the sidebar. Gets a margin, border and rounded corners when the sidebar uses `variant="inset"`. |
+| `SidebarHeader` / `SidebarFooter` | `<div>` | Fixed regions above and below the content. |
+| `SidebarContent` | `<div>` | Takes the remaining height and scrolls. Overflow is hidden in icon mode. |
+| `SidebarGroup` | `<div>` | A section of the sidebar. |
+| `SidebarGroupLabel` | `<div>` | Small uppercase heading. Fades out and collapses in icon mode. |
+| `SidebarMenu` | `<ul>` | A list of menu items. |
+| `SidebarMenuItem` | `<li>` | Positions a button and its badge. |
+| `SidebarMenuButton` | `Link` (`<a>`) or `Button` | A link when `href` is set (with `aria-current="page"` when active), a button otherwise. Optional tooltip in icon mode. |
+| `SidebarMenuBadge` | `<div>` | Count or status at the end of a menu item. Hidden in icon mode. |
+| `SidebarSeparator` | [`Separator`](/docs/components/separator) | Horizontal rule with the sidebar border color. |
+
+## Examples
+
+### Variants
+
+`variant` changes how the panel sits in the layout. `sidebar` (default) is a full-height column with a border. `floating` insets the panel with a margin, rounded corners and a shadow.
+
+<ComponentPreview name="sidebar/floating" />
+
+`inset` puts the panel on the `sidebar` background and turns `SidebarInset` into a raised, rounded card. Use it for dashboards where the content should read as one surface.
+
+<ComponentPreview name="sidebar/inset" />
+
+It works on either side. With `side="right"`, render `SidebarInset` before the `Sidebar` (as for any right sidebar); the card drops its margin on the side next to the panel.
+
+<ComponentPreview name="sidebar/inset-right" />
+
+### Collapsible modes
+
+`collapsible` controls what happens when the sidebar is closed on desktop: `offcanvas` (default) slides it out of view, `icon` shrinks it to a 3rem rail of icons, and `none` renders a static panel that can't collapse. Switch modes in the preview and press the trigger.
+
+<ComponentPreview name="sidebar/collapsible" />
+
+In icon mode, group labels and badges hide, menu buttons become 32px squares, and text in the last `<span>` of each button is clipped. Set `tooltip` on every `SidebarMenuButton` so collapsed items keep a visible label on hover and focus.
+
+### Right side
+
+`side="right"` docks the panel on the right, for details and inspector panels. Render `SidebarInset` before the `Sidebar` so the space is reserved on the correct side. On mobile the sheet slides in from the right. Pass an icon as the trigger's children to point it the right way.
+
+<ComponentPreview name="sidebar/right" />
+
+### Groups and footer
+
+Split long navigation into `SidebarGroup`s with a `SidebarGroupLabel` each. `SidebarFooter` stays pinned to the bottom while `SidebarContent` scrolls; a `SidebarSeparator` divides them.
+
+<ComponentPreview name="sidebar/groups" />
+
+### Menu button sizes
+
+`size="lg"` (48px) for workspace and user switchers with two lines of text, `default` (32px) for primary navigation, and `sm` (28px) for dense or secondary lists.
+
+<ComponentPreview name="sidebar/menu-sizes" />
+
+### Collapsible submenus
+
+Nest a `SidebarMenu` inside a React Aria `Disclosure`, and give the `SidebarMenuButton` `slot="trigger"` to toggle it. The button gets `aria-expanded` automatically. Animate the panel height with `--disclosure-panel-height`, as the [Disclosure](/docs/components/disclosure) component does.
+
+<ComponentPreview name="sidebar/submenu" />
+
+### Active item and routing
+
+Mark the current page with `isActive`; for links it also sets `aria-current="page"`. Derive it from your router's current path, and wrap the app in React Aria's `RouterProvider` so menu links use client-side navigation. The preview uses a local stand-in for the router.
+
+<ComponentPreview name="sidebar/router" />
+
+With the Next.js App Router:
+
+```tsx title="app/providers.tsx"
+"use client";
+
+import { useRouter } from "next/navigation";
+import { RouterProvider } from "react-aria-components";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  return <RouterProvider navigate={router.push}>{children}</RouterProvider>;
+}
+```
+
+```tsx title="components/nav-main.tsx"
+"use client";
+
+import { usePathname } from "next/navigation";
+
+export function NavMain({ items }: { items: { href: string; title: string; icon: React.ElementType }[] }) {
+  const pathname = usePathname();
+  return (
+    <SidebarMenu>
+      {items.map((item) => (
+        <SidebarMenuItem key={item.href}>
+          <SidebarMenuButton href={item.href} isActive={pathname === item.href} tooltip={item.title}>
+            <item.icon />
+            <span>{item.title}</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
+  );
+}
+```
+
+### Controlled
+
+Pass `open` and `onOpenChange` to `SidebarProvider` to own the desktop state, for example to persist it in a cookie or user setting. On desktop, the trigger, the keyboard shortcut and anything calling `setOpen` all go through `onOpenChange`. The mobile sheet keeps its own state.
+
+<ComponentPreview name="sidebar/controlled" />
+
+```tsx
+// Persist the state between visits.
+const [open, setOpen] = useState(defaultOpenFromCookie);
+
+<SidebarProvider
+  open={open}
+  onOpenChange={(value) => {
+    setOpen(value);
+    document.cookie = `sidebar_state=${value}; path=/; max-age=31536000`;
+  }}
+/>;
+```
+
+### useSidebar
+
+Any component inside `SidebarProvider` can read and change the state with `useSidebar()`. Use it for custom triggers, or to adapt content to the collapsed state. It throws if called outside a provider.
+
+<ComponentPreview name="sidebar/use-sidebar" />
+
+### Static sidebar
+
+`collapsible="none"` renders a plain, always-visible `<div>` with no container, spacer or mobile sheet. Use it for secondary navigation inside a page, such as settings.
+
+It stays inline on every screen size, as in shadcn/ui: below 768px it doesn't become a sheet or hide, and `SidebarTrigger` and the shortcut don't affect it. It's a normal flex item, so it never overlays the page, but in a row it shrinks with the layout; on narrow screens you may want to stack it above the content or swap it for a [Select](/docs/components/select) or [Tabs](/docs/components/tabs).
+
+<ComponentPreview name="sidebar/none" />
+
+### Mobile
+
+Below 768px (`max-width: 767px`) the desktop panel is hidden, and `Sidebar` renders as a modal sheet from its `side` instead. The trigger and the shortcut toggle the sheet (`openMobile`), which is separate from the desktop `open` state, so collapsing on desktop doesn't affect mobile. The sheet has a backdrop, traps focus, and closes on <kbd>Esc</kbd> or an outside click.
+
+Pressing a link inside the sheet closes it, with the mouse, touch or <kbd>Enter</kbd>. This covers any `<a href>` in the sheet, whether it's a `SidebarMenuButton` link or a link in your own markup. Clicks that open a new tab or window (with a modifier key, `target="_blank"` or `download`) leave it open, and so do button items. Pass `closeOnNavigate={false}` to keep the sheet open, or call `setOpenMobile(false)` from `useSidebar()` to close it after a button press.
+
+`className` and `style` on `Sidebar` also apply to the sheet. Use `max-md:` classes to style only the sheet, and `md:` classes to style only the desktop panel.
+
+<ComponentPreview name="sidebar/mobile" />
+
+The breakpoint is based on the viewport width (via `useIsMobile()`), not the container, so contained previews on a wide screen always show the desktop sidebar. Resize the browser window to see the sheet.
+
+## Recipes
+
+### App shell
+
+An `inset` sidebar with icon collapsing: a workspace switcher [`Menu`](/docs/components/menu) in the header, primary navigation with a badge, a projects group, and an account menu in the footer. The content area has a trigger and [`Breadcrumbs`](/docs/components/breadcrumbs).
+
+<ComponentPreview name="sidebar/recipe-app-shell" />
+
+### Mail
+
+Folders and labels with unread counts in `SidebarMenuBadge`. The Compose button reads `useSidebar()` to collapse to an icon and show its tooltip only in icon mode, matching the menu buttons.
+
+<ComponentPreview name="sidebar/recipe-mail" />
+
+### Documentation
+
+A documentation layout: title and [`SearchField`](/docs/components/search-field) in the header, small link items grouped by section, and a scrolling content area.
+
+<ComponentPreview name="sidebar/recipe-docs" />
+
+## Accessibility
+
+- `SidebarMenuButton` renders a real link when given `href`, with `aria-current="page"` when `isActive`, so middle-click, "open in new tab" and screen-reader link lists work. Without `href` it's a button.
+- Wrap navigation in landmarks as your layout needs; `SidebarInset` renders the page's `<main>`.
+- In icon mode, give every `SidebarMenuButton` a `tooltip`. The text stays in the DOM and keeps naming the item for assistive tech; the tooltip gives sighted users the same label.
+- Tooltips only show when the sidebar is collapsed to icons on desktop; they're disabled when expanded and on mobile.
+- `SidebarTrigger` has `aria-label="Toggle sidebar"`. Pass your own `aria-label` to change it.
+- On mobile the sidebar is a modal `Dialog` labelled "Sidebar": focus moves into it, is trapped while open and returns to the trigger on close.
+- The ⌘B / Ctrl+B shortcut is registered on `window` by each `SidebarProvider` and calls `preventDefault()`, so it replaces any browser or editor shortcut on the same keys while the page is focused. Advertise it with a [`Kbd`](/docs/components/kbd) hint.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>⌘</kbd>+<kbd>B</kbd> / <kbd>Ctrl</kbd>+<kbd>B</kbd> | Toggles the sidebar (the sheet on mobile) |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves between menu items and other controls |
+| <kbd>Enter</kbd> | Follows a link item, or presses a button item |
+| <kbd>Space</kbd> | Presses a button item (or a submenu trigger) |
+| <kbd>Esc</kbd> | Closes the mobile sheet |
+
+## Styling
+
+### Data attributes
+
+On the desktop `Sidebar` root (`data-slot="sidebar"`, which also has the `group` and `peer` classes):
+
+| Attribute | Values |
+| --- | --- |
+| `data-state` | `expanded` or `collapsed` |
+| `data-collapsible` | The `collapsible` mode while collapsed (`offcanvas` or `icon`); empty while expanded |
+| `data-variant` | `sidebar`, `floating` or `inset` |
+| `data-side` | `left` or `right` |
+
+Style anything inside the sidebar by state with `group-data-*`, for example `group-data-[collapsible=icon]:hidden` to hide an element in icon mode. Style siblings after it with `peer-data-*`. `SidebarInset` styles itself for the inset variant from the wrapper (`group-has-*` on `sidebar-wrapper`), so it works whether it comes before or after the `Sidebar`. The mobile sheet instead has `data-slot="sidebar"`, `data-mobile="true"` and `data-side`.
+
+On `SidebarMenuButton`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-active` | `"true"` when `isActive`, `"false"` otherwise |
+| `data-hovered` / `data-pressed` | Hovered / being pressed |
+| `data-focused` / `data-focus-visible` | Focused / focused with the keyboard |
+| `data-disabled` | `isDisabled` is true |
+| `data-current` | Link items with `isActive` (from `aria-current`) |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `sidebar-wrapper` | `SidebarProvider` root |
+| `sidebar` | `Sidebar` root |
+| `sidebar-gap` | Spacer that reserves the sidebar's width on desktop |
+| `sidebar-container` | The fixed (or contained absolute) panel on desktop |
+| `sidebar-inner` | The panel's background surface |
+| `sidebar-trigger` | `SidebarTrigger` |
+| `sidebar-inset` | `SidebarInset` |
+| `sidebar-header`, `sidebar-content`, `sidebar-footer` | Regions |
+| `sidebar-group`, `sidebar-group-label` | Groups |
+| `sidebar-menu`, `sidebar-menu-item`, `sidebar-menu-button`, `sidebar-menu-badge` | Menu parts |
+| `sidebar-separator` | `SidebarSeparator` |
+
+### CSS variables
+
+| Variable | Default | Used for |
+| --- | --- | --- |
+| `--sidebar-width` | `16rem` | Expanded width, desktop and mobile |
+| `--sidebar-width-icon` | `3rem` | Width in icon mode |
+
+Set them on `SidebarProvider` with `style`:
+
+```tsx
+<SidebarProvider
+  style={{ "--sidebar-width": "18rem", "--sidebar-width-icon": "3.5rem" } as React.CSSProperties}
+/>
+```
+
+The colors come from theme tokens: `--sidebar` (background), `--sidebar-foreground`, `--sidebar-border`, `--sidebar-accent` and `--sidebar-accent-foreground` (active item), `--sidebar-primary` (active item icon) and `--sidebar-ring`. See [Theming](/docs/theming).
+
+### Customizing
+
+- On desktop, `className` and other props on `Sidebar` go to `sidebar-container`, the fixed panel. With `collapsible="none"` they go to the root `<div>`. On mobile, `className` and `style` go to the sheet (the `Modal`); other `<div>` props aren't applied there.
+- `SidebarMenuButton` truncates its last `<span>`, so wrap labels in a `<span>` and put icons first.
+- `SidebarMenuBadge` is absolutely positioned for the `default` button height. Add padding to the button (`pr-8`) if long labels could run under it.
+
+### `sidebarMenuButtonVariants`
+
+The `tailwind-variants` function behind `SidebarMenuButton`. Use it to give other elements, such as a Next.js `Link`, the look of a menu item.
+
+```tsx
+import { sidebarMenuButtonVariants } from "@/components/ui/sidebar";
+
+sidebarMenuButtonVariants({ size: "sm" });
+```
+
+## API Reference
+
+### SidebarProvider
+
+<TypeTable
+  type={{
+    defaultOpen: { type: "boolean", default: "true", description: "Initial desktop state (uncontrolled)." },
+    open: { type: "boolean", description: "Desktop open state (controlled). Use with onOpenChange." },
+    onOpenChange: { type: "(open: boolean) => void", description: "Called when the desktop state changes, from the trigger, shortcut or setOpen." },
+    style: { type: "CSSProperties", description: "Merged after the default --sidebar-width and --sidebar-width-icon, so you can override them." },
+    className: { type: "string", description: "Classes for the wrapper. It has min-h-svh by default." },
+    children: { type: "ReactNode", description: "Usually a Sidebar and a SidebarInset." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### Sidebar
+
+<TypeTable
+  type={{
+    side: { type: '"left" | "right"', default: '"left"', description: "Which edge the panel (and the mobile sheet) sits on." },
+    variant: { type: '"sidebar" | "floating" | "inset"', default: '"sidebar"', description: "How the panel sits in the layout." },
+    collapsible: { type: '"offcanvas" | "icon" | "none"', default: '"offcanvas"', description: "What collapsing does on desktop. none renders a static, inline panel on every screen size, with no mobile sheet." },
+    closeOnNavigate: { type: "boolean", default: "true", description: "Close the mobile sheet when a link inside it is pressed. Clicks that open a new tab or window keep it open." },
+    className: { type: "string", description: "Classes for the panel container (desktop), the sheet (mobile) or the root (none)." },
+    style: { type: "CSSProperties", description: "Styles for the same element as className." },
+    children: { type: "ReactNode", description: "Header, content, footer and separators." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### SidebarMenuButton
+
+<TypeTable
+  type={{
+    href: { type: "string", description: "Renders a React Aria Link. Without it, a React Aria Button." },
+    isActive: { type: "boolean", default: "false", description: "Marks the current item. Sets data-active, and aria-current=\"page\" on links." },
+    tooltip: { type: "string", description: "Label shown in a tooltip on the right when the sidebar is collapsed to icons (desktop only)." },
+    size: { type: '"sm" | "default" | "lg"', default: '"default"', description: "Height: 28px, 32px or 48px." },
+    onPress: { type: "(e: PressEvent) => void", description: "Called when the item is pressed." },
+    isDisabled: { type: "boolean", description: "Disables the item." },
+    slot: { type: "string", description: 'React Aria slot, e.g. "trigger" inside a Disclosure. Button items only.' },
+    target: { type: "string", description: "Link target. Link items only." },
+    routerOptions: { type: "RouterOptions", description: "Options passed to your router's navigate function. Link items only." },
+    className: { type: "string", description: "Extra classes, merged with sidebarMenuButtonVariants." },
+    children: { type: "ReactNode", description: "An icon followed by a <span> label." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Link`](https://react-aria.adobe.com/Link#api) (with `href`) or [`Button`](https://react-aria.adobe.com/Button#api) (without).
+
+### SidebarTrigger
+
+A ghost, `icon-sm` [`Button`](/docs/components/button) with a panel icon. Pass children to replace the icon, for example `<PanelRightIcon />` for a right sidebar, or text with `size="sm"`. It keeps `aria-label="Toggle sidebar"` unless you pass your own, so with visible text pass a matching `aria-label` (or `aria-label={undefined}`). Accepts every button prop; `onPress` runs before the sidebar toggles.
+
+### SidebarInset
+
+Accepts every prop of `<main>`.
+
+### SidebarHeader / SidebarFooter / SidebarContent / SidebarGroup / SidebarGroupLabel / SidebarMenuBadge
+
+Accept every prop of `<div>`.
+
+### SidebarMenu / SidebarMenuItem
+
+Accept every prop of `<ul>` / `<li>`.
+
+### SidebarSeparator
+
+Accepts every prop of [`Separator`](/docs/components/separator).
+
+### useSidebar
+
+Returns the sidebar state. Must be called inside `SidebarProvider`.
+
+<TypeTable
+  type={{
+    state: { type: '"expanded" | "collapsed"', description: "Desktop state, derived from open." },
+    open: { type: "boolean", description: "Whether the desktop sidebar is expanded." },
+    setOpen: { type: "(open: boolean) => void", description: "Expands or collapses the desktop sidebar." },
+    openMobile: { type: "boolean", description: "Whether the mobile sheet is open." },
+    setOpenMobile: { type: "(open: boolean) => void", description: "Opens or closes the mobile sheet." },
+    isMobile: { type: "boolean", description: "Whether the viewport is narrower than 768px." },
+    toggleSidebar: { type: "() => void", description: "Toggles the sheet on mobile, the desktop sidebar otherwise." },
+  }}
+/>
+
+### useIsMobile
+
+`useIsMobile(): boolean` — `true` when `(max-width: 767px)` matches. Subscribes to the media query, and returns `false` during server rendering.
+
+## Related
+
+- [Sheet](/docs/components/sheet) — the modal panel the sidebar becomes on mobile.
+- [Menu](/docs/components/menu) — workspace and account switchers.
+- [Tooltip](/docs/components/tooltip) — labels for icon-only items.
+- [Breadcrumbs](/docs/components/breadcrumbs) — show the current location in the content header.
+- [Tabs](/docs/components/tabs) — navigation between views within a page.

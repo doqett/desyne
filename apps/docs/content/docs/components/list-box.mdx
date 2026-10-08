@@ -1,0 +1,315 @@
+---
+title: List Box
+description: An always-visible list of options with single or multiple selection, sections, rich two-line items, links and actions, typeahead, drag and drop, grid layouts and infinite loading. It's the list inside Select and Combo Box.
+---
+
+<ComponentLinks aria="ListBox" source="list-box" />
+
+<ComponentPreview name="list-box/demo" />
+
+## Installation
+
+<InstallTabs name="list-box" />
+
+## Usage
+
+```tsx
+import {
+  ListBox,
+  ListBoxItem,
+  ListBoxItemDescription,
+  ListBoxItemLabel,
+  ListBoxSection,
+} from "@/components/ui/list-box";
+```
+
+```tsx
+<ListBox aria-label="Environment" selectionMode="single">
+  <ListBoxItem id="development">Development</ListBoxItem>
+  <ListBoxItem id="staging">Staging</ListBoxItem>
+  <ListBoxItem id="production">Production</ListBoxItem>
+</ListBox>
+```
+
+<Callout title="Options, not controls">
+  List box items are `role="option"` and can't contain interactive elements
+  like buttons, checkboxes or links inside them. If each row needs its own
+  actions, use a [Grid List](/docs/components/grid-list) instead.
+</Callout>
+
+### When to use
+
+- List Box — choosing one or more values from a visible list: a picker panel, a sidebar filter, a transfer list.
+- [Select](/docs/components/select) / [Combo Box](/docs/components/combobox) — the same list in a popover, to save space in forms.
+- [Grid List](/docs/components/grid-list) — rows that hold buttons, menus or checkboxes, or need drag handles.
+- [Menu](/docs/components/menu) — a list of commands, not a value.
+- [Checkbox Group](/docs/components/checkbox) / [Radio Group](/docs/components/radio-group) — a few options inside a form.
+
+## Anatomy
+
+```tsx
+<ListBox>                          {/* role="listbox" */}
+  <ListBoxSection title="…">       {/* optional group with a heading */}
+    <ListBoxItem id="…">           {/* role="option" */}
+      <Icon />
+      <ListBoxItemLabel />         {/* accessible name */}
+      <ListBoxItemDescription />   {/* accessible description */}
+    </ListBoxItem>                 {/* checkmark added when selected */}
+  </ListBoxSection>
+</ListBox>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ListBox` | `<div role="listbox">` | Scrollable, bordered panel (`bg-popover`). Shows `renderEmptyState` when empty. |
+| `ListBoxItem` | `<div role="option">` | Needs a unique `id` (or comes from `items`). Adds a trailing check icon when selected. Plain-string children become the `textValue`. |
+| `ListBoxItemLabel` | `<span slot="label">` | Primary text of a rich item, truncated. |
+| `ListBoxItemDescription` | `<span slot="description">` | Secondary text, muted. |
+| `ListBoxSection` | `<section role="group">` | Groups items under an optional `title`, with a divider between sections. |
+| `ListBoxLoadMoreItem` | `<div>` | From `react-aria-components`. Triggers `onLoadMore` when scrolled into view. |
+
+## Examples
+
+### Selection modes
+
+`selectionMode` is `none` by default (a static or actionable list), `single` or `multiple`.
+
+<ComponentPreview name="list-box/selection-modes" />
+
+### Controlled selection
+
+`selectedKeys` and `onSelectionChange` own the selection. The value is a `Selection`: a `Set` of keys, or the string `"all"` after <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> or `setSelected("all")`, so handle both.
+
+<ComponentPreview name="list-box/controlled" />
+
+### Selection behavior
+
+`selectionBehavior="replace"` makes a click select only that item, like a file browser. <kbd>⌘</kbd>/<kbd>Ctrl</kbd> and <kbd>Shift</kbd> add to or extend the selection; arrow keys move the selection with focus. The default `toggle` adds and removes items on every click.
+
+<ComponentPreview name="list-box/selection-behavior" />
+
+### Disabled items
+
+`disabledKeys` keeps items visible but not focusable or selectable. `isDisabled` on a `ListBoxItem` does the same for one item.
+
+<ComponentPreview name="list-box/disabled" />
+
+### Sections
+
+`ListBoxSection` groups items under a heading. Selection works across sections.
+
+<ComponentPreview name="list-box/sections" />
+
+### Dynamic sections
+
+Pass nested data to `items` and render sections with a function; each section takes its own `items`. Every object needs an `id` (or `key`).
+
+<ComponentPreview name="list-box/dynamic-sections" />
+
+### Rich items
+
+Compose icons with `ListBoxItemLabel` and `ListBoxItemDescription`. They're wired to the option's accessible name and description. Set `textValue` for typeahead when children aren't a plain string.
+
+<ComponentPreview name="list-box/rich-items" />
+
+### Actions
+
+With `selectionMode="none"`, `onAction` turns items into actions (open, run, navigate). To combine actions with selection, use `selectionBehavior="replace"`: a click selects, and a double click or <kbd>Enter</kbd> triggers `onAction`.
+
+<ComponentPreview name="list-box/actions" />
+
+### Links
+
+Give items an `href` (and optionally `target`) to render them as links. They navigate with a click or <kbd>Enter</kbd>, and work with client-side routers through React Aria's `RouterProvider`.
+
+<ComponentPreview name="list-box/links" />
+
+### Empty state
+
+`renderEmptyState` renders when there are no items. The list gets `data-empty` and centered, muted text.
+
+<ComponentPreview name="list-box/empty" />
+
+### Infinite loading
+
+Put the items in a `Collection` followed by `ListBoxLoadMoreItem`. When the sentinel scrolls into view it calls `onLoadMore`; `useAsyncList` manages pages, cursors and loading state. Give the list a fixed height so it scrolls.
+
+<ComponentPreview name="list-box/async" />
+
+### Drag to reorder
+
+Pass `dragAndDropHooks` from `useDragAndDrop` and update your data in `onReorder`. `renderDropIndicator` with React Aria's `DropIndicator` draws the insertion line. Dragging works with mouse, touch, keyboard and screen readers.
+
+<ComponentPreview name="list-box/reorder" />
+
+### Grid layout
+
+`layout="grid"` switches keyboard navigation to two dimensions, so arrow keys move up, down, left and right across a CSS grid. Here tiles hide the trailing checkmark and show selection with a ring instead.
+
+<ComponentPreview name="list-box/grid-layout" />
+
+## Recipes
+
+### Searchable list
+
+React Aria's `Autocomplete` connects a [`SearchField`](/docs/components/search-field) to the list: typing filters with `useFilter`, and arrow keys move through results while focus stays in the input.
+
+<ComponentPreview name="list-box/recipe-filterable" />
+
+### Transfer list
+
+Two multi-select lists backed by `useListData`, with buttons to move the selection across. With `selectionBehavior="replace"`, a click selects and `onAction` (double click or <kbd>Enter</kbd>) moves a single item.
+
+<ComponentPreview name="list-box/recipe-transfer" />
+
+### Reviewer picker
+
+Sections for suggested and team reviewers, [`Avatar`](/docs/components/avatar)s with two-line items, and a footer that reflects the controlled selection.
+
+<ComponentPreview name="list-box/recipe-reviewers" />
+
+## Accessibility
+
+- The list is `role="listbox"` (with `aria-multiselectable` in multiple mode), and items are `role="option"` with `aria-selected`.
+- Always label the list with `aria-label` or `aria-labelledby`.
+- Focus is managed with a roving tab index: the list is one tab stop, and arrow keys move between items.
+- Typeahead jumps to the next item whose `textValue` starts with the typed characters.
+- Sections are `role="group"` labelled by their heading.
+- `ListBoxItemLabel` and `ListBoxItemDescription` become the option's `aria-labelledby` and `aria-describedby`.
+- Drag and drop exposes keyboard and screen reader interactions automatically, with announcements for each step.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into the list (to the selected or first item) and out again |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Moves focus to the previous / next item (←/→ too in grid layout) |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves focus to the first / last item |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Moves focus by a page |
+| <kbd>Space</kbd> | Toggles selection of the focused item |
+| <kbd>Enter</kbd> | Selects, or triggers `onAction` / follows the link |
+| <kbd>Shift</kbd>+<kbd>↑</kbd> / <kbd>Shift</kbd>+<kbd>↓</kbd> | Extends the selection (multiple) |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> | Selects all (multiple) |
+| <kbd>Esc</kbd> | Clears the selection (unless `escapeKeyBehavior="none"`) |
+| Any character | Typeahead |
+
+## Styling
+
+### Data attributes
+
+On the `ListBox`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-empty` | There are no items |
+| `data-focused` / `data-focus-visible` | The list itself has focus / keyboard focus |
+| `data-drop-target` | Something is being dragged over the list |
+| `data-layout` | Always: `stack` or `grid` |
+| `data-orientation` | Always: `vertical` or `horizontal` |
+
+On each `ListBoxItem` (use `group-data-*/item:` inside it):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | The item is selected |
+| `data-focused` / `data-focus-visible` | The item has focus (including virtual focus) / keyboard focus |
+| `data-hovered` / `data-pressed` | Hovered with a mouse / being pressed |
+| `data-disabled` | The item is disabled |
+| `data-selection-mode` | `single` or `multiple` |
+| `data-allows-dragging` / `data-dragging` | Drag and drop is enabled / the item is being dragged |
+| `data-drop-target` | The item is the current drop target |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `list-box` | Root |
+| `list-box-item` | Each item |
+| `list-box-section` | Each section |
+
+### Style helpers
+
+`listBoxItemStyles` is the class string for items. Reuse it to make other option-like elements match:
+
+```tsx
+import { listBoxItemStyles } from "@/components/ui/list-box";
+```
+
+- The list has `max-h-[inherit]` and `overflow-auto`, so inside a popover it scrolls within the popover's height. Standalone, give it a `max-h-*` or `h-*`.
+- Items reserve `pr-8` for the checkmark. Override with `className` when you hide it.
+- Icons inside items are sized to `size-4` and muted unless they set their own `size-*` or `text-*` class.
+- `className` on `ListBox` and `ListBoxItem` also accepts a function of the render props.
+
+## API Reference
+
+### ListBox
+
+<TypeTable
+  type={{
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Static items and sections, or a render function." },
+    selectionMode: { type: '"none" | "single" | "multiple"', default: '"none"' },
+    selectionBehavior: { type: '"toggle" | "replace"', default: '"toggle"', description: "How clicks and arrow keys affect selection." },
+    selectedKeys: { type: '"all" | Iterable<Key>', description: "Controlled selection." },
+    defaultSelectedKeys: { type: '"all" | Iterable<Key>', description: "Uncontrolled initial selection." },
+    onSelectionChange: { type: "(keys: Selection) => void", description: "Called when the selection changes." },
+    disallowEmptySelection: { type: "boolean", default: "false", description: "Prevents deselecting the last item." },
+    disabledKeys: { type: "Iterable<Key>", description: "Items that can't be focused or selected." },
+    onAction: { type: "(key: Key) => void", description: "Called when an item is actioned." },
+    renderEmptyState: { type: "(props: ListBoxRenderProps) => ReactNode", description: "Content shown when there are no items." },
+    dragAndDropHooks: { type: "DragAndDropHooks", description: "From useDragAndDrop, to enable drag and drop." },
+    layout: { type: '"stack" | "grid"', default: '"stack"', description: "grid enables two-dimensional keyboard navigation." },
+    orientation: { type: '"vertical" | "horizontal"', default: '"vertical"', description: "Primary direction of the items." },
+    shouldFocusWrap: { type: "boolean", description: "Wraps focus from the last item to the first." },
+    shouldFocusOnHover: { type: "boolean", description: "Moves focus to items on hover." },
+    shouldSelectOnPressUp: { type: "boolean", description: "Selects on pointer up instead of down." },
+    escapeKeyBehavior: { type: '"clearSelection" | "none"', default: '"clearSelection"' },
+    autoFocus: { type: 'boolean | "first" | "last"', description: "Focuses the list, or its first / last item, on mount." },
+    dependencies: { type: "ReadonlyArray<any>", description: "Values that invalidate cached item rendering." },
+    "aria-label": { type: "string", description: "Accessible name. Required unless you pass aria-labelledby." },
+    className: { type: "string | ((state: ListBoxRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ListBox`](https://react-aria.adobe.com/ListBox#api).
+
+### ListBoxItem
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique key. Set automatically from item.id with dynamic items." },
+    textValue: { type: "string", description: "Plain text for typeahead. Defaults to children when they're a string." },
+    isDisabled: { type: "boolean", description: "Disables this item." },
+    value: { type: "T", description: "The item object, when using dynamic collections." },
+    href: { type: "string", description: "Renders the item as a link." },
+    target: { type: "string", description: "Link target, e.g. _blank." },
+    onAction: { type: "() => void", description: "Called when this item is actioned." },
+    "aria-label": { type: "string", description: "Accessible name when children aren't text." },
+    className: { type: "string | ((state: ListBoxItemRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: ListBoxItemRenderProps) => ReactNode)" },
+  }}
+/>
+
+### ListBoxSection
+
+<TypeTable
+  type={{
+    title: { type: "string", description: "Heading shown above the group; also its accessible name." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)" },
+    id: { type: "Key" },
+    "aria-label": { type: "string", description: "Accessible name when there's no title." },
+    className: { type: "string" },
+  }}
+/>
+
+### ListBoxItemLabel / ListBoxItemDescription
+
+Accept every prop of React Aria's [`Text`](https://react-aria.adobe.com/ListBox#text-slots). They set `slot="label"` and `slot="description"`.
+
+## Related
+
+- [Select](/docs/components/select) — this list in a popover, for one value in a form.
+- [Combo Box](/docs/components/combobox) — a searchable select.
+- [Grid List](/docs/components/grid-list) — interactive rows with actions and checkboxes.
+- [Tag Group](/docs/components/tag-group) — compact, removable selections.

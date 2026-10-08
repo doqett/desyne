@@ -1,0 +1,136 @@
+---
+title: Progress Circle
+description: Circular progress on React Aria's ProgressBar. Determinate or indeterminate, in four sizes and seven colors, with the value, your own text or an icon in the middle of the ring. Respects reduced motion.
+---
+
+<ComponentLinks aria="ProgressBar" source="progress-circle" />
+
+<ComponentPreview name="progress-circle/demo" />
+
+## Installation
+
+<InstallTabs name="progress-circle" />
+
+## Usage
+
+```tsx
+import { ProgressCircle } from "@/components/ui/progress-circle";
+```
+
+```tsx
+<ProgressCircle aria-label="Uploading photos" value={64} />
+
+<ProgressCircle aria-label="Syncing" isIndeterminate />
+```
+
+<Callout title="Also exported from progress-bar">
+  `ProgressCircle` used to live in `progress-bar.tsx`, which still re-exports
+  it, so existing `@/components/ui/progress-bar` imports keep working.
+</Callout>
+
+### When to use
+
+- Progress Circle: progress in a compact or square space, such as cards, dashboards, avatars and buttons, or a goal shown as a ring.
+- [Progress Bar](/docs/components/progress-bar): progress with a visible label in forms, lists and dialogs.
+- [Meter](/docs/components/meter): a level within a range that isn't a task (storage, quota).
+- [Spinner](/docs/components/spinner): plain waiting with no progress to report.
+
+## Anatomy
+
+```tsx
+<ProgressCircle>            {/* role="progressbar" */}
+  {/* svg: track circle + fill circle (aria-hidden) */}
+  {/* center: value text or children */}
+</ProgressCircle>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ProgressCircle` | `<div role="progressbar">` | React Aria `ProgressBar`. Sets `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext`. |
+| Ring | `<svg aria-hidden>` | Track at 15% tone, fill drawn with `stroke-dashoffset` (500ms transition). Spins when indeterminate. |
+| Center | `<span>` | The formatted value (`md` and up), or `children` when passed. |
+
+## Examples
+
+### Sizes
+
+`sm` (20px) for inline status next to text, `md` (48px, default), `lg` (80px) and `xl` (120px) for dashboards. The value is shown from `md` up. `strokeWidth` overrides the ring thickness.
+
+<ComponentPreview name="progress-circle/sizes" />
+
+### Indeterminate
+
+`isIndeterminate` spins a quarter ring and hides the value. With reduced motion, it pulses instead of spinning.
+
+<ComponentPreview name="progress-circle/indeterminate" />
+
+### Colors
+
+`color` takes any tone; the track uses the same tone at 15%.
+
+<ComponentPreview name="progress-circle/colors" />
+
+### Custom center content
+
+`children` replaces the value in the middle of the ring. Pass a function to read the render props (`percentage`, `valueText`, `isIndeterminate`). Set `valueLabel` so screen readers hear the same thing you show.
+
+<ComponentPreview name="progress-circle/custom-content" />
+
+## Recipes
+
+### Goals
+
+Small circles next to text, each labelled by its heading with `aria-labelledby`, and `maxValue` set to the goal so the ring maps to real units.
+
+<ComponentPreview name="progress-circle/recipe-goals" />
+
+## Accessibility
+
+- Renders `role="progressbar"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext`. Indeterminate circles omit the value.
+- There's no `label` prop, so always pass `aria-label` or `aria-labelledby`.
+- `aria-valuetext` is your `valueLabel`, or the value formatted with `formatOptions`. Custom center content is visual only, so keep `valueLabel` in sync with it.
+- The SVG is `aria-hidden`.
+- Respects `prefers-reduced-motion`: the fill jumps to each value, and the indeterminate ring pulses instead of spinning.
+- Progress circles aren't live regions. To announce completion, update a `role="status"` element.
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="progress-circle"` | Root |
+| `data-slot="progress-circle-label"` | Center content |
+
+### Tone variables
+
+`color` sets `--tone` on the root. The track uses `stroke-(--tone)/15` and the fill `stroke-(--tone)`.
+
+## API Reference
+
+<TypeTable
+  type={{
+    value: { type: "number", default: "0", description: "Current value." },
+    minValue: { type: "number", default: "0", description: "Start of the range." },
+    maxValue: { type: "number", default: "100", description: "End of the range." },
+    isIndeterminate: { type: "boolean", description: "Spinning ring with no value." },
+    size: { type: '"sm" | "md" | "lg" | "xl"', default: '"md"', description: "Diameter: 20, 48, 80 or 120px." },
+    strokeWidth: { type: "number", description: "Ring thickness in px. Defaults to 3, 4, 6 or 8 by size." },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', default: '"brand"', description: "Tone of the ring." },
+    showValue: { type: "boolean", default: "true", description: "Shows the value text in the middle (md and up)." },
+    children: { type: "ReactNode | ((values: ProgressBarRenderProps) => ReactNode)", description: "Custom center content, replacing the value." },
+    valueLabel: { type: "ReactNode", description: "Replaces the formatted value. Also used as aria-valuetext, so prefer a string." },
+    formatOptions: { type: "Intl.NumberFormatOptions", default: "{ style: 'percent' }", description: "How the value is formatted." },
+    "aria-label": { type: "string", description: "Accessible name." },
+    "aria-labelledby": { type: "string", description: "Id of an element that labels the circle." },
+    className: { type: "string | ((state: ProgressBarRenderProps) => string)", description: "Classes, or a function of the render state." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ProgressBar`](https://react-aria.adobe.com/ProgressBar#api).
+
+## Related
+
+- [Progress Bar](/docs/components/progress-bar): the same information as a bar, with a label.
+- [Spinner](/docs/components/spinner): waiting without progress.
+- [Meter](/docs/components/meter): a level within a range.

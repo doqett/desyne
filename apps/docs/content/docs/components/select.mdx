@@ -1,0 +1,282 @@
+---
+title: Select
+description: Pick a single option from a collapsible list. Supports icons, avatars, descriptions, sections, typeahead, form submission and validation.
+---
+
+<ComponentLinks aria="Select" source="select" />
+
+<ComponentPreview name="select/demo" />
+
+## Installation
+
+<InstallTabs name="select" />
+
+## Usage
+
+```tsx
+import {
+  Select,
+  SelectItem,
+  SelectItemDescription,
+  SelectItemLabel,
+  SelectSection,
+} from "@/components/ui/select";
+```
+
+```tsx
+<Select label="Role" placeholder="Select a role">
+  <SelectItem id="admin">Admin</SelectItem>
+  <SelectItem id="member">Member</SelectItem>
+  <SelectItem id="viewer">Viewer</SelectItem>
+</Select>
+```
+
+### When to use
+
+- Select — one choice from roughly 5–50 known options, where the options don't need to be visible all the time.
+- [Radio Group](/docs/components/radio-group) — fewer than ~5 options that benefit from being visible side by side.
+- [Combo Box](/docs/components/combobox) — long lists users will search, or when free-form input is allowed.
+- [Menu](/docs/components/menu) — a list of actions, not a value.
+
+## Anatomy
+
+```tsx
+<Select>                         {/* field: label, trigger, description, error */}
+  <SelectSection title="…">      {/* optional group with a heading */}
+    <SelectItem id="…">          {/* option */}
+      <Icon />
+      <SelectItemLabel />        {/* shown in the trigger */}
+      <SelectItemDescription />  {/* shown only in the list */}
+    </SelectItem>
+  </SelectSection>
+</Select>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Select` | `<div>` + `<button>` + popover | Wraps label, trigger, description, error message and the listbox popover. |
+| Trigger | `<button>` | Shows the selected item (or placeholder), `prefix` and a chevron. |
+| `SelectItem` | `role="option"` | An option. Needs a unique `id`, and `textValue` if children aren't plain text. |
+| `SelectItemLabel` | `<span slot="label">` | Primary text of a rich item; the only part rendered in the trigger. |
+| `SelectItemDescription` | `<span slot="description">` | Secondary text; hidden in the trigger. |
+| `SelectSection` | `role="group"` | Groups options under an optional `title`. |
+| Hidden `<select>` | `<select>` | Rendered for native form submission and browser autofill when `name` is set. |
+
+## Examples
+
+### Variants
+
+`outline` (default), `filled` for dense or tinted surfaces, and `underlined` for minimal, inline forms. The same variants apply to every field component.
+
+<ComponentPreview name="select/variants" />
+
+### Sizes
+
+<ComponentPreview name="select/sizes" />
+
+### Dynamic items
+
+Pass `items` and a render function instead of static children. Each item needs an `id` (or `key`) property; React Aria only re-renders items that changed.
+
+<ComponentPreview name="select/dynamic" />
+
+### Rich items
+
+Compose icons with `SelectItemLabel` and `SelectItemDescription`. The trigger shows only the label, so the closed select stays compact. Set `textValue` for typeahead.
+
+<ComponentPreview name="select/rich-items" />
+
+### With avatars
+
+Any element works as leading content. Here an [`Avatar`](/docs/components/avatar) makes people easier to scan.
+
+<ComponentPreview name="select/avatars" />
+
+### Sections and prefix
+
+`SelectSection` groups options under a heading. `prefix` adds an icon to the trigger.
+
+<ComponentPreview name="select/sections" />
+
+### Long lists and typeahead
+
+The list scrolls within the available viewport height. With the trigger focused, type a few letters to jump to the first matching option.
+
+<ComponentPreview name="select/long-list" />
+
+### Controlled
+
+Use `selectedKey` and `onSelectionChange` to own the value. Set it to `null` to clear the selection and show the placeholder again.
+
+<ComponentPreview name="select/controlled" />
+
+### Disabled
+
+`isDisabled` disables the whole field; `disabledKeys` disables specific options while keeping them visible. Use `description` to explain why.
+
+<ComponentPreview name="select/disabled" />
+
+### Required and validation
+
+`isRequired` blocks form submission until an option is chosen and shows the browser's message. `disabledKeys` keeps unavailable options from being selected.
+
+<ComponentPreview name="select/validation" />
+
+### Custom validation
+
+`validate` returns an error string (or `null`). With `validationBehavior="aria"` on the form, errors show live as the value changes instead of on submit.
+
+<ComponentPreview name="select/custom-validation" />
+
+### Form submission
+
+Give the select a `name` and its value is included in `FormData`, exactly like a native `<select>`.
+
+<ComponentPreview name="select/form" />
+
+## Recipes
+
+### Filter toolbar
+
+Small selects with icon prefixes next to a [`SearchField`](/docs/components/search-field). Each has an `aria-label` since there's no visible label.
+
+<ComponentPreview name="select/recipe-filters" />
+
+### Settings list
+
+A select aligned to the end of each row, labelled by the row's title via `aria-labelledby`.
+
+<ComponentPreview name="select/recipe-settings" />
+
+### Dependent selects
+
+The second select's `items` depend on the first. Reset the child value when the parent changes.
+
+<ComponentPreview name="select/recipe-dependent" />
+
+## Accessibility
+
+- The trigger is a button with `aria-haspopup="listbox"`; the selected value and label are announced together.
+- Always provide a label: `label`, `aria-label`, or `aria-labelledby`.
+- When `name` is set, a visually hidden native `<select>` is rendered so browser autofill and form submission work.
+- `description` and `errorMessage` are linked to the trigger with `aria-describedby`.
+- Typeahead works both on the closed trigger and inside the open list.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> / <kbd>↓</kbd> / <kbd>↑</kbd> | Opens the list |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Moves focus between options |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Focuses the first / last option |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Moves focus by a page |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Selects the focused option and closes |
+| <kbd>Esc</kbd> | Closes the list without changing the value |
+| Any character | Typeahead to the first matching option |
+
+## Styling
+
+### Data attributes
+
+On the `Select` root (use `group-data-*/field:` to style children):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-open` | The list is open |
+| `data-focused` / `data-focus-visible` | The trigger has focus / keyboard focus |
+| `data-disabled` | `isDisabled` is true |
+| `data-invalid` | Validation failed |
+| `data-required` | `isRequired` is true (adds the `*` to the label) |
+
+On each `SelectItem`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-focused` / `data-hovered` | The option has virtual focus / hover |
+| `data-selected` | The option is the current value |
+| `data-disabled` | The option is in `disabledKeys` |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `select` | Root |
+| `label`, `description`, `field-error` | Field text |
+| `popover`, `list-box` | Overlay and list |
+| `list-box-item`, `list-box-section` | Options and groups |
+
+The popover is at least as wide as the trigger (`min-w-(--trigger-width)`). Pass a `className` on `Select` to size the whole field.
+
+## API Reference
+
+### Select
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text shown under the trigger." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message." },
+    placeholder: { type: "string", default: '"Select an item"', description: "Shown when nothing is selected." },
+    prefix: { type: "ReactNode", description: "Icon or element shown before the value in the trigger." },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Static SelectItems / SelectSections, or a render function." },
+    selectedKey: { type: "Key | null", description: "Controlled value." },
+    defaultSelectedKey: { type: "Key", description: "Uncontrolled initial value." },
+    onSelectionChange: { type: "(key: Key | null) => void", description: "Called when the value changes." },
+    disabledKeys: { type: "Iterable<Key>", description: "Options that can't be selected." },
+    isOpen: { type: "boolean", description: "Controlled open state of the list." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the list opens or closes." },
+    isDisabled: { type: "boolean", default: "false" },
+    isRequired: { type: "boolean", default: "false", description: "Requires a value before the form can submit." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state (e.g. for server errors)." },
+    validate: { type: "(key: Key | null) => string | string[] | true | null | undefined", description: "Custom validation. Return an error message to mark the field invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    form: { type: "string", description: "Id of the form this field belongs to." },
+    autoComplete: { type: "string", description: "Autofill hint for the hidden native select." },
+    autoFocus: { type: "boolean" },
+    className: { type: "string | ((state: SelectRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Select`](https://react-aria.adobe.com/Select#api).
+
+### SelectItem
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique key. Becomes the value of the select." },
+    textValue: { type: "string", description: "Plain text for typeahead and the hidden select. Required when children aren't a string." },
+    isDisabled: { type: "boolean", description: "Disables this option (same as adding it to disabledKeys)." },
+    value: { type: "T", description: "The item object, when using dynamic collections." },
+    href: { type: "string", description: "Turns the option into a link." },
+    onAction: { type: "() => void", description: "Called when the option is selected." },
+    className: { type: "string | ((state: ListBoxItemRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: ListBoxItemRenderProps) => ReactNode)" },
+  }}
+/>
+
+### SelectSection
+
+<TypeTable
+  type={{
+    title: { type: "string", description: "Heading shown above the group." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)" },
+    id: { type: "Key" },
+  }}
+/>
+
+### SelectItemLabel / SelectItemDescription
+
+Accept every prop of React Aria's [`Text`](https://react-aria.adobe.com/ListBox#text-slots). They set `slot="label"` and `slot="description"` so the option's accessible name and description are wired up automatically.
+
+## Related
+
+- [Combo Box](/docs/components/combobox) — searchable select with free-form input.
+- [List Box](/docs/components/list-box) — the same list, always visible, with multiple selection.
+- [Radio Group](/docs/components/radio-group) — for a handful of visible options.
+- [Text Field](/docs/components/text-field) — shares the same field variants and sizes.

@@ -1,0 +1,143 @@
+---
+title: Description List
+description: Term and value pairs for detail pages, settings summaries and record sidebars. A semantic dl with a side-by-side layout that stacks on small screens, or a stacked layout, plus optional dividers and two sizes. Works in server components.
+---
+
+<ComponentLinks source="description-list" />
+
+<ComponentPreview name="description-list/demo" />
+
+## Installation
+
+<InstallTabs name="description-list" />
+
+## Usage
+
+```tsx
+import {
+  DescriptionDetails,
+  DescriptionList,
+  DescriptionTerm,
+} from "@/components/ui/description-list";
+```
+
+```tsx
+<DescriptionList divided>
+  <DescriptionTerm>Customer</DescriptionTerm>
+  <DescriptionDetails>Harbor & Pine Studio</DescriptionDetails>
+  <DescriptionTerm>Amount</DescriptionTerm>
+  <DescriptionDetails>$4,280.00</DescriptionDetails>
+</DescriptionList>
+```
+
+<Callout title="Terms and details are direct children">
+  The layout is a CSS grid on the `<dl>` that styles its direct `<dt>` and
+  `<dd>` children, so put them straight inside `DescriptionList`, one
+  `DescriptionDetails` per term. Use a `Fragment` (not a `<div>`) when mapping
+  over pairs.
+</Callout>
+
+### When to use
+
+- Description List: read-only fields of one record, such as an invoice, a deployment or a user profile.
+- [Table](/docs/components/table): many records that share the same fields.
+- [Item](/docs/components/item): a list of entities with media and actions.
+- [Card](/docs/components/card): a container for a description list with a title.
+
+## Anatomy
+
+```tsx
+<DescriptionList>          {/* <dl>, layout, divided, size */}
+  <DescriptionTerm />      {/* <dt> */}
+  <DescriptionDetails />   {/* <dd> */}
+</DescriptionList>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `DescriptionList` | `<dl>` | Grid. `horizontal`: term column (`minmax(7rem, 33%)`) and details column from `sm` up, stacked below. `stacked`: one column. |
+| `DescriptionTerm` | `<dt>` | Muted label. |
+| `DescriptionDetails` | `<dd>` | Foreground value. Long words wrap anywhere instead of overflowing. |
+
+## Examples
+
+### Stacked
+
+`layout="stacked"` puts each term above its details, for narrow sidebars and multi-line values like addresses.
+
+<ComponentPreview name="description-list/stacked" />
+
+### With actions
+
+Details are plain elements, so they can hold badges, links and buttons. Make `DescriptionDetails` a flex row to push an action to the end, and give each button a name that includes the field.
+
+<ComponentPreview name="description-list/actions" />
+
+### Sizes
+
+`size="sm"` uses 13px text and tighter rows for cards and side panels; `md` is the default.
+
+<ComponentPreview name="description-list/sizes" />
+
+## Recipes
+
+### Detail card
+
+A deployment summary in a [`Card`](/docs/components/card), with a status badge, a commit hash and a copyable domain.
+
+<ComponentPreview name="description-list/recipe-detail-card" />
+
+## Accessibility
+
+- Uses native `<dl>`, `<dt>` and `<dd>`, so screen readers announce terms and their values as pairs.
+- Dividers are borders, not separate elements, so they add nothing to the reading order.
+- When a value is only an icon or a color (e.g. a status dot), include text, as the [`Badge`](/docs/components/badge) does.
+- Give actions in details names that include the field, e.g. `aria-label="Edit email"`, not just "Edit".
+
+## Styling
+
+### Data attributes
+
+| Attribute | On |
+| --- | --- |
+| `data-slot="description-list"` | `DescriptionList` |
+| `data-layout` | `DescriptionList` (`horizontal` · `stacked`) |
+| `data-slot="description-term"` | `DescriptionTerm` |
+| `data-slot="description-details"` | `DescriptionDetails` |
+
+### Term width
+
+The horizontal layout reads `--dl-term-width` (default `33%`) for the term column:
+
+```tsx
+<DescriptionList className="[--dl-term-width:12rem]">…</DescriptionList>
+```
+
+### `descriptionListVariants`
+
+The `tailwind-variants` function behind `DescriptionList`, for applying the layout to your own `<dl>`.
+
+## API Reference
+
+### DescriptionList
+
+<TypeTable
+  type={{
+    layout: { type: '"horizontal" | "stacked"', default: '"horizontal"', description: "Side by side (stacks below sm), or term above details." },
+    divided: { type: "boolean", default: "false", description: "Hairlines between pairs." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Text size and row spacing." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<dl>`.
+
+### DescriptionTerm / DescriptionDetails
+
+No extra props. Accept every prop of `<dt>` and `<dd>`.
+
+## Related
+
+- [Card](/docs/components/card): frame a description list with a title.
+- [Table](/docs/components/table): many records with the same fields.
+- [Badge](/docs/components/badge): statuses inside details.

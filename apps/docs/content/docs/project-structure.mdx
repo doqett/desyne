@@ -1,0 +1,91 @@
+---
+title: Project structure
+description: Where Desyne files land in your project, what each one does, and how to organise your own code around them.
+---
+
+After `init` and a few `add` commands, a Next.js project looks like this:
+
+```txt
+app/
+  globals.css          Tailwind, tw-animate-css and the tokens
+  layout.tsx           Root layout: providers, <Toaster />
+components/
+  ui/                  Desyne components, one file each
+    button.tsx
+    field.tsx          Shared by every text-like control
+    text-field.tsx
+    dialog.tsx
+    …
+  blocks/              Pro blocks, one folder each (if you use Pro)
+    pricing-02/
+lib/
+  utils.ts             cn(): clsx + tailwind-merge
+  primitive.ts         focusRing, tones, composeTailwindRenderProps
+components.json        shadcn config and registry namespaces
+```
+
+In Vite the same tree lives under `src/`.
+
+## The files
+
+| File | Role | Edit it? |
+| --- | --- | --- |
+| `components/ui/*.tsx` | Component source. Each file exports the component, its parts and usually a `*Variants` function built with `tailwind-variants` | Yes. It's yours |
+| `components/ui/field.tsx` | `Label`, `Description`, `FieldError`, `FieldGroup`, `Input` and `fieldVariants` (outline, filled, underlined × sm, md, lg). Text Field, Select, Combobox, Number Field and the date fields build on it | Yes, and the change applies to every field |
+| `lib/primitive.ts` | Focus ring, tones and the render-prop class helper | Rarely. Add a tone here |
+| `lib/utils.ts` | shadcn's `cn()` | No need |
+| `app/globals.css` | Tokens and Tailwind setup | Yes. This is where theming happens |
+
+## Anatomy of a component
+
+Components follow one pattern, so once you've read one you can read them all:
+
+```tsx title="components/ui/switch.tsx (shape)"
+"use client";
+
+import { Switch as SwitchPrimitive } from "react-aria-components";
+import { tv } from "tailwind-variants";
+import { composeTailwindRenderProps } from "@/lib/primitive";
+
+// 1. Styles: a tv() recipe with variants and sizes, using data-* state variants
+const switchVariants = tv({ /* … */ });
+
+// 2. Props: the React Aria props plus our style props
+export interface SwitchProps extends SwitchPrimitiveProps { /* … */ }
+
+// 3. Component: the React Aria primitive with classes applied
+export function Switch({ className, ...props }: SwitchProps) {
+  return (
+    <SwitchPrimitive
+      data-slot="switch"
+      {...props}
+      className={composeTailwindRenderProps(className, "group flex items-center gap-2")}
+    />
+  );
+}
+```
+
+- **`data-slot`** attributes name each part (`data-slot="dialog-content"`), so you can
+  target parts from a parent: `[&_[data-slot=card-header]]:pb-0`.
+- **State styling** uses React Aria's data attributes: `data-hovered:`, `data-pressed:`,
+  `data-focus-visible:`, `data-selected:`, `data-disabled:`, `data-invalid:`,
+  `data-entering:` and `data-exiting:`. Group variants (`group-data-invalid/field:`)
+  style children from a parent's state.
+- **`className`** accepts a string or a function of render props, like every React
+  Aria component: `className={({ isSelected }) => isSelected ? "font-semibold" : ""}`.
+
+## Organising your own code
+
+Keep `components/ui` for primitives and put product code beside it:
+
+```txt
+components/
+  ui/                  Desyne (and any shadcn) primitives
+  blocks/              Pro blocks you've installed
+  settings/            Your feature components, composed from ui/
+    notifications.tsx
+```
+
+When you need a variation that every screen should share, edit the primitive. When only
+one screen needs it, wrap the primitive in a feature component instead. That keeps
+`components/ui` easy to update with `--overwrite` (see [CLI & registry](/docs/cli#updating-components)).

@@ -1,0 +1,131 @@
+---
+title: Separator
+description: A thin horizontal or vertical rule that separates content, with an optional inline label ("or", a date) placed at the start, center or end, and a dashed style. Built on React Aria's Separator, so it's announced correctly.
+---
+
+<ComponentLinks aria="Separator" source="separator" />
+
+<ComponentPreview name="separator/demo" />
+
+## Installation
+
+<InstallTabs name="separator" />
+
+## Usage
+
+```tsx
+import { Separator } from "@/components/ui/separator";
+```
+
+```tsx
+<Separator />
+<Separator orientation="vertical" />
+<Separator label="or" />
+```
+
+### When to use
+
+- Separator: to divide groups of content that belong to the same surface, such as sections of a form, groups in a toolbar or items in a breadcrumb-like row.
+- Spacing alone is often enough. Reach for a separator when whitespace doesn't make the grouping clear.
+- [Card](/docs/components/card): when the groups need their own surface. `CardHeader` has its own `separator` prop.
+- Inside menus, use [`MenuSeparator`](/docs/components/menu); between list rows, use [`ItemSeparator`](/docs/components/item).
+
+## Anatomy
+
+A separator is a single element. The labelled version draws the two lines with `::before` and `::after`.
+
+```tsx
+<Separator />                 {/* <hr> */}
+<Separator orientation="vertical" />   {/* <div role="separator"> */}
+<Separator label="or" />      {/* line · label · line */}
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Separator` (horizontal) | `<hr>` | 1px tall, full width. |
+| `Separator` (vertical) | `<div role="separator">` | 1px wide, stretches to the parent's height (`self-stretch`). Has `aria-orientation="vertical"`. |
+| `Separator` with `label` | `<div role="separator">` | Horizontal only. A flex row with the label between two lines. |
+
+## Examples
+
+### Vertical
+
+`orientation="vertical"` stretches to the height of a flex parent. Use it between groups in toolbars, nav rows and stat strips; add margin with `mx-*` and trim the height with `my-*`.
+
+<ComponentPreview name="separator/vertical" />
+
+### With label
+
+`label` puts text in the line, for "or" dividers, dates in a feed or section titles. `labelPosition` moves it to the `start`, `center` (default) or `end`; the short side is 16px long. Labels only apply to horizontal separators.
+
+<ComponentPreview name="separator/label" />
+
+### Dashed
+
+`variant="dashed"` draws a dashed line in either orientation, with or without a label. It reads as lighter than a solid rule, which suits drafts, timelines and optional sections.
+
+<ComponentPreview name="separator/dashed" />
+
+## Recipes
+
+### Sign-in options
+
+The classic "or continue with" divider between social sign-in buttons and an email form.
+
+<ComponentPreview name="separator/recipe-sign-in" />
+
+### Stat strip
+
+Vertical separators between equal-width stats. They stretch to the row's height automatically.
+
+<ComponentPreview name="separator/recipe-stats" />
+
+## Accessibility
+
+- A horizontal separator renders a native `<hr>`, which screen readers announce as a separator.
+- A vertical separator renders a `<div>` with `role="separator"` and `aria-orientation="vertical"`, as `<hr>` is always horizontal.
+- A labelled separator is a `<div role="separator">`. Screen readers generally don't read the content of a separator, so don't put essential information only in the label; "or" and dates are fine because the surrounding content carries the meaning.
+- Separators aren't focusable. Inside a React Aria `Toolbar`, arrow-key navigation skips them.
+- React Aria only forwards a filtered set of DOM props (ids, `aria-label` / `aria-labelledby` / `aria-describedby`, `data-*` and global attributes), so `aria-hidden` isn't passed through on an unlabelled separator (a labelled one forwards every prop). If a line is purely decorative, draw it with a `border-*` class on a neighboring element instead.
+
+## Styling
+
+### Data attributes
+
+| Attribute | Present when |
+| --- | --- |
+| `data-slot="separator"` | Always |
+| `data-orientation` | `"horizontal"` or `"vertical"`. Always `"horizontal"` on labelled separators. |
+
+### Customizing
+
+- The line color is `bg-border`. Change it with a `bg-*` class, e.g. `bg-foreground/20`.
+- Change thickness with `h-*` (horizontal) or `w-*` (vertical).
+- For labelled separators, `className` goes on the flex row: change the label's text style there (`text-sm text-foreground`), or the line color with `before:bg-* after:bg-*`.
+
+## API Reference
+
+### Separator
+
+<TypeTable
+  type={{
+    orientation: { type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Direction of the line." },
+    label: { type: "ReactNode", description: "Text in the line, e.g. \"or\". Horizontal separators only." },
+    labelPosition: { type: '"start" | "center" | "end"', default: '"center"', description: "Where the label sits along the line." },
+    variant: { type: '"solid" | "dashed"', default: '"solid"', description: "Line style." },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+    elementType: { type: "string", description: 'Element to render instead of <hr> (e.g. "div"). Ignored when label is set (always a <div>).' },
+    id: { type: "string", description: "The element's id." },
+    slot: { type: "string | null", description: "React Aria slot name. Ignored when label is set." },
+    style: { type: "CSSProperties", description: "Inline styles." },
+  }}
+/>
+
+Without a `label`, also accepts the props of React Aria's [`Separator`](https://react-aria.adobe.com/Separator): `aria-label`, `aria-labelledby`, `aria-describedby`, `data-*` attributes, `dir`, `lang`, `hidden` and mouse, pointer and touch event handlers. With a `label`, the separator is a plain `<div role="separator">` and every other prop (`id`, `style`, `aria-*`, `data-*`, event handlers, and so on) is forwarded to it unfiltered; only `elementType`, `slot` and `render` are dropped.
+
+## Related
+
+- [Card](/docs/components/card): `CardHeader` has a built-in inset separator.
+- [Menu](/docs/components/menu): `MenuSeparator` between groups of menu items.
+- [Item](/docs/components/item): `ItemSeparator` between list rows.
+- [Toggle Button Group](/docs/components/toggle-button-group): grouped toolbar controls.

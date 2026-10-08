@@ -1,0 +1,344 @@
+---
+title: Tabs
+description: Switch between related panels of content without leaving the page. Three styles (line, segmented, enclosed), two sizes, horizontal or vertical, with an animated selection indicator, keyboard navigation and support for tabs that are links.
+---
+
+<ComponentLinks aria="Tabs" source="tabs" />
+
+<ComponentPreview name="tabs/demo" />
+
+## Installation
+
+<InstallTabs name="tabs" />
+
+## Usage
+
+```tsx
+import { Tab, TabList, TabPanel, Tabs } from "@/components/ui/tabs";
+```
+
+```tsx
+<Tabs>
+  <TabList aria-label="Account">
+    <Tab id="profile">Profile</Tab>
+    <Tab id="billing">Billing</Tab>
+  </TabList>
+  <TabPanel id="profile">…</TabPanel>
+  <TabPanel id="billing">…</TabPanel>
+</Tabs>
+```
+
+Each `Tab` is matched to the `TabPanel` with the same `id`. Only the selected panel is mounted. The first tab is selected by default; use `defaultSelectedKey` or `selectedKey` to change that.
+
+<Callout title="Label the tab list">
+  `TabList` renders `role="tablist"` and needs an accessible name. Pass
+  `aria-label`, or `aria-labelledby` pointing at a visible heading.
+</Callout>
+
+### When to use
+
+- Tabs — switch between peer views of the same object (a project's overview, deployments and settings) where only one view is needed at a time.
+- [Toggle Button Group](/docs/components/toggle-button-group) — pick a value or mode that changes content in place without panels, such as a chart's metric. Segmented tabs look similar; use tabs only when each option has its own panel.
+- [Disclosure](/docs/components/disclosure) — sections that users may want open at the same time, or content that should stay in reading order.
+- [Sidebar](/docs/components/sidebar) or [Link](/docs/components/link)s — primary navigation between pages. Tabs can be links (see [Tabs as links](#tabs-as-links)), but keep them to a small set of sibling routes.
+
+## Anatomy
+
+```tsx
+<Tabs>                    {/* state, orientation, variant and size */}
+  <TabList>               {/* role="tablist" */}
+    <Tab>                 {/* role="tab", or a link when href is set */}
+      <Icon />            {/* optional, auto-sized */}
+      Label
+      <Badge />           {/* optional count or status */}
+    </Tab>
+  </TabList>
+  <TabPanel />            {/* role="tabpanel", one per tab */}
+</Tabs>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Tabs` | `<div>` | Root. Holds selection state and passes `variant` and `size` to its parts through context. A column when horizontal, a row when vertical. |
+| `TabList` | `<div role="tablist">` | The row (or column) of tabs. One tab stop; arrow keys move between tabs. |
+| `Tab` | `<div role="tab">` or `<a>` | A tab. Needs an `id` that matches a panel. Renders a link when given `href`. |
+| Selection indicator | `SelectionIndicator` | Rendered inside every tab. Only the selected tab's indicator shows; it slides between tabs. Hidden for `enclosed`. |
+| `TabPanel` | `<div role="tabpanel">` | Content for the tab with the same `id`. Labelled by its tab. |
+
+## Examples
+
+### Segmented
+
+A pill-shaped track with a raised thumb. Suits short, mutually exclusive views such as billing periods or chart ranges, and fits inside toolbars and card headers.
+
+<ComponentPreview name="tabs/segmented" />
+
+### Enclosed
+
+Folder-style tabs that join the panel below. Give the panel a border without a top edge (`border border-t-0`) and remove the root gap (`gap-0`) so they connect. Good for editors and code samples.
+
+<ComponentPreview name="tabs/enclosed" />
+
+### Sizes
+
+`md` (default) and `sm` for every variant. Use `sm` in dense surfaces like card headers, toolbars and side panels.
+
+<ComponentPreview name="tabs/sizes" />
+
+### With icons
+
+Put a Lucide icon before the label. Icons are sized to 16px automatically unless you set a `size-*` class.
+
+<ComponentPreview name="tabs/icons" />
+
+### Icon only
+
+Tabs without visible text need an `aria-label` on each `Tab`. A small segmented list works well as a view switcher.
+
+<ComponentPreview name="tabs/icon-only" />
+
+### With badges
+
+Counts and statuses are plain children. Use a small [`Badge`](/docs/components/badge) so the tab height doesn't change.
+
+<ComponentPreview name="tabs/badges" />
+
+### Scrollable
+
+Tabs don't wrap or shrink. A horizontal `TabList` watches its size, and when the tabs are wider than the space it has (many tabs, long labels, small screens) it gets `data-overflowing` and scrolls horizontally, with no vertical scrollbar and the indicator kept inside the scroll area. The selected tab is scrolled into view on mount and whenever the selection changes; tabs reached with the arrow keys scroll into view as they get focus. Pass `hideScrollbar` to hide the (thin) scrollbar; the list still scrolls with touch, a trackpad, <kbd>Shift</kbd>+wheel and the arrow keys.
+
+The list is capped at its container's width (`max-w-full`, `min-w-0`), so this also works when the `TabList` sits in a flex row next to other controls. Lists that fit are left as they are.
+
+<ComponentPreview name="tabs/scrollable" />
+
+### Vertical
+
+`orientation="vertical"` stacks the tabs beside the panel, and adds up and down arrow navigation. Give the `TabList` a fixed width. Useful for settings pages with many sections.
+
+<ComponentPreview name="tabs/vertical" />
+
+### Disabled
+
+Disable individual tabs with `disabledKeys` on `Tabs` or `isDisabled` on a `Tab`, or every tab with `isDisabled` on `Tabs`. Disabled tabs are skipped by the keyboard. Tell users why a tab is unavailable, for example with an icon or a note in the page.
+
+<ComponentPreview name="tabs/disabled" />
+
+### Controlled
+
+Own the selection with `selectedKey` and `onSelectionChange` when something outside the tabs needs to change it, such as Back and Continue buttons in a multi-step flow.
+
+<ComponentPreview name="tabs/controlled" />
+
+### Manual activation
+
+By default, moving focus with the arrow keys selects the tab immediately. With `keyboardActivation="manual"`, arrows only move focus and <kbd>Enter</kbd> or <kbd>Space</kbd> selects. Use this when rendering a panel is expensive, for example when it fetches data.
+
+<ComponentPreview name="tabs/manual-activation" />
+
+### Dynamic tabs
+
+Pass `items` to `TabList` with a render function, and map the same array to panels. Here a controlled `selectedKey` jumps to each new tab as it's added.
+
+<ComponentPreview name="tabs/dynamic" />
+
+### Tabs as links
+
+Give each `Tab` an `href` to make it a real link (middle-click and "open in new tab" work). Selection then follows the URL: derive `selectedKey` from the current path, and wrap your app in React Aria's `RouterProvider` so clicks go through your client-side router. The preview uses a local stand-in for the router.
+
+<ComponentPreview name="tabs/links" />
+
+With the Next.js App Router:
+
+```tsx title="app/providers.tsx"
+"use client";
+
+import { useRouter } from "next/navigation";
+import { RouterProvider } from "react-aria-components";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  return <RouterProvider navigate={router.push}>{children}</RouterProvider>;
+}
+```
+
+```tsx title="app/team/tabs.tsx"
+"use client";
+
+import { usePathname } from "next/navigation";
+import { Tab, TabList, Tabs } from "@/components/ui/tabs";
+
+export function TeamTabs() {
+  const pathname = usePathname();
+  return (
+    <Tabs selectedKey={pathname}>
+      <TabList aria-label="Team">
+        <Tab id="/team" href="/team">Overview</Tab>
+        <Tab id="/team/activity" href="/team/activity">Activity</Tab>
+        <Tab id="/team/members" href="/team/members">Members</Tab>
+      </TabList>
+    </Tabs>
+  );
+}
+```
+
+When the panels are separate routes, render only the `TabList` and let each page render its own content.
+
+## Recipes
+
+### Account settings
+
+Line tabs as the header of a [`Card`](/docs/components/card), with a form in each panel and shared actions in the footer. Pad the `TabList` with the card's `px-(--card-px)` so the tabs line up with the content.
+
+<ComponentPreview name="tabs/recipe-account-settings" />
+
+### Install command
+
+Small segmented tabs switch the package manager, with a copy button in the same bar. The `TabList` can sit inside any layout wrapper as long as it's within `Tabs`.
+
+<ComponentPreview name="tabs/recipe-install" />
+
+### Card with date range
+
+A segmented range picker in `CardAction` drives the chart below. Wrapping the header and content in `Tabs` keeps the list and panels connected.
+
+<ComponentPreview name="tabs/recipe-analytics" />
+
+## Accessibility
+
+- Implements the WAI-ARIA tabs pattern: `role="tablist"`, `role="tab"` with `aria-selected`, and `role="tabpanel"` labelled by its tab through `aria-labelledby`.
+- The tab list is a single tab stop. Focus lands on the selected tab; the arrow keys move between tabs and wrap from the last to the first.
+- A panel is focusable (`tabIndex="0"`) when it has no focusable content of its own, so keyboard users can reach and scroll it.
+- Disabled tabs are skipped by keyboard navigation.
+- Left and right arrows follow the reading direction and flip in right-to-left locales.
+- The selection indicator animation is disabled when the user prefers reduced motion.
+- Icon-only tabs need `aria-label`.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the selected tab, then into the panel |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves to the previous / next tab (both orientations) |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Moves to the previous / next tab (vertical only) |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first / last tab |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Selects the focused tab (with `keyboardActivation="manual"`) |
+
+## Styling
+
+### Data attributes
+
+On `Tabs` and `TabList`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-orientation` | Always, set to `horizontal` or `vertical`. `Tabs` adds `group/tabs`, so children can use `group-data-[orientation=vertical]/tabs:…`. |
+
+On `TabList` only:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-overflowing` | A horizontal list is wider than its box and scrolls |
+
+On each `Tab`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | The tab is selected |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-pressed` | Being pressed |
+| `data-focused` / `data-focus-visible` | Focused / focused with the keyboard |
+| `data-disabled` | The tab is disabled |
+
+On each `TabPanel`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-focused` / `data-focus-visible` | The panel has focus / keyboard focus |
+| `data-inert` | Mounted with `shouldForceMount` but not selected |
+| `data-entering` / `data-exiting` | The panel is animating in / out |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `tabs` | Root |
+| `tab-list` | Tab list |
+| `tab` | Each tab |
+| `tab-panel` | Each panel |
+
+### Customizing
+
+- `className` on every part accepts a string or a function of its render props, and is merged with the built-in classes with `tailwind-merge`.
+- The tab label is wrapped in an inline `<span>` above the indicator, so icons and badges line up with the text.
+- The `line` indicator and selected text use the `brand` color; the `segmented` thumb uses `card`. Override with classes such as `data-selected:text-foreground` on `Tab`.
+- The root has `gap-4` between the list and the panels. Change it with `className="gap-0"` (as in the enclosed examples) or any other gap.
+
+## API Reference
+
+### Tabs
+
+<TypeTable
+  type={{
+    variant: { type: '"line" | "segmented" | "enclosed"', default: '"line"', description: "Visual style, shared with every tab and list inside." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Text size, and tab height for segmented and enclosed." },
+    orientation: { type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Direction of the tab list and of arrow-key navigation." },
+    selectedKey: { type: "Key | null", description: "The selected tab (controlled)." },
+    defaultSelectedKey: { type: "Key", description: "The initially selected tab (uncontrolled). Defaults to the first enabled tab." },
+    onSelectionChange: { type: "(key: Key) => void", description: "Called when the selected tab changes." },
+    keyboardActivation: { type: '"automatic" | "manual"', default: '"automatic"', description: "Whether arrow keys select tabs immediately, or only move focus." },
+    disabledKeys: { type: "Iterable<Key>", description: "Tabs that can't be selected or focused." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables every tab." },
+    className: { type: "string | ((state: TabsRenderProps) => string)", description: "Classes for the root." },
+    children: { type: "ReactNode | ((state: TabsRenderProps) => ReactNode)", description: "A TabList and TabPanels, in any layout." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Tabs`](https://react-aria.adobe.com/Tabs#api).
+
+### TabList
+
+<TypeTable
+  type={{
+    "aria-label": { type: "string", description: "Accessible name for the tab list. Required unless aria-labelledby is set." },
+    "aria-labelledby": { type: "string", description: "Id of a visible element that labels the tab list." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Tabs, or a render function." },
+    dependencies: { type: "ReadonlyArray<any>", description: "Values that, when changed, re-render every item of a dynamic collection." },
+    hideScrollbar: { type: "boolean", default: "false", description: "Hide the scrollbar when a horizontal list overflows. It still scrolls." },
+    className: { type: "string | ((state: TabListRenderProps) => string)" },
+  }}
+/>
+
+### Tab
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique key. Must match the id of a TabPanel." },
+    isDisabled: { type: "boolean", description: "Disables this tab." },
+    href: { type: "string", description: "Turns the tab into a link. Navigation goes through RouterProvider when present." },
+    target: { type: "string", description: "Link target, when href is set." },
+    routerOptions: { type: "RouterOptions", description: "Options passed to your router's navigate function." },
+    "aria-label": { type: "string", description: "Accessible name. Required for icon-only tabs." },
+    onPress: { type: "(e: PressEvent) => void", description: "Called when the tab is pressed." },
+    className: { type: "string | ((state: TabRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: TabRenderProps) => ReactNode)", description: "Label, icon and badges, or a function of the tab's state." },
+  }}
+/>
+
+### TabPanel
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Matches the id of a Tab." },
+    shouldForceMount: { type: "boolean", default: "false", description: "Keep the panel mounted when not selected. Inactive panels are inert and get data-inert; hide them yourself." },
+    className: { type: "string | ((state: TabPanelRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: TabPanelRenderProps) => ReactNode)" },
+  }}
+/>
+
+## Related
+
+- [Toggle Button Group](/docs/components/toggle-button-group) — segmented control for a value, without panels.
+- [Disclosure](/docs/components/disclosure) — sections that expand in place, several at once.
+- [Sidebar](/docs/components/sidebar) — primary navigation for an app.
+- [Card](/docs/components/card) — a common container for tabbed content.

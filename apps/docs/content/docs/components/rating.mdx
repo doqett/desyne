@@ -1,0 +1,145 @@
+---
+title: Rating
+description: Lets users give a rating with stars (or any icon), and shows existing ratings with half-star precision. Built on React Aria's RadioGroup for arrow-key support and form integration, with three sizes, seven colors, custom icons, labels for each value and field-style label, description and validation.
+---
+
+<ComponentLinks aria="RadioGroup" source="rating" />
+
+<ComponentPreview name="rating/demo" />
+
+## Installation
+
+<InstallTabs name="rating" />
+
+## Usage
+
+```tsx
+import { Rating } from "@/components/ui/rating";
+```
+
+```tsx
+<Rating label="How was your delivery?" defaultValue={4} />
+
+<Rating isReadOnly value={4.5} />
+```
+
+`value` is a number from `0` (no rating) to `maxValue`. `onChange` receives a number.
+
+### When to use
+
+- Rating: a quick, low-effort score, such as product reviews, satisfaction after a support chat, or rating an article.
+- [Radio Group](/docs/components/radio-group): when each value needs a written label the user should read before choosing.
+- [Slider](/docs/components/slider): a value on a continuous or fine-grained scale.
+- [Meter](/docs/components/meter) with `segments`: a level, not something the user rates.
+
+## Anatomy
+
+```tsx
+<Rating>                    {/* role="radiogroup" */}
+  {/* Label */}
+  {/* icons: one radio per value */}
+  {/* value text / value label (optional) */}
+  {/* Description, FieldError */}
+</Rating>
+
+<Rating isReadOnly />        {/* role="img" with "4.5 out of 5" */}
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Rating` | `<div role="radiogroup">` | React Aria `RadioGroup`, horizontal. Handles arrow keys, `name` for forms, `isRequired` and validation. |
+| Item | `<label>` with a hidden radio | One per value. Its accessible name is `"3 of 5"`, or the matching `valueLabels` entry. |
+| Icon | `<span>` × 2 | A faint base icon with a filled copy on top, clipped to the fill amount. |
+| Value text | `<span>` | With `showValue`: the number, e.g. `4.5`. |
+| Value label | `<span aria-hidden>` | With `valueLabels`: the label for the hovered or selected value. |
+| Read-only root | `<div role="img">` | With `isReadOnly`: not focusable, named "4.5 out of 5". |
+
+## Examples
+
+### Read-only with half stars
+
+`isReadOnly` renders a static display. Fractional values round to the nearest half, so `4.3` shows four and a half stars. Pair it with the numeric average and the review count.
+
+<ComponentPreview name="rating/read-only" />
+
+### Sizes
+
+`sm` (16px), `md` (20px, default) and `lg` (28px).
+
+<ComponentPreview name="rating/sizes" />
+
+### Custom icon and color
+
+Pass any icon to `icon` and a tone to `color` (default `warning`). Use `maxValue` for a shorter scale.
+
+<ComponentPreview name="rating/custom-icon" />
+
+### Value labels
+
+`valueLabels` names each value. The names are used as each radio's accessible name and shown next to the icons for the hovered or selected value.
+
+<ComponentPreview name="rating/value-labels" />
+
+### In a form
+
+Ratings work like any React Aria field: `name` submits the value with the form, `isRequired` blocks submission until a value is chosen, and `errorMessage` customizes the message.
+
+<ComponentPreview name="rating/form" />
+
+## Accessibility
+
+- Interactive ratings are a React Aria `RadioGroup` with one radio per value. Tab moves focus into the group; Left and Right arrows (Up and Down too) change the value, and each change is announced.
+- Every radio has a name: `"3 of 5"` by default, or the matching `valueLabels` entry, such as "Helpful".
+- Name the group with `label`, `aria-label` or `aria-labelledby`.
+- The read-only display is a single `role="img"` element named "4.5 out of 5", prefixed with `label` when you pass one. It isn't focusable.
+- Filled and empty icons differ in fill, not only color, so the value reads in high-contrast and grayscale modes.
+- Clicking the selected star clears the rating (value `0`); from the keyboard, Backspace or Delete clears it. Turn this off with `allowClear={false}`, for example when a rating is required.
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-slot="rating"` | Root | Always |
+| `data-readonly` | Root | `isReadOnly` |
+| `data-slot="rating-icon"` | Each icon | Always |
+| `data-slot="rating-value"` | Value text | `showValue` |
+
+The root also gets React Aria's `RadioGroup` attributes (`data-disabled`, `data-invalid`, `data-required`, …) and sets the `group/field` group, like other fields.
+
+### Tone variables
+
+`color` sets `--tone` on the root. Filled icons use `text-(--tone)`; empty icons use `text-(--tone)/20` in light mode and `text-muted-foreground/30` in dark mode.
+
+## API Reference
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label, used as the accessible name." },
+    description: { type: "ReactNode", description: "Help text under the icons." },
+    errorMessage: { type: "string | ((validation: ValidationResult) => string)", description: "Shown when the field is invalid." },
+    value: { type: "number", description: "Controlled value. 0 means no rating. May be fractional when isReadOnly." },
+    defaultValue: { type: "number", default: "0", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: number) => void", description: "Called when the user picks a value." },
+    maxValue: { type: "number", default: "5", description: "Number of icons." },
+    isReadOnly: { type: "boolean", description: "Renders a static display with half-step precision." },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Icon size: 16, 20 or 28px." },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', default: '"warning"', description: "Tone of the filled icons." },
+    icon: { type: "ReactNode", default: "<StarIcon />", description: "The icon to repeat." },
+    showValue: { type: "boolean", default: "false", description: "Shows the number after the icons." },
+    valueLabels: { type: "string[]", description: "Name for each value, from 1 up. Used as accessible names and shown for the hovered or selected value." },
+    name: { type: "string", description: "Submits the value with a form." },
+    isRequired: { type: "boolean", description: "Requires a value before the form submits." },
+    isDisabled: { type: "boolean", description: "Disables the rating." },
+    className: { type: "string", description: "Classes on the root." },
+  }}
+/>
+
+Also accepts the props of React Aria's [`RadioGroup`](https://react-aria.adobe.com/RadioGroup#api) except `orientation`, such as `isInvalid`, `validate` and `aria-describedby`.
+
+## Related
+
+- [Radio Group](/docs/components/radio-group): choices with written labels.
+- [Slider](/docs/components/slider): a value on a fine-grained scale.
+- [Textarea](/docs/components/textarea): pair a rating with a written review.

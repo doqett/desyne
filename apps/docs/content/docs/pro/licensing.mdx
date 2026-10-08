@@ -1,0 +1,83 @@
+---
+title: Licensing & seats
+description: How purchases become license keys, how to sign in, regenerate keys and invite teammates, and what the license allows.
+---
+
+## How a purchase works
+
+1. Choose **Pro** or **Team** on the pricing page. Checkout opens in a secure Paddle
+   window; Paddle is our merchant of record and handles payment, sales tax and VAT, and
+   your receipt. If you're signed in, your email is prefilled and the purchase is linked
+   to your account straight away.
+2. After payment you land on your **Account** page. It refreshes for a few seconds
+   while the order is confirmed, then shows your license.
+3. Each license has a key: `dsp_` followed by 32 characters.
+
+Not signed in when you bought? Sign in later with the same email address. Licenses are
+attached to accounts by verified email, so the purchase appears automatically.
+
+## Signing in
+
+The Pro site uses passwordless sign-in:
+
+- **Email link.** Enter your email and click the link we send.
+- **GitHub**, where enabled. Accounts with the same verified email are linked.
+
+Signed in with an active license, you can see every block's source and download
+templates in the browser without entering a key.
+
+## Your key
+
+The Account page shows your key masked, with buttons to reveal and copy it, and
+ready-to-copy snippets for `components.json`, `.env.local` and a first install
+command.
+
+| Where the key is used | How |
+| --- | --- |
+| shadcn CLI | `Authorization: Bearer ${DESYNE_PRO_LICENSE}` header in `components.json` ([setup](/docs/pro/blocks)) |
+| A browser without signing in | **Unlock Pro** dialog → "use a license key". Stored in a secure, HTTP-only cookie for that browser |
+| CI | A `DESYNE_PRO_LICENSE` secret, only if the pipeline runs the CLI |
+
+Treat the key like a password: keep it in `.env` files and CI secrets, never in code you
+commit.
+
+### Regenerating
+
+If a key leaks, press **Regenerate key** on the Account page. The old key stops working
+immediately, everywhere: update `.env.local` files and CI secrets with the new one.
+Teammates' personal keys on a Team license keep working.
+
+## Team seats
+
+A Team license has **10 seats**, and the owner uses one.
+
+- **Invite** a teammate by email from the Account page. They get access as soon as they
+  sign in with that (verified) email address.
+- Each member gets a **personal key**, shown on their own Account page, for their CLI
+  setup. They don't need the owner's key.
+- **Remove** a member to free the seat. Their personal key stops working immediately.
+- When all seats are in use, remove someone before inviting another person.
+
+Pro licenses are for one developer and don't have seats; upgrade to Team to share
+access.
+
+## Refunds
+
+You can ask for a full refund within 14 days of purchase. Refunds are handled by
+Paddle, our merchant of record: request one at [paddle.net](https://paddle.net) or
+email support@desyne.dev. A full refund deactivates the license and every member key
+on it, and the licence to use Pro code obtained under it ends; the account page then
+shows the license as inactive. A partial refund leaves the license active. See the
+[Refund Policy](https://pro.desyne.dev/refunds).
+
+## What the license allows
+
+| You can | You can't |
+| --- | --- |
+| Use the free components in any project, personal or commercial | Resell or redistribute Pro blocks or templates as a kit, theme or template |
+| Use Pro blocks and templates in unlimited client and commercial projects | Publish Pro source in a public repository |
+| Modify everything, and ship it inside apps you sell | Share a personal (Pro) license with your team |
+| Keep using everything you downloaded, forever | |
+
+Read the full terms on the [About & license](/about#license) page and in the
+[Terms of Service](https://pro.desyne.dev/terms).

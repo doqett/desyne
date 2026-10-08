@@ -1,0 +1,246 @@
+---
+title: Number Field
+description: A numeric input with increment and decrement steppers. Formats and parses numbers in the user's locale, supports currency, percent and unit formatting, min/max/step constraints, keyboard and scroll-wheel stepping, validation and form submission.
+---
+
+<ComponentLinks aria="NumberField" source="number-field" />
+
+<ComponentPreview name="number-field/demo" />
+
+## Installation
+
+<InstallTabs name="number-field" />
+
+## Usage
+
+```tsx
+import { NumberField } from "@/components/ui/number-field";
+```
+
+```tsx
+<NumberField label="Quantity" name="quantity" defaultValue={1} minValue={0} />
+```
+
+The value is always a `number`. The field formats it for display with `formatOptions` and the user's locale, parses what the user types, and on blur clamps it to `minValue` / `maxValue` and snaps it to `step`.
+
+<Callout title="An empty field is NaN">
+  When the user clears the input, `onChange` receives `NaN`, not `0` or
+  `null`. Check with `Number.isNaN(value)` before doing arithmetic, and use
+  `isRequired` if an empty value isn't allowed.
+</Callout>
+
+### When to use
+
+- Number Field — quantities, prices, percentages, measurements: any value that is really a number and benefits from steppers, formatting or a range.
+- [Slider](/docs/components/slider) — picking an approximate value in a range, where the exact number matters less than its position.
+- [Text Field](/docs/components/text-field) — number-like strings that aren't quantities: phone numbers, postal codes, card numbers, IDs. Use `inputMode="numeric"` there.
+- [Input OTP](/docs/components/input-otp) — one-time verification codes.
+
+## Anatomy
+
+```tsx
+<NumberField>              {/* root: <div>, owns the number value and validation */}
+  <Label />                {/* from `label` */}
+  <FieldGroup>             {/* role="group": the visible box */}
+    <Button slot="decrement" />  {/* stepper="split" only */}
+    <FieldInput />               {/* the text <input> */}
+    <Button slot="increment" />  {/* stepper="split" only */}
+    <div>                        {/* stepper="stacked" only */}
+      <Button slot="increment" />
+      <Button slot="decrement" />
+    </div>
+  </FieldGroup>
+  <Description />          {/* from `description` */}
+  <FieldError />           {/* shown only while invalid */}
+</NumberField>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `NumberField` | `<div>` | Root. Carries `data-slot="number-field"`, the `group/field` class and all state attributes. |
+| `Label` | `<label>` | Rendered when `label` is set. |
+| `FieldGroup` | `<div role="group">` | The visible box. Groups the input and steppers for assistive technology. |
+| `FieldInput` | `<input type="text">` | Shows the formatted value. `inputMode` is chosen from `minValue` and the format so the right mobile keyboard appears. |
+| Increment / decrement | `<button>` | Chevrons (`stacked`) or plus/minus (`split`). Labelled "Increase …" / "Decrease …", excluded from the tab order, disabled at the bounds. Hold to repeat. |
+| `Description` | `<span slot="description">` | Rendered when `description` is set. |
+| `FieldError` | `<span slot="errorMessage">` | Rendered only while invalid. |
+| Hidden `<input>` | `<input type="hidden">` | Rendered when `name` is set. Submits the raw number, not the formatted text. |
+
+## Examples
+
+### Variants
+
+`outline` (default), `filled` for dense or tinted surfaces, and `underlined` for minimal forms. The same variants apply to every field component.
+
+<ComponentPreview name="number-field/variants" />
+
+### Sizes
+
+`sm` (28px), `md` (32px, default) and `lg` (40px), matching the buttons and other fields.
+
+<ComponentPreview name="number-field/sizes" />
+
+### Stepper layouts
+
+`stepper="stacked"` (default) puts compact chevrons on the right. `split` puts larger − and + buttons on either side, which suits touch and quantity pickers. `none` hides the buttons; the arrow keys and scroll wheel still work.
+
+<ComponentPreview name="number-field/steppers" />
+
+### Formatting
+
+`formatOptions` takes any `Intl.NumberFormat` option: currency, percent, units, fraction digits, sign display, grouping. Users can type in their locale's format, including the currency symbol or percent sign. Percent values are fractions: `0.15` displays as 15%.
+
+<ComponentPreview name="number-field/formatting" />
+
+### Range and step
+
+`minValue` and `maxValue` bound the value; the steppers disable at each end. `step` sets the increment, and typed values snap to the nearest step (counted from `minValue`) on blur. Fractional steps work with any format.
+
+<ComponentPreview name="number-field/range" />
+
+### Disabled and read only
+
+`isDisabled` disables the input and steppers. `isReadOnly` keeps the formatted value focusable and selectable but blocks edits and stepping.
+
+<ComponentPreview name="number-field/disabled" />
+
+### Controlled
+
+`value` and `onChange` let you derive UI from the number, like a live total. `onChange` fires when the value is committed (on blur, <kbd>Enter</kbd> or a step), not on every keystroke.
+
+<ComponentPreview name="number-field/controlled" />
+
+### Required and range validation
+
+By default an out-of-range value is clamped on blur. Set `commitBehavior="validate"` to keep what the user typed and show a range error instead, so they notice the limit. With native validation, the form won't submit until the field is valid.
+
+<ComponentPreview name="number-field/validation" />
+
+### Custom validation
+
+`validate` receives the parsed number (`NaN` when empty) and returns an error string or `null`. With `validationBehavior="aria"` on the `Form`, errors show live.
+
+<ComponentPreview name="number-field/custom-validation" />
+
+### Form submission
+
+Set `name` and the raw number is submitted through a hidden input: `1500`, not `€1,500.00`, and `0.1`, not `10%`. An empty field submits an empty string.
+
+<ComponentPreview name="number-field/form" />
+
+## Recipes
+
+### Cart quantities
+
+Small `split` steppers in a line-item list, each with an `aria-label` that names the product, driving a live subtotal.
+
+<ComponentPreview name="number-field/recipe-cart" />
+
+### Resource limits
+
+A settings list where each field is labelled by its row title via `aria-labelledby`, with unit formatting and per-row ranges.
+
+<ComponentPreview name="number-field/recipe-limits" />
+
+## Accessibility
+
+- The input is a text field with `aria-roledescription="number field"`, so screen readers announce it as a number field along with its formatted value.
+- The input and steppers are wrapped in a `role="group"` labelled by the field label.
+- Stepper buttons are named "Increase Seats" / "Decrease Seats" from the label (override with `incrementAriaLabel` / `decrementAriaLabel`). They're skipped in the tab order because the arrow keys do the same job.
+- Values are formatted and parsed with the user's locale, including their decimal and grouping separators and numbering system.
+- `inputMode` is set automatically (`numeric`, `decimal` or `text`) so mobile keyboards include a minus sign or decimal point only when needed.
+- The scroll wheel steps the value only while the field has focus. Disable it with `isWheelDisabled` in scrollable layouts.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Increments / decrements by `step` |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Increments / decrements by `step` |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Sets the value to `minValue` / `maxValue`, when set |
+| <kbd>Enter</kbd> | Commits the typed value (parse, clamp, snap and format) |
+
+## Styling
+
+### Data attributes
+
+On the `NumberField` root. Children can react with `group-data-*/field:` variants.
+
+| Attribute | Present when |
+| --- | --- |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+| `data-required` | `isRequired` is true |
+| `data-invalid` | Validation failed, or `isInvalid` is true |
+
+On the `FieldGroup`: `data-hovered`, `data-focus-within`, `data-focus-visible`, `data-invalid` and `data-disabled`. On each stepper button: `data-hovered`, `data-pressed`, `data-disabled` (at a bound) and `data-focus-visible`.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `number-field` | Root |
+| `label`, `description`, `field-error` | Field text |
+| `field-group` | Visible box |
+| `field-input` | `<input>` |
+
+The input uses `tabular-nums` so digits don't shift while stepping. The box styles come from `fieldVariants` in `field.tsx`; see [Text Field](/docs/components/text-field#style-helpers).
+
+### Render props
+
+`className` also accepts a function of the field state, which includes the live `state` (`numberValue`, `canIncrement`, `canDecrement`):
+
+```tsx
+<NumberField
+  label="Balance"
+  className={({ state }) => (state.numberValue < 0 ? "text-destructive" : "")}
+/>
+```
+
+## API Reference
+
+### NumberField
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text shown under the input." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message while invalid." },
+    placeholder: { type: "string", description: "Shown while the input is empty." },
+    stepper: { type: '"stacked" | "split" | "none"', default: '"stacked"', description: "Layout of the increment and decrement buttons." },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    value: { type: "number", description: "Controlled value. NaN means empty." },
+    defaultValue: { type: "number", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: number) => void", description: "Called when the value is committed: on blur, Enter or a step." },
+    minValue: { type: "number", description: "Smallest allowed value. Also enables Home." },
+    maxValue: { type: "number", description: "Largest allowed value. Also enables End." },
+    step: { type: "number", default: "1", description: "Increment for steppers and arrow keys. Typed values snap to it." },
+    formatOptions: { type: "Intl.NumberFormatOptions", description: "Display format: currency, percent, unit, fraction digits and more. Also limits which characters can be typed." },
+    commitBehavior: { type: '"snap" | "validate"', default: '"snap"', description: "snap clamps and rounds on blur; validate keeps the typed value and reports range and step errors." },
+    isWheelDisabled: { type: "boolean", default: "false", description: "Stops the scroll wheel from changing the value while focused." },
+    incrementAriaLabel: { type: "string", description: 'Accessible name for the increment button. Defaults to "Increase" plus the label.' },
+    decrementAriaLabel: { type: "string", description: 'Accessible name for the decrement button. Defaults to "Decrease" plus the label.' },
+    name: { type: "string", description: "Submits the raw number through a hidden input." },
+    form: { type: "string", description: "Id of the form this field belongs to." },
+    isRequired: { type: "boolean", default: "false" },
+    isDisabled: { type: "boolean", default: "false" },
+    isReadOnly: { type: "boolean", default: "false" },
+    isInvalid: { type: "boolean", description: "Forces the invalid state, e.g. for server errors." },
+    validate: { type: "(value: number) => ValidationError | true | null | undefined", description: "Custom validation. Return an error message to mark the field invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live. Inherits from a parent Form." },
+    autoFocus: { type: "boolean" },
+    onFocus: { type: "(e: FocusEvent) => void" },
+    onBlur: { type: "(e: FocusEvent) => void" },
+    onKeyDown: { type: "(e: KeyboardEvent) => void" },
+    className: { type: "string | ((state: NumberFieldRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`NumberField`](https://react-aria.adobe.com/NumberField#api).
+
+## Related
+
+- [Slider](/docs/components/slider) — for approximate values in a range.
+- [Text Field](/docs/components/text-field) — for number-like strings, and the shared field building blocks.
+- [Select](/docs/components/select) — shares the same field variants and sizes.

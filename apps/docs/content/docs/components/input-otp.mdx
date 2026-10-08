@@ -1,0 +1,261 @@
+---
+title: Input OTP
+description: A one-time code input split into individual character slots. Backed by a single real input, so paste, SMS and password-manager autofill, and screen readers work. Supports digit or alphanumeric patterns, grouped or separated slots, auto-verify on complete, invalid states and form submission.
+---
+
+<ComponentLinks docs={{ label: "input-otp", href: "https://input-otp.rodz.dev" }} source="input-otp" />
+
+<ComponentPreview name="input-otp/demo" />
+
+## Installation
+
+<InstallTabs name="input-otp" />
+
+## Usage
+
+```tsx
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+```
+
+```tsx
+<InputOTP maxLength={6} aria-label="Verification code">
+  <InputOTPGroup>
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+    <InputOTPSlot index={2} />
+  </InputOTPGroup>
+  <InputOTPSeparator />
+  <InputOTPGroup>
+    <InputOTPSlot index={3} />
+    <InputOTPSlot index={4} />
+    <InputOTPSlot index={5} />
+  </InputOTPGroup>
+</InputOTP>
+```
+
+`InputOTP` wraps the [`input-otp`](https://input-otp.rodz.dev) package. It renders one transparent `<input>` stretched over the slots; the slots only display what's typed, reading each character and the caret position from context. Render one `InputOTPSlot` per character, with `index` from `0` to `maxLength - 1`.
+
+<Callout title="Not a React Aria component">
+  Unlike the other fields, `InputOTP` takes native input props such as
+  `disabled` and `required`, not `isDisabled` or `isRequired`. Its `onChange`
+  receives the new value as a string. The caret needs the `animate-caret-blink`
+  keyframes, which the registry adds to your CSS on install.
+</Callout>
+
+### When to use
+
+- Input OTP — short verification codes of a fixed length: email or SMS codes, authenticator (TOTP) codes, PINs, recovery codes.
+- [Text Field](/docs/components/text-field) — codes of variable length, or when you'd rather show a single box (`inputMode="numeric"`, `autoComplete="one-time-code"`).
+- [Number Field](/docs/components/number-field) — actual quantities. Codes aren't numbers: leading zeros matter.
+
+## Anatomy
+
+```tsx
+<InputOTP>                 {/* container <div> + one real <input> */}
+  <InputOTPGroup>          {/* joined or separated set of slots */}
+    <InputOTPSlot index={0} />
+    <InputOTPSlot index={1} />
+  </InputOTPGroup>
+  <InputOTPSeparator />    {/* optional visual divider */}
+  <InputOTPGroup>…</InputOTPGroup>
+</InputOTP>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `InputOTP` | `<div>` + `<input>` | The container (`containerClassName`) is a flex row with a gap and dims when the input is disabled. The input (`className`, `data-slot="input-otp"`) receives every native input prop. |
+| `InputOTPGroup` | `<div>` | `variant="joined"` (default) draws slots as one segmented box; `separated` draws individual boxes with a gap. |
+| `InputOTPSlot` | `<div>` | Displays the character at `index`, a blinking fake caret when it's the active empty slot, and a focus ring while active. |
+| `InputOTPSeparator` | `<div role="separator">` | A muted minus icon between groups. Purely visual. |
+
+## Examples
+
+### Separated slots
+
+`variant="separated"` on `InputOTPGroup` renders each slot as its own rounded box. Joined slots read as one field; separated slots suit larger, touch-first layouts.
+
+<ComponentPreview name="input-otp/separated" />
+
+### Digits only
+
+`pattern` takes a regex source string; characters and pastes that don't match are rejected. The package exports `REGEXP_ONLY_DIGITS`, `REGEXP_ONLY_CHARS` and `REGEXP_ONLY_DIGITS_AND_CHARS`. The mobile keyboard is numeric by default (`inputMode="numeric"`).
+
+<ComponentPreview name="input-otp/digits-only" />
+
+### Alphanumeric codes
+
+For recovery or invite codes, allow letters with `REGEXP_ONLY_DIGITS_AND_CHARS`, switch to `inputMode="text"`, and use `pasteTransformer` to strip spaces or dashes from pasted codes. `uppercase` on the slots displays letters in capitals; the value keeps the case the user typed.
+
+<ComponentPreview name="input-otp/alphanumeric" />
+
+### Sizes
+
+Slots are 40px squares by default. Resize them with `className` on each `InputOTPSlot` (`size-*` and a text size), and adjust the group's gap for separated slots.
+
+<ComponentPreview name="input-otp/sizes" />
+
+### Placeholder
+
+`placeholder` on `InputOTP` is split across the slots: slot `n` shows character `n` in a muted color. As in input-otp itself, the placeholder is shown only while the whole input is empty, and it's hidden in the slot that has the blinking caret. The string is also exposed to screen readers as `aria-placeholder` on the input.
+
+<ComponentPreview name="input-otp/placeholder" />
+
+### Controlled
+
+`value` and `onChange` hold the code as a string. Set it to `""` to clear.
+
+<ComponentPreview name="input-otp/controlled" />
+
+### Verify on complete
+
+`onComplete` fires with the full code when the last slot is filled, so users don't need a submit button. Disable the input while you check it, and announce the result in an `aria-live` region.
+
+<ComponentPreview name="input-otp/on-complete" />
+
+### Invalid
+
+Slots turn red when they carry `aria-invalid`. Set it on each `InputOTPSlot` for the visual state, and on `InputOTP` (with `aria-describedby` pointing at the message) so screen readers hear it.
+
+<ComponentPreview name="input-otp/invalid" />
+
+### Disabled
+
+`disabled` disables the input; the container dims through `has-disabled:opacity-50`.
+
+<ComponentPreview name="input-otp/disabled" />
+
+### Form submission
+
+The real input submits under its `name`. Use `required` and `minLength` equal to `maxLength` for native validation, and link a visible `<label>` with `id` / `htmlFor`.
+
+<ComponentPreview name="input-otp/form" />
+
+## Recipes
+
+### Verify email
+
+A verification card: the heading labels the input through `aria-labelledby`, submit stays disabled until all six digits are in, and a resend link has a cooldown.
+
+<ComponentPreview name="input-otp/recipe-verify-email" />
+
+### Two-factor sign-in
+
+Authenticator codes with a switch to 10-character recovery codes. Changing mode remounts the input (`key`) with a new `maxLength`, `pattern` and `inputMode`; a wrong code marks the slots invalid.
+
+<ComponentPreview name="input-otp/recipe-two-factor" />
+
+## Accessibility
+
+- A single native `<input>` holds the value, so screen readers announce one text field, and paste, SMS one-time-code autofill (`autoComplete="one-time-code"` is the default) and password managers work.
+- Always provide a label: `aria-label`, `aria-labelledby`, or a `<label htmlFor>` pointing at the input's `id`. The slots are visual only.
+- The separator has `role="separator"` and a decorative icon.
+- Announce verification results and errors with `aria-live`, and set `aria-invalid` plus `aria-describedby` on `InputOTP` for invalid codes; the slot styling alone isn't announced.
+- Prefer `onComplete` for auto-verify, but keep a way to retry and don't clear the code without telling the user.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| Typing | Fills the active slot and moves to the next one |
+| <kbd>Backspace</kbd> | Deletes the previous character |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves the caret between slots |
+| <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>V</kbd> | Pastes a whole code, after `pasteTransformer` and `pattern` checks |
+
+## Styling
+
+### Data attributes
+
+| Attribute | Element | Present when |
+| --- | --- | --- |
+| `data-active="true"` | `InputOTPSlot` | The caret or selection is on this slot while the input is focused |
+| `data-placeholder` | `InputOTPSlot` | The slot is showing its placeholder character |
+| `aria-invalid` | `InputOTPSlot` | You pass it; draws a destructive border |
+| `data-variant` | `InputOTPGroup` | Always: `joined` or `separated` |
+| `data-input-otp-container` | Container | Always (set by the package) |
+
+Slots read their group's variant through `group/otp`, so `group-data-[variant=separated]/otp:` targets separated slots from your own classes.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `input-otp` | The real `<input>` |
+| `input-otp-group` | Group |
+| `input-otp-slot` | Slot |
+| `input-otp-separator` | Separator |
+
+`containerClassName` styles the row around the slots; `className` styles the transparent input itself. The fake caret uses the `animate-caret-blink` utility.
+
+## API Reference
+
+### InputOTP
+
+<TypeTable
+  type={{
+    maxLength: { type: "number", description: "Required. Number of characters (and slots)." },
+    children: { type: "ReactNode", description: "Groups, slots and separators. Required unless you pass render." },
+    value: { type: "string", description: "Controlled value." },
+    defaultValue: { type: "string", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: string) => void", description: "Called with the new value (a string, not an event)." },
+    onComplete: { type: "(value: string) => void", description: "Called when all slots are filled." },
+    pattern: { type: "string", description: "Regex source every character must match, e.g. REGEXP_ONLY_DIGITS." },
+    pasteTransformer: { type: "(pasted: string) => string", description: "Cleans pasted text before it is checked and inserted." },
+    placeholder: { type: "string", description: "One character per slot, shown muted in the slots while the input is empty." },
+    inputMode: { type: '"numeric" | "text" | "decimal" | "tel" | …', default: '"numeric"', description: "Virtual keyboard hint." },
+    autoComplete: { type: "string", default: '"one-time-code"', description: "Autofill hint; the default enables SMS code autofill." },
+    textAlign: { type: '"left" | "center" | "right"', default: '"left"', description: "Where the caret sits in the hidden input." },
+    pushPasswordManagerStrategy: { type: '"increase-width" | "none"', default: '"increase-width"', description: "Widens the input so password-manager badges don't cover the last slot." },
+    containerClassName: { type: "string", description: "Classes for the container row." },
+    className: { type: "string", description: "Classes for the transparent input." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    required: { type: "boolean", description: "Native required constraint." },
+    minLength: { type: "number", description: "Native minimum length; set it to maxLength to require a full code." },
+    disabled: { type: "boolean", description: "Disables the input and dims the slots." },
+    autoFocus: { type: "boolean" },
+    id: { type: "string", description: "Id of the input, for a <label htmlFor>." },
+    "aria-label": { type: "string" },
+    "aria-labelledby": { type: "string" },
+    "aria-invalid": { type: "boolean", description: "Announces the code as invalid. Pair with aria-describedby." },
+    render: { type: "(props: RenderProps) => ReactNode", description: "Alternative to children: render slots from { slots, isFocused, isHovering }." },
+  }}
+/>
+
+Also accepts every native `<input>` attribute. See the [input-otp docs](https://input-otp.rodz.dev) for the full API.
+
+### InputOTPGroup
+
+<TypeTable
+  type={{
+    variant: { type: '"joined" | "separated"', default: '"joined"', description: "joined slots share borders; separated slots are individual boxes." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every `<div>` prop.
+
+### InputOTPSlot
+
+<TypeTable
+  type={{
+    index: { type: "number", description: "Required. Position of the character this slot displays, from 0." },
+    className: { type: "string", description: "Resize or restyle the slot, e.g. size-12 text-xl." },
+    "aria-invalid": { type: "boolean", description: "Draws the destructive border." },
+  }}
+/>
+
+Also accepts every `<div>` prop. While the input is empty, the slot renders its character of the input's `placeholder` (muted, `aria-hidden`).
+
+### InputOTPSeparator
+
+Accepts every `<div>` prop. Renders `role="separator"` with a minus icon.
+
+## Related
+
+- [Text Field](/docs/components/text-field) — for codes of variable length.
+- [Number Field](/docs/components/number-field) — for real numbers.
+- [Dialog](/docs/components/dialog) — a common home for verification steps.

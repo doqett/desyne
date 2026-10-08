@@ -1,0 +1,303 @@
+---
+title: Colors & tokens
+description: Every design token with its light and dark value, the Tailwind utilities it maps to, and the complete CSS to paste into a project.
+---
+
+export function Swatch({ token }) {
+  return (
+    <span
+      aria-hidden
+      className="inline-block size-5 rounded-md border align-middle"
+      style={{ background: `var(--${token})` }}
+    />
+  );
+}
+
+Tokens use [shadcn's names](https://ui.shadcn.com/docs/theming) and OKLCH values. Each
+token is exposed to Tailwind as a color through `@theme inline`, so `--brand` becomes
+`bg-brand`, `text-brand`, `border-brand`, `ring-brand` and so on, with opacity
+modifiers like `bg-brand/10`.
+
+<Callout title="Source of truth">
+  These values come from `theme.css` in the library. The swatches show the live values
+  on this site, so toggle the site theme to compare light and dark.
+</Callout>
+
+## Color tokens
+
+### Surfaces
+
+| | Token | Light | Dark |
+| --- | --- | --- | --- |
+| <Swatch token="background" /> | `--background` | `oklch(0.984 0.002 286)` | `oklch(0.145 0.004 286)` |
+| <Swatch token="foreground" /> | `--foreground` | `oklch(0.205 0.006 286)` | `oklch(0.97 0.002 286)` |
+| <Swatch token="card" /> | `--card` | `oklch(1 0 0)` | `oklch(0.185 0.005 286)` |
+| <Swatch token="card-foreground" /> | `--card-foreground` | `oklch(0.205 0.006 286)` | `oklch(0.97 0.002 286)` |
+| <Swatch token="popover" /> | `--popover` | `oklch(1 0 0)` | `oklch(0.205 0.006 286)` |
+| <Swatch token="popover-foreground" /> | `--popover-foreground` | `oklch(0.205 0.006 286)` | `oklch(0.97 0.002 286)` |
+
+### Actions and emphasis
+
+| | Token | Light | Dark |
+| --- | --- | --- | --- |
+| <Swatch token="primary" /> | `--primary` | `oklch(0.215 0.006 286)` | `oklch(0.965 0.002 286)` |
+| <Swatch token="primary-foreground" /> | `--primary-foreground` | `oklch(0.985 0 0)` | `oklch(0.2 0.006 286)` |
+| <Swatch token="brand" /> | `--brand` | `oklch(0.54 0.21 277)` | `oklch(0.67 0.18 277)` |
+| <Swatch token="brand-foreground" /> | `--brand-foreground` | `oklch(0.99 0.005 277)` | `oklch(0.99 0.005 277)` |
+| <Swatch token="secondary" /> | `--secondary` | `oklch(0.967 0.002 286)` | `oklch(0.235 0.006 286)` |
+| <Swatch token="secondary-foreground" /> | `--secondary-foreground` | `oklch(0.25 0.006 286)` | `oklch(0.95 0.002 286)` |
+| <Swatch token="muted" /> | `--muted` | `oklch(0.967 0.002 286)` | `oklch(0.225 0.006 286)` |
+| <Swatch token="muted-foreground" /> | `--muted-foreground` | `oklch(0.54 0.012 286)` | `oklch(0.7 0.012 286)` |
+| <Swatch token="accent" /> | `--accent` | `oklch(0.955 0.003 286)` | `oklch(0.255 0.006 286)` |
+| <Swatch token="accent-foreground" /> | `--accent-foreground` | `oklch(0.205 0.006 286)` | `oklch(0.97 0.002 286)` |
+
+### Status
+
+| | Token | Light | Dark |
+| --- | --- | --- | --- |
+| <Swatch token="destructive" /> | `--destructive` | `oklch(0.585 0.22 25)` | `oklch(0.66 0.2 22)` |
+| <Swatch token="destructive-foreground" /> | `--destructive-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` |
+| <Swatch token="success" /> | `--success` | `oklch(0.62 0.16 150)` | `oklch(0.72 0.15 150)` |
+| <Swatch token="success-foreground" /> | `--success-foreground` | `oklch(0.99 0 0)` | `oklch(0.2 0.05 150)` |
+| <Swatch token="warning" /> | `--warning` | `oklch(0.76 0.16 70)` | `oklch(0.8 0.15 75)` |
+| <Swatch token="warning-foreground" /> | `--warning-foreground` | `oklch(0.25 0.06 70)` | `oklch(0.25 0.06 70)` |
+| <Swatch token="info" /> | `--info` | `oklch(0.6 0.16 240)` | `oklch(0.7 0.14 240)` |
+| <Swatch token="info-foreground" /> | `--info-foreground` | `oklch(0.99 0 0)` | `oklch(0.2 0.05 240)` |
+
+### Lines and focus
+
+| | Token | Light | Dark |
+| --- | --- | --- | --- |
+| <Swatch token="border" /> | `--border` | `oklch(0.925 0.003 286)` | `oklch(1 0 0 / 8%)` |
+| <Swatch token="input" /> | `--input` | `oklch(0.895 0.004 286)` | `oklch(1 0 0 / 13%)` |
+| <Swatch token="ring" /> | `--ring` | `oklch(0.54 0.21 277)` | `oklch(0.67 0.18 277)` |
+
+### Charts
+
+| | Token | Light | Dark |
+| --- | --- | --- | --- |
+| <Swatch token="chart-1" /> | `--chart-1` | `oklch(0.54 0.21 277)` | `oklch(0.67 0.18 277)` |
+| <Swatch token="chart-2" /> | `--chart-2` | `oklch(0.7 0.13 185)` | `oklch(0.74 0.12 185)` |
+| <Swatch token="chart-3" /> | `--chart-3` | `oklch(0.78 0.15 75)` | `oklch(0.8 0.14 75)` |
+| <Swatch token="chart-4" /> | `--chart-4` | `oklch(0.65 0.2 350)` | `oklch(0.7 0.18 350)` |
+| <Swatch token="chart-5" /> | `--chart-5` | `oklch(0.7 0.12 235)` | `oklch(0.74 0.12 235)` |
+
+### Sidebar
+
+| | Token | Light | Dark |
+| --- | --- | --- | --- |
+| <Swatch token="sidebar" /> | `--sidebar` | `oklch(0.975 0.002 286)` | `oklch(0.165 0.005 286)` |
+| <Swatch token="sidebar-foreground" /> | `--sidebar-foreground` | `oklch(0.205 0.006 286)` | `oklch(0.97 0.002 286)` |
+| <Swatch token="sidebar-primary" /> | `--sidebar-primary` | `oklch(0.215 0.006 286)` | `oklch(0.965 0.002 286)` |
+| <Swatch token="sidebar-primary-foreground" /> | `--sidebar-primary-foreground` | `oklch(0.985 0 0)` | `oklch(0.2 0.006 286)` |
+| <Swatch token="sidebar-accent" /> | `--sidebar-accent` | `oklch(1 0 0)` | `oklch(0.225 0.006 286)` |
+| <Swatch token="sidebar-accent-foreground" /> | `--sidebar-accent-foreground` | `oklch(0.205 0.006 286)` | `oklch(0.97 0.002 286)` |
+| <Swatch token="sidebar-border" /> | `--sidebar-border` | `oklch(0.925 0.003 286)` | `oklch(1 0 0 / 8%)` |
+| <Swatch token="sidebar-ring" /> | `--sidebar-ring` | `oklch(0.54 0.21 277)` | `oklch(0.67 0.18 277)` |
+
+Neutrals use hue `286` with very low chroma, which gives the grays a faint cool tint
+that matches the indigo brand. In dark mode, `--border` and `--input` are translucent
+white, so they adapt to whatever surface they sit on.
+
+## Radius
+
+| Token | Default | Utilities |
+| --- | --- | --- |
+| `--radius` | `0.625rem` | `rounded-xs` (−6px), `rounded-sm` (−4px), `rounded-md` (−2px), `rounded-lg`, `rounded-xl` (+4px) |
+
+## Additive tokens
+
+shadcn/ui doesn't define these. When you install a component through the CLI, the
+`primitive` item adds them to your CSS automatically:
+
+| Token | Purpose |
+| --- | --- |
+| `--brand`, `--brand-foreground` | Accent for selection, focus and links |
+| `--destructive-foreground` | Text on solid destructive fills |
+| `--success`, `--success-foreground` | Positive states |
+| `--warning`, `--warning-foreground` | Caution states |
+| `--info`, `--info-foreground` | Neutral information |
+
+## Using tokens in your own code
+
+```tsx
+// Utilities
+<div className="rounded-xl border bg-card p-4 text-card-foreground" />
+<p className="text-muted-foreground text-sm" />
+<span className="bg-brand/10 text-brand" />
+
+// Arbitrary values for anything without a utility
+<div className="shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_20%,transparent)]" />
+```
+
+Prefer semantic tokens over raw palette colors (`bg-card`, not `bg-white`). Semantic
+tokens switch with dark mode and with any theme you scope to an element.
+
+## The complete CSS
+
+Paste this into your global stylesheet when you aren't using `shadcn init`, or when you
+want Desyne's default look instead of your current shadcn theme.
+
+```css title="app/globals.css"
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.625rem;
+
+  /* Surfaces: canvas < card (white) ; muted = inset panels inside cards */
+  --background: oklch(0.984 0.002 286);
+  --foreground: oklch(0.205 0.006 286);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.205 0.006 286);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.205 0.006 286);
+
+  /* Ink primary for the main action; brand (indigo) for selection, focus, links */
+  --primary: oklch(0.215 0.006 286);
+  --primary-foreground: oklch(0.985 0 0);
+  --brand: oklch(0.54 0.21 277);
+  --brand-foreground: oklch(0.99 0.005 277);
+  --secondary: oklch(0.967 0.002 286);
+  --secondary-foreground: oklch(0.25 0.006 286);
+  --muted: oklch(0.967 0.002 286);
+  --muted-foreground: oklch(0.54 0.012 286);
+  --accent: oklch(0.955 0.003 286);
+  --accent-foreground: oklch(0.205 0.006 286);
+
+  --destructive: oklch(0.585 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.62 0.16 150);
+  --success-foreground: oklch(0.99 0 0);
+  --warning: oklch(0.76 0.16 70);
+  --warning-foreground: oklch(0.25 0.06 70);
+  --info: oklch(0.6 0.16 240);
+  --info-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.925 0.003 286);
+  --input: oklch(0.895 0.004 286);
+  --ring: oklch(0.54 0.21 277);
+
+  --chart-1: oklch(0.54 0.21 277);
+  --chart-2: oklch(0.7 0.13 185);
+  --chart-3: oklch(0.78 0.15 75);
+  --chart-4: oklch(0.65 0.2 350);
+  --chart-5: oklch(0.7 0.12 235);
+
+  --sidebar: oklch(0.975 0.002 286);
+  --sidebar-foreground: oklch(0.205 0.006 286);
+  --sidebar-primary: oklch(0.215 0.006 286);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(1 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0.006 286);
+  --sidebar-border: oklch(0.925 0.003 286);
+  --sidebar-ring: oklch(0.54 0.21 277);
+}
+
+.dark {
+  --background: oklch(0.145 0.004 286);
+  --foreground: oklch(0.97 0.002 286);
+  --card: oklch(0.185 0.005 286);
+  --card-foreground: oklch(0.97 0.002 286);
+  --popover: oklch(0.205 0.006 286);
+  --popover-foreground: oklch(0.97 0.002 286);
+
+  --primary: oklch(0.965 0.002 286);
+  --primary-foreground: oklch(0.2 0.006 286);
+  --brand: oklch(0.67 0.18 277);
+  --brand-foreground: oklch(0.99 0.005 277);
+  --secondary: oklch(0.235 0.006 286);
+  --secondary-foreground: oklch(0.95 0.002 286);
+  --muted: oklch(0.225 0.006 286);
+  --muted-foreground: oklch(0.7 0.012 286);
+  --accent: oklch(0.255 0.006 286);
+  --accent-foreground: oklch(0.97 0.002 286);
+
+  --destructive: oklch(0.66 0.2 22);
+  --destructive-foreground: oklch(0.99 0 0);
+  --success: oklch(0.72 0.15 150);
+  --success-foreground: oklch(0.2 0.05 150);
+  --warning: oklch(0.8 0.15 75);
+  --warning-foreground: oklch(0.25 0.06 70);
+  --info: oklch(0.7 0.14 240);
+  --info-foreground: oklch(0.2 0.05 240);
+
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 13%);
+  --ring: oklch(0.67 0.18 277);
+
+  --chart-1: oklch(0.67 0.18 277);
+  --chart-2: oklch(0.74 0.12 185);
+  --chart-3: oklch(0.8 0.14 75);
+  --chart-4: oklch(0.7 0.18 350);
+  --chart-5: oklch(0.74 0.12 235);
+
+  --sidebar: oklch(0.165 0.005 286);
+  --sidebar-foreground: oklch(0.97 0.002 286);
+  --sidebar-primary: oklch(0.965 0.002 286);
+  --sidebar-primary-foreground: oklch(0.2 0.006 286);
+  --sidebar-accent: oklch(0.225 0.006 286);
+  --sidebar-accent-foreground: oklch(0.97 0.002 286);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: oklch(0.67 0.18 277);
+}
+
+@theme inline {
+  --radius-xs: calc(var(--radius) - 6px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+```

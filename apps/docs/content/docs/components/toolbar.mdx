@@ -1,0 +1,156 @@
+---
+title: Toolbar
+description: A row or column of buttons, toggles and menus that acts as a single tab stop, with arrow-key navigation between controls. Includes groups, separators that follow the orientation, and plain, outline and floating styles.
+---
+
+<ComponentLinks aria="Toolbar" source="toolbar" />
+
+<ComponentPreview name="toolbar/demo" />
+
+## Installation
+
+<InstallTabs name="toolbar" />
+
+## Usage
+
+```tsx
+import { Toolbar, ToolbarGroup, ToolbarSeparator } from "@/components/ui/toolbar";
+```
+
+```tsx
+<Toolbar aria-label="Text formatting">
+  <ToolbarGroup aria-label="Style">
+    <ToggleButton aria-label="Bold"><BoldIcon /></ToggleButton>
+    <ToggleButton aria-label="Italic"><ItalicIcon /></ToggleButton>
+  </ToolbarGroup>
+  <ToolbarSeparator />
+  <Button variant="ghost" size="icon-sm" aria-label="Insert link"><LinkIcon /></Button>
+</Toolbar>
+```
+
+Put any [Button](/docs/components/button), [Toggle Button](/docs/components/toggle-button), [Toggle Button Group](/docs/components/toggle-button-group) or [Menu](/docs/components/menu) trigger inside. The toolbar doesn't style its children, so pick ghost buttons and a small size to match.
+
+### When to use
+
+- Toolbar — a set of related commands for one area: editor formatting, canvas tools, bulk actions on selected rows, a document header.
+- A plain flex row of buttons — two or three unrelated actions such as Cancel and Save. Those should each be tab stops.
+- [Toggle Button Group](/docs/components/toggle-button-group) — a single choice or multi-choice set on its own. Inside a toolbar it becomes one of the toolbar's groups.
+- [Menu](/docs/components/menu) — when commands don't fit, move the rest behind a "More" menu trigger in the toolbar.
+
+## Anatomy
+
+```tsx
+<Toolbar>                 {/* role="toolbar" */}
+  <ToolbarGroup>          {/* role="group" */}
+    <Button />
+  </ToolbarGroup>
+  <ToolbarSeparator />    {/* role="separator", perpendicular to the toolbar */}
+  <MenuTrigger />
+</Toolbar>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Toolbar` | `<div role="toolbar">` | React Aria `Toolbar`. Sets `aria-orientation` and manages arrow-key focus. `data-orientation` drives the layout. |
+| `ToolbarGroup` | `<div role="group">` | Groups related controls. Label it with `aria-label`. |
+| `ToolbarSeparator` | `<div role="separator">` | A vertical line in a horizontal toolbar and a horizontal line in a vertical one, with matching `aria-orientation`. |
+
+## Examples
+
+### Vertical
+
+`orientation="vertical"` stacks the controls, for tool palettes on a canvas. Up and down arrows move focus. Separators turn horizontal on their own. Pass `orientation="vertical"` to a nested `ToggleButtonGroup` too.
+
+<ComponentPreview name="toolbar/vertical" />
+
+### Variants
+
+`plain` (default) has no frame, for headers and editor chrome. `outline` draws a bordered bar on the card surface. `floating` uses the popover surface and a larger shadow, for bars that hover over content.
+
+<ComponentPreview name="toolbar/variants" />
+
+### Bulk actions
+
+A `floating` toolbar for actions on selected rows, with a live count. Keep text fields such as search outside the toolbar: the toolbar uses <kbd>←</kbd> and <kbd>→</kbd> to move focus, which would stop the cursor moving inside the input.
+
+<ComponentPreview name="toolbar/table-actions" />
+
+### With a menu
+
+A [Menu](/docs/components/menu) trigger works like any other button in the toolbar: arrow keys reach it, and <kbd>Enter</kbd>, <kbd>Space</kbd> or <kbd>↓</kbd> opens it. Disabled buttons are skipped by arrow keys.
+
+<ComponentPreview name="toolbar/with-menu" />
+
+## Accessibility
+
+- The toolbar is one tab stop. <kbd>Tab</kbd> moves focus into it (to the last focused control) and out of it; arrow keys move between controls.
+- Every toolbar needs an accessible name: `aria-label` or `aria-labelledby`. Label each `ToolbarGroup` too, so screen readers announce "Alignment, group" when focus enters it.
+- Icon-only buttons need `aria-label`. Add a [Tooltip](/docs/components/tooltip) with the same text (and the shortcut) for sighted users.
+- Use `ToggleButton` for on/off formatting, so the pressed state is announced, and `ToggleButtonGroup` with `selectionMode="single"` for mutually exclusive options such as alignment.
+- In right-to-left locales, <kbd>←</kbd> and <kbd>→</kbd> are reversed in a horizontal toolbar.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus into or out of the toolbar |
+| <kbd>→</kbd> / <kbd>←</kbd> | Next / previous control (horizontal) |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Next / previous control (vertical) |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused control |
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-orientation` | `Toolbar` | Always: `horizontal` or `vertical` |
+| `data-variant` | `Toolbar` | Always: `plain`, `outline` or `floating` |
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="toolbar"` | Root |
+| `data-slot="toolbar-group"` | A group |
+| `data-slot="toolbar-separator"` | A separator |
+
+A horizontal toolbar scrolls sideways when it's wider than its container. To wrap instead, pass `className="flex-wrap overflow-visible"`.
+
+## API Reference
+
+### Toolbar
+
+<TypeTable
+  type={{
+    orientation: { type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout and arrow-key direction." },
+    variant: { type: '"plain" | "outline" | "floating"', default: '"plain"', description: "Frame around the controls." },
+    "aria-label": { type: "string", description: "Accessible name. Required unless aria-labelledby is set." },
+    "aria-labelledby": { type: "string", description: "Id of an element that labels the toolbar." },
+    className: { type: "string | ((state: ToolbarRenderProps) => string)", description: "Classes, or a function of { orientation }." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Toolbar`](https://react-aria.adobe.com/Toolbar#api).
+
+### ToolbarGroup
+
+<TypeTable
+  type={{
+    "aria-label": { type: "string", description: "Names the group." },
+    isDisabled: { type: "boolean", description: "Marks the group disabled (data-disabled). Disable the controls themselves too." },
+    className: { type: "string | ((state: GroupRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Group`](https://react-aria.adobe.com/Group#api).
+
+### ToolbarSeparator
+
+Takes React Aria's [`Separator`](https://react-aria.adobe.com/Separator#api) props. `orientation` is set from the toolbar; pass it only to override.
+
+## Related
+
+- [Toggle Button Group](/docs/components/toggle-button-group) — exclusive or multiple toggles, often a toolbar group.
+- [Menu](/docs/components/menu) — overflow commands behind a trigger.
+- [Tooltip](/docs/components/tooltip) — labels for icon buttons.

@@ -1,0 +1,277 @@
+---
+title: Radio Group
+description: Lets users pick exactly one option from a small set that stays visible. Renders as a simple list or as selectable cards with icons, and supports descriptions, horizontal layout, validation and native form submission.
+---
+
+<ComponentLinks aria="RadioGroup" source="radio-group" />
+
+<ComponentPreview name="radio-group/demo" />
+
+## Installation
+
+<InstallTabs name="radio-group" />
+
+## Usage
+
+```tsx
+import { Radio, RadioCard, RadioGroup } from "@/components/ui/radio-group";
+```
+
+```tsx
+<RadioGroup label="Size" defaultValue="m">
+  <Radio value="s">Small</Radio>
+  <Radio value="m">Medium</Radio>
+  <Radio value="l">Large</Radio>
+</RadioGroup>
+```
+
+The group owns the value: a single `string` matching one radio's `value`. `Radio` and `RadioCard` can be mixed freely inside the same group.
+
+### When to use
+
+- Radio Group — one choice from about 2–6 options that users should compare side by side.
+- [Select](/docs/components/select) — one choice from a longer list, or when space is tight.
+- [Checkbox](/docs/components/checkbox) — any number of choices, or a single yes/no that's submitted with a form.
+- [Switch](/docs/components/switch) — a single on/off setting that applies immediately.
+- [Toggle Button Group](/docs/components/toggle-button-group) — a compact, button-styled choice such as alignment or view mode.
+
+## Anatomy
+
+```tsx
+<RadioGroup>                {/* label, description, error message */}
+  <Radio value="…">Label</Radio>
+  <RadioCard value="…" icon={…} title="…" description="…" />
+</RadioGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `RadioGroup` | `<div role="radiogroup">` | Wraps the label, description, radios and error message. `orientation` controls the layout. |
+| `Radio` | `<label>` + hidden `<input type="radio">` | A dot and a label. With `description`, the label becomes a bold title with secondary text under it. |
+| `RadioCard` | `<label>` + hidden `<input type="radio">` | A bordered card with an optional `icon`, a `title`, a `description` and a trailing dot. |
+| Label / Description | `<span>` | Rendered from the group's `label` and `description` props. |
+| `FieldError` | `<div>` | Rendered by the group when validation fails; shows `errorMessage` or the browser message. |
+
+## Examples
+
+### Horizontal
+
+`orientation="horizontal"` lays radios out in a wrapping row and sets `aria-orientation`. Use it for 2–4 short labels.
+
+<ComponentPreview name="radio-group/horizontal" />
+
+### With descriptions
+
+`description` on a `Radio` adds secondary text under the label. Use it when the labels alone don't explain the difference between options.
+
+<ComponentPreview name="radio-group/description" />
+
+### Disabled and read-only
+
+`isDisabled` on a `Radio` makes just that option unavailable while keeping it visible; explain why in the group's `description`. `isDisabled` on the group disables every option. `isReadOnly` shows the value but ignores changes, and keeps the group focusable.
+
+<ComponentPreview name="radio-group/disabled" align="start" />
+
+### Controlled
+
+Use `value` and `onChange` to own the selection. `onChange` receives the selected radio's `value`.
+
+<ComponentPreview name="radio-group/controlled" align="start" />
+
+### Cards
+
+`RadioCard` is a larger target with a leading `icon`, a `title` and a `description`. The whole card is the label, and the selected card gets a brand-colored border.
+
+<ComponentPreview name="radio-group/cards" />
+
+### Card grid
+
+In a horizontal group, give each card `flex-1` and a `min-w-*` so they share the row evenly and wrap on narrow screens.
+
+<ComponentPreview name="radio-group/card-grid" />
+
+### With a follow-up input
+
+Control the group to reveal a related field when a specific option is picked, like "Something else". Place the input after the group, not inside a radio's label.
+
+<ComponentPreview name="radio-group/with-input" align="start" />
+
+### Required and validation
+
+`isRequired` blocks form submission until an option is selected and adds a `*` to the label. With native validation, the `errorMessage` appears after the first submit attempt.
+
+<ComponentPreview name="radio-group/validation" align="start" />
+
+### Custom validation
+
+`validate` receives the selected value and returns an error string, or `null` when valid. With `validationBehavior="aria"` the message updates live as the selection changes.
+
+<ComponentPreview name="radio-group/custom-validation" align="start" />
+
+### Form submission
+
+Give the group a `name` and the selected radio's `value` is submitted under it, exactly like native radio buttons.
+
+<ComponentPreview name="radio-group/form" align="start" />
+
+## Recipes
+
+### Plan picker
+
+Cards whose `title` is a composed node with a [`Badge`](/docs/components/badge) and a price. A [`Switch`](/docs/components/switch) toggles yearly billing.
+
+<ComponentPreview name="radio-group/recipe-plan-picker" />
+
+### Shipping method
+
+A checkout step where the selected card updates the order total.
+
+<ComponentPreview name="radio-group/recipe-shipping" />
+
+### Privacy settings
+
+Two controlled groups in a settings card, with Save and Discard enabled only when the draft differs from the saved value.
+
+<ComponentPreview name="radio-group/recipe-privacy" />
+
+## Accessibility
+
+- Every radio is a native `<input type="radio">` visually hidden inside a `<label>`, so the whole label (or card) is clickable and native forms work.
+- The group has `role="radiogroup"`, is labelled by `label`, and links its description and error message with `aria-describedby`.
+- The group is a single tab stop: focus lands on the selected radio (or the first one when nothing is selected), and arrow keys move the selection.
+- A group without a visible `label` needs `aria-label` or `aria-labelledby`.
+- `description` on a `Radio` and `title` / `description` on a `RadioCard` are inside the `<label>`, so they're read as part of the option's name. Keep them concise.
+- The focus ring only appears for keyboard focus (`data-focus-visible`).
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into the group, to the selected radio |
+| <kbd>↓</kbd> / <kbd>→</kbd> | Selects the next radio, wrapping to the first |
+| <kbd>↑</kbd> / <kbd>←</kbd> | Selects the previous radio, wrapping to the last |
+| <kbd>Space</kbd> | Selects the focused radio, if it isn't already |
+
+## Styling
+
+### Data attributes
+
+On `Radio` and `RadioCard` (target inner parts with `group-data-*/radio:`):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | The radio is the group's value |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-pressed` | Being pressed |
+| `data-focused` / `data-focus-visible` | Focused / focused with the keyboard |
+| `data-disabled` | Disabled, directly or through the group |
+| `data-readonly` | The group is read-only |
+| `data-invalid` | The group is invalid |
+| `data-required` | The group is required |
+
+On `RadioGroup` (children can use `group-data-*/field:`):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-orientation` | `"horizontal"` or `"vertical"` |
+| `data-disabled` / `data-readonly` | Disabled / read-only |
+| `data-required` / `data-invalid` | Required / validation failed |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `radio-group` | Group root |
+| `radio` | Each `Radio`'s `<label>` root |
+| `radio-card` | Each `RadioCard`'s `<label>` root |
+| `label`, `description`, `field-error` | Group label, description and error message |
+
+### Color
+
+The dot, hover border and selected card use the `--brand` theme variable. Override it on a group or a single radio:
+
+```tsx
+<RadioGroup label="Status" className="[--brand:var(--color-emerald-600)]">
+  …
+</RadioGroup>
+```
+
+### Render props
+
+`Radio`'s `className` and `children` accept a function of its state; `RadioCard`'s `className` does too:
+
+```tsx
+<Radio value="pro" className={({ isSelected }) => (isSelected ? "font-medium" : "")}>
+  Pro
+</Radio>
+```
+
+## API Reference
+
+### RadioGroup
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible group label. Use aria-label or aria-labelledby if there's none." },
+    description: { type: "ReactNode", description: "Helper text under the label." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message." },
+    orientation: { type: '"vertical" | "horizontal"', default: '"vertical"', description: "Layout and aria-orientation." },
+    children: { type: "ReactNode", description: "Radio and RadioCard elements." },
+    value: { type: "string | null", description: "Controlled selected value." },
+    defaultValue: { type: "string | null", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: string) => void", description: "Called when the selection changes." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    form: { type: "string", description: "Id of the form the inputs belong to." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables every radio." },
+    isReadOnly: { type: "boolean", default: "false", description: "Shows the value but ignores changes." },
+    isRequired: { type: "boolean", default: "false", description: "Requires a selection before the form can submit." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state (e.g. for server errors)." },
+    validate: { type: "(value: string | null) => ValidationError | true | null | undefined", description: "Custom validation. Return an error message to mark the group invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live." },
+    onFocus: { type: "(e: FocusEvent) => void", description: "onBlur and onFocusChange are also supported." },
+    className: { type: "string | ((state: RadioGroupRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`RadioGroup`](https://react-aria.adobe.com/RadioGroup#api).
+
+### Radio
+
+<TypeTable
+  type={{
+    value: { type: "string", description: "Required. The value this radio represents." },
+    children: { type: "ReactNode | ((state: RadioRenderProps) => ReactNode)", description: "The label." },
+    description: { type: "ReactNode", description: "Secondary text under the label." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables this radio only." },
+    autoFocus: { type: "boolean" },
+    inputRef: { type: "Ref<HTMLInputElement>", description: "Ref to the hidden input." },
+    onPress: { type: "(e: PressEvent) => void", description: "onPressStart, onPressEnd, onPressChange and onPressUp are also supported." },
+    onHoverChange: { type: "(isHovered: boolean) => void" },
+    className: { type: "string | ((state: RadioRenderProps) => string)", description: "Classes for the <label> root." },
+    "aria-label": { type: "string", description: "Accessible name when there are no children." },
+  }}
+/>
+
+### RadioCard
+
+<TypeTable
+  type={{
+    value: { type: "string", description: "Required. The value this card represents." },
+    title: { type: "ReactNode", description: "Primary text. Can be a composed node (badge, price…)." },
+    description: { type: "ReactNode", description: "Secondary text under the title." },
+    icon: { type: "ReactNode", description: "Icon shown in a tinted square on the leading side." },
+    isDisabled: { type: "boolean", default: "false" },
+    autoFocus: { type: "boolean" },
+    inputRef: { type: "Ref<HTMLInputElement>" },
+    className: { type: "string | ((state: RadioRenderProps) => string)", description: "Classes for the card." },
+  }}
+/>
+
+`RadioCard` accepts the same React Aria props as `Radio`, except `children`: its content comes from `title`, `description` and `icon`. See React Aria's [`Radio`](https://react-aria.adobe.com/RadioGroup#radio) props.
+
+## Related
+
+- [Checkbox](/docs/components/checkbox) — for multiple choices.
+- [Select](/docs/components/select) — for a single choice from a longer list.
+- [Toggle Button Group](/docs/components/toggle-button-group) — single selection as buttons.
+- [Switch](/docs/components/switch) — for an on/off setting.

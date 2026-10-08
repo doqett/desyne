@@ -1,0 +1,301 @@
+---
+title: Chart
+description: Themed building blocks for Recharts. ChartContainer makes a chart responsive, maps a config of labels, colors and icons to CSS variables that follow light and dark mode, and restyles Recharts' grid, axes and cursors with your tokens; ChartTooltipContent and ChartLegendContent render matching tooltips and legends. You compose the charts with Recharts itself.
+---
+
+<ComponentLinks docs={{ label: "Recharts", href: "https://recharts.github.io" }} source="chart" />
+
+<ComponentPreview name="chart/demo" />
+
+## Installation
+
+<InstallTabs name="chart" />
+
+Charts are built with [Recharts](https://recharts.github.io) 3, which the install adds as a dependency.
+
+## Usage
+
+```tsx
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+```
+
+```tsx
+const config = {
+  desktop: { label: "Desktop", color: "var(--chart-1)" },
+  mobile: { label: "Mobile", color: "var(--chart-2)" },
+} satisfies ChartConfig;
+
+<ChartContainer config={config} className="h-[240px] w-full">
+  <BarChart data={data}>
+    <CartesianGrid vertical={false} />
+    <XAxis dataKey="month" tickLine={false} axisLine={false} />
+    <ChartTooltip content={<ChartTooltipContent />} />
+    <ChartLegend content={<ChartLegendContent />} />
+    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+    <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+  </BarChart>
+</ChartContainer>
+```
+
+<Callout title="Config keys become CSS variables">
+  Every key in `config` with a `color` or `theme` becomes a `--color-<key>`
+  variable scoped to that chart's container, so series use
+  `fill="var(--color-desktop)"`. The same keys give the tooltip and legend
+  their labels and icons. The variables only exist inside the container; for
+  a custom legend rendered outside it, use the config's color value directly.
+</Callout>
+
+### When to use
+
+- Chart: to show trends, comparisons or composition over many data points.
+- [Meter](/docs/components/meter) or [Progress Bar](/docs/components/progress-bar): a single value against a known range.
+- [Card](/docs/components/card) with a large number: when the one figure matters more than its shape. Add a small sparkline as in the [KPI recipe](#kpi-card-with-sparkline).
+- [Table](/docs/components/table): when users need exact values or will compare individual rows.
+- Pick the chart for the question: bars to compare categories, lines for trends over time, stacked areas for how parts add up over time, and pies or donuts only for a few parts of one whole.
+
+## Anatomy
+
+```tsx
+<ChartContainer config={config}>          {/* responsive wrapper + <style> with --color-* */}
+  <BarChart data={data}>                  {/* any Recharts chart */}
+    <CartesianGrid />                     {/* restyled to the border token */}
+    <XAxis />                             {/* tick text uses muted-foreground */}
+    <ChartTooltip                         {/* = Recharts Tooltip */}
+      content={<ChartTooltipContent />}   {/* themed tooltip body */}
+    />
+    <ChartLegend                          {/* = Recharts Legend */}
+      content={<ChartLegendContent />}    {/* themed legend body */}
+    />
+    <Bar dataKey="desktop" fill="var(--color-desktop)" />
+  </BarChart>
+</ChartContainer>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ChartContainer` | `<div>` › `<style>` + `ResponsiveContainer` | Provides the config through context, writes the `--color-*` variables for light and `.dark`, and sizes the chart to the div. Defaults to `aspect-video`. |
+| `ChartTooltip` | Recharts `Tooltip` | Re-exported unchanged. Pass `content={<ChartTooltipContent />}`. |
+| `ChartTooltipContent` | `<div>` | Label plus one row per series: indicator, config label, and the value formatted with `toLocaleString()`. |
+| `ChartLegend` | Recharts `Legend` | Re-exported unchanged. Pass `content={<ChartLegendContent />}`. |
+| `ChartLegendContent` | `<div>` | A centered row of swatches (or config icons) with config labels. |
+| `ChartConfig` | type | `Record<key, { label?, icon?, color? } or { label?, icon?, theme: { light, dark } }>`. |
+| `useChart` | hook | Returns `{ config }` inside a `ChartContainer`, for custom tooltip or legend content. |
+
+## Examples
+
+### Bar
+
+Bars compare categories. Set a `radius` for rounded tops, hide the axis lines and use `vertical={false}` on the grid for a quiet background. The hero example above adds a legend below the chart.
+
+<ComponentPreview name="chart/demo" />
+
+### Horizontal bar
+
+Set `layout="vertical"` on `BarChart`, make the `YAxis` a `category` axis and the `XAxis` a hidden `number` axis. Horizontal bars suit long category labels like page paths or names.
+
+<ComponentPreview name="chart/bar-horizontal" />
+
+### Stacked bar
+
+Give bars the same `stackId` to stack them. Round only the outer corners with a four-value `radius`, so the stack reads as one bar.
+
+<ComponentPreview name="chart/bar-stacked" />
+
+### Area
+
+An area chart emphasizes volume over time. A `linearGradient` in `<defs>` that fades the series color gives the fill depth; reference it with `fill="url(#id)"`.
+
+<ComponentPreview name="chart/area" />
+
+### Stacked area
+
+Stack areas with a shared `stackId` to show how parts add up to a total over time. Use a `tickFormatter` on the `YAxis` to keep large numbers short.
+
+<ComponentPreview name="chart/area-stacked" />
+
+### Line
+
+Lines are best for trends and comparing a few series. Use `dot={false}` for dense data and `type="monotone"` for smooth curves that don't overshoot. Colors can come from any token, such as `var(--destructive)` for a critical series.
+
+<ComponentPreview name="chart/line" />
+
+### Pie
+
+For a pie, put the color on each data row as `fill: "var(--color-<name>)"` and pass `nameKey` so the tooltip and legend look up each slice's label in the config. `hideLabel` drops the tooltip's heading, which isn't meaningful for a single slice.
+
+<ComponentPreview name="chart/pie" />
+
+### Donut with a center label
+
+`innerRadius` turns a pie into a donut. A Recharts `Label` with a `content` function draws the total in the middle using `fill-foreground` and `fill-muted-foreground`, so it follows the theme.
+
+<ComponentPreview name="chart/donut" />
+
+### Tooltip
+
+`ChartTooltipContent` shows a label and one row per series. `indicator` picks a `dot` (default), `line` or `dashed` swatch; with a single series and `line` or `dashed`, the label moves into the row. `hideLabel` and `hideIndicator` remove those parts. These previews use Recharts' `defaultIndex` to show the tooltip without hovering.
+
+<ComponentPreview name="chart/tooltip" />
+
+For custom content, `labelFormatter(label, payload)` replaces the heading and `formatter(value, name, item, index)` replaces an entire row. See the [KPI recipe](#kpi-card-with-sparkline) for currency formatting.
+
+### Legend and icons
+
+`ChartLegendContent` renders each series' config `label` with a color swatch, or the config `icon` when one is set (the icon also replaces the tooltip indicator). Place the legend above the chart with `verticalAlign="top"` on both `ChartLegend` and `ChartLegendContent`.
+
+<ComponentPreview name="chart/legend" />
+
+### Theming and dark mode
+
+`color` accepts any CSS color, including tokens like `var(--chart-1)` which already switch with the theme. For colors that need a different value per mode, use `theme: { light, dark }`; the container writes the dark values under the `.dark` class. Toggle the site theme to see this chart change.
+
+<ComponentPreview name="chart/theme" />
+
+The default palette is `--chart-1` to `--chart-5` (indigo, teal, amber, pink, sky), defined for light and dark mode in the theme. Override those variables to re-color every chart at once.
+
+## Recipes
+
+### KPI card with sparkline
+
+A [`Card`](/docs/components/card) with a headline figure, a trend badge and an axis-less area sparkline flush with the card's bottom edge. The tooltip uses `labelFormatter` and `formatter` to show the date and a currency value.
+
+<ComponentPreview name="chart/recipe-kpi" />
+
+### Switchable metric
+
+A segmented [`ToggleButtonGroup`](/docs/components/toggle-button-group) in `CardAction` switches which series the bar chart shows, and the title shows the matching total. `minTickGap` thins the date ticks on narrow screens.
+
+<ComponentPreview name="chart/recipe-interactive" />
+
+### Traffic sources
+
+A small donut next to a custom legend list with percentages. The list sits outside `ChartContainer`, so its swatches use the config's `color` values rather than the scoped `--color-*` variables.
+
+<ComponentPreview name="chart/recipe-traffic-sources" />
+
+## Accessibility
+
+- Recharts 3 turns on its `accessibilityLayer` by default: the chart surface is focusable (`tabIndex={0}`) with `role="application"`, and in bar, line and area charts <kbd>←</kbd> and <kbd>→</kbd> move the tooltip between data points. Pass `accessibilityLayer={false}` to opt out.
+- Charts are visual. Always state the key takeaway in text nearby (a title, a total, a delta), and offer the underlying numbers as a [table](/docs/components/table) or download for anything important.
+- Don't rely on color alone to tell series apart. Use a legend with clear labels, direct labels, icons, or different line styles (for example `strokeDasharray`).
+- Keep enough contrast between adjacent series and against the background in both themes; the default `--chart-*` palette is tuned for this.
+- Tooltips appear on hover and keyboard focus only. Put anything essential in the visible chart or surrounding text.
+
+### Keyboard
+
+With the default accessibility layer:
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the chart |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves the active tooltip to the previous or next data point (axis-based charts) |
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-slot="chart"` | `ChartContainer` | Always |
+| `data-chart` | `ChartContainer` | Always. A unique id (`chart-<id>`) that scopes the generated `--color-*` variables. Pass `id` for a stable value. |
+
+### CSS variables
+
+| Variable | Defined for |
+| --- | --- |
+| `--color-<key>` | Every config key with a `color` or `theme` value, scoped to `[data-chart=…]`, with dark values under `.dark` |
+| `--chart-1` … `--chart-5` | The theme's default chart palette (global) |
+
+Avoid config keys that match Tailwind color names used inside the chart (like `border` or `muted`), since the generated `--color-<key>` would shadow them within the container.
+
+### Theme overrides
+
+`ChartContainer` restyles Recharts' default greys to your tokens: axis tick text uses `muted-foreground`; the grid, polar grid, reference lines and line cursor use `border`; the bar cursor and radial bar backgrounds use `muted`. It also removes white strokes on dots and sectors and hides focus outlines on the SVG layers. Size the chart with `className`: the default is `aspect-video`; use `aspect-auto h-[240px]` for a fixed height, or `aspect-square` for pies.
+
+## API Reference
+
+### ChartContainer
+
+<TypeTable
+  type={{
+    config: { type: "ChartConfig", description: "Labels, icons and colors per data key. Required." },
+    children: { type: "ReactElement", description: "A single Recharts chart (BarChart, LineChart, AreaChart, PieChart, …)." },
+    id: { type: "string", description: "Stable id for the data-chart attribute. A unique id is generated when omitted." },
+    className: { type: "string", description: "Sizing and extra styles. Defaults to aspect-video; use aspect-auto with a height to override." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### ChartConfig
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Name shown in the tooltip and legend." },
+    icon: { type: "ComponentType", description: "Replaces the swatch in the legend and the indicator in the tooltip." },
+    color: { type: "string", description: "Any CSS color or variable. Mutually exclusive with theme." },
+    theme: { type: "{ light: string; dark: string }", description: "Separate colors for light and dark (.dark) mode. Mutually exclusive with color." },
+  }}
+/>
+
+### ChartTooltipContent
+
+Recharts passes `active`, `payload` and `label` automatically when used as `content`.
+
+<TypeTable
+  type={{
+    indicator: { type: '"dot" | "line" | "dashed"', default: '"dot"', description: "Swatch style for each row." },
+    hideLabel: { type: "boolean", default: "false", description: "Hides the heading (e.g. the x-axis value)." },
+    hideIndicator: { type: "boolean", default: "false", description: "Hides the swatches." },
+    labelKey: { type: "string", description: "Config key (or payload field holding one) to use for the heading instead of the axis label." },
+    nameKey: { type: "string", description: "Config key (or payload field holding one) for each row's label, e.g. the name field of pie data." },
+    labelFormatter: { type: "(label: ReactNode, payload: PayloadItem[]) => ReactNode", description: "Custom heading." },
+    formatter: { type: "(value: unknown, name: string | number | undefined, item: PayloadItem, index: number) => ReactNode", description: "Custom content for an entire row, replacing indicator, label and value." },
+    color: { type: "string", description: "Overrides every indicator's color." },
+    className: { type: "string", description: "Classes for the tooltip box." },
+    active: { type: "boolean", description: "Set by Recharts." },
+    payload: { type: "PayloadItem[]", description: "Set by Recharts." },
+    label: { type: "ReactNode", description: "Set by Recharts." },
+  }}
+/>
+
+### ChartLegendContent
+
+<TypeTable
+  type={{
+    nameKey: { type: "string", description: "Config key (or payload field holding one) for each entry, e.g. the name field of pie data." },
+    hideIcon: { type: "boolean", default: "false", description: "Always show the color swatch, even when the config has an icon." },
+    verticalAlign: { type: '"top" | "middle" | "bottom"', default: '"bottom"', description: "Adds spacing below (top) or above (otherwise) the legend. Match the Legend's own verticalAlign." },
+    className: { type: "string", description: "Classes for the legend row." },
+    payload: { type: "PayloadItem[]", description: "Set by Recharts." },
+  }}
+/>
+
+Only entries whose key is in the config get a label.
+
+### ChartTooltip / ChartLegend
+
+Recharts' [`Tooltip`](https://recharts.github.io/en-US/api/Tooltip) and [`Legend`](https://recharts.github.io/en-US/api/Legend), re-exported unchanged. Useful props include `cursor`, `defaultIndex` and `content` on the tooltip, and `verticalAlign`, `align` and `content` on the legend.
+
+### useChart
+
+```tsx
+const { config } = useChart();
+```
+
+Reads the nearest `ChartContainer`'s config. Throws when used outside one.
+
+## Related
+
+- [Card](/docs/components/card): the usual frame for a chart with a title and summary.
+- [Meter](/docs/components/meter): a single value within a range.
+- [Toggle Button Group](/docs/components/toggle-button-group): switch series or time ranges.
+- [Table](/docs/components/table): the accessible alternative for exact values.

@@ -1,0 +1,248 @@
+---
+title: Forms & validation
+description: Build forms with React Aria's Form, native and custom validation, server errors, Zod schemas and Next.js server actions.
+---
+
+Fields in Desyne are React Aria fields with a label, description and error built in.
+Put them in React Aria's `Form` and you get native HTML validation, accessible error
+messages and focus on the first invalid field, with no form library.
+
+## A basic form
+
+```tsx title="components/signup-form.tsx"
+"use client";
+
+import { Form } from "react-aria-components";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { TextField } from "@/components/ui/text-field";
+
+export function SignupForm() {
+  return (
+    <Form
+      className="flex max-w-sm flex-col gap-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.currentTarget));
+        console.log(data); // { name, email, terms }
+      }}
+    >
+      <TextField label="Name" name="name" autoComplete="name" isRequired />
+      <TextField
+        label="Work email"
+        name="email"
+        type="email"
+        autoComplete="email"
+        description="We'll send the invite here."
+        isRequired
+      />
+      <Checkbox name="terms" value="yes" isRequired>
+        I agree to the terms
+      </Checkbox>
+      <Button type="submit">Create account</Button>
+    </Form>
+  );
+}
+```
+
+Every field takes a `name`, so `FormData` works as in plain HTML. Required fields get a
+red asterisk on the label.
+
+## How validation behaves
+
+| Behaviour | `validationBehavior="native"` (default) | `validationBehavior="aria"` |
+| --- | --- | --- |
+| Blocks submit when invalid | Yes | No; you decide |
+| When errors show | After the first submit attempt, then live as values change | Immediately, as values change |
+| Built-in rules (`isRequired`, `type="email"`, `minLength`, `pattern`, `minValue`) | Yes, with the browser's localised messages | Exposed as `aria-invalid`, no messages |
+| Focus first invalid field on submit | Yes | No |
+
+Set it on the `Form` to apply to every field, or on a single field.
+
+## Custom rules
+
+Use `validate` for rules that HTML can't express. Return a string (or an array of
+strings) to mark the field invalid, or `null`/`true` when valid:
+
+```tsx
+<TextField
+  label="Username"
+  name="username"
+  isRequired
+  validate={(value) =>
+    /^[a-z0-9-]{3,20}$/.test(value)
+      ? null
+      : "3–20 lowercase letters, numbers or dashes."
+  }
+/>
+```
+
+Override the browser's built-in messages with `errorMessage`, which also accepts a
+function of the validation state:
+
+```tsx
+<TextField
+  label="Email"
+  type="email"
+  isRequired
+  errorMessage={({ validationDetails }) =>
+    validationDetails.valueMissing ? "Enter your email." : "That doesn't look like an email."
+  }
+/>
+```
+
+## Server errors
+
+Pass errors keyed by field `name` to `validationErrors`. They show immediately, and each
+clears as soon as the user edits that field.
+
+```tsx
+"use client";
+
+import { useState } from "react";
+import { Form } from "react-aria-components";
+import { Button } from "@/components/ui/button";
+import { TextField } from "@/components/ui/text-field";
+
+export function WorkspaceForm() {
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [pending, setPending] = useState(false);
+
+  return (
+    <Form
+      validationErrors={errors}
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setPending(true);
+        const res = await fetch("/api/workspaces", {
+          method: "POST",
+          body: new FormData(e.currentTarget),
+        });
+        setErrors(res.ok ? {} : (await res.json()).errors);
+        setPending(false);
+      }}
+      className="flex max-w-sm flex-col gap-4"
+    >
+      <TextField label="Workspace name" name="name" isRequired />
+      <TextField label="URL" name="slug" prefix="acme.app/" isRequired />
+      <Button type="submit" isPending={pending}>
+        Create workspace
+      </Button>
+    </Form>
+  );
+}
+```
+
+`isPending` shows a spinner in the button, keeps its width, and ignores further presses
+while the request runs. See the live version in
+[Text Field: server errors](/docs/components/text-field).
+
+## With Zod
+
+Validate on the server with a [Zod 4](https://zod.dev) schema and return its field errors
+in the same shape:
+
+```ts title="lib/schemas.ts"
+import { z } from "zod";
+
+export const inviteSchema = z.object({
+  email: z.email("Enter a valid email."),
+  role: z.enum(["admin", "member", "viewer"], { message: "Choose a role." }),
+  seats: z.coerce.number().int().min(1).max(50),
+});
+```
+
+```ts title="app/actions.ts"
+"use server";
+
+import { z } from "zod";
+import { inviteSchema } from "@/lib/schemas";
+
+export type InviteState = { errors: Record<string, string[]>; ok?: boolean };
+
+export async function invite(_prev: InviteState, formData: FormData): Promise<InviteState> {
+  const parsed = inviteSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { errors: z.flattenError(parsed.error).fieldErrors as Record<string, string[]> };
+  }
+  // await db.invites.create(parsed.data)
+  return { errors: {}, ok: true };
+}
+```
+
+Wire it up with `useActionState`. React Aria accepts `string | string[]` per field:
+
+```tsx title="app/invite-form.tsx"
+"use client";
+
+import { useActionState } from "react";
+import { Form } from "react-aria-components";
+import { Button } from "@/components/ui/button";
+import { NumberField } from "@/components/ui/number-field";
+import { Select, SelectItem } from "@/components/ui/select";
+import { TextField } from "@/components/ui/text-field";
+import { invite } from "./actions";
+
+export function InviteForm() {
+  const [state, action, pending] = useActionState(invite, { errors: {} });
+
+  return (
+    <Form action={action} validationErrors={state.errors} className="grid max-w-sm gap-4">
+      <TextField label="Email" name="email" type="email" isRequired />
+      <Select label="Role" name="role" isRequired placeholder="Choose a role">
+        <SelectItem id="admin">Admin</SelectItem>
+        <SelectItem id="member">Member</SelectItem>
+        <SelectItem id="viewer">Viewer</SelectItem>
+      </Select>
+      <NumberField label="Seats" name="seats" defaultValue={1} minValue={1} maxValue={50} />
+      <Button type="submit" isPending={pending}>Send invite</Button>
+    </Form>
+  );
+}
+```
+
+Native rules (`isRequired`, `type="email"`, `minValue`) still run in the browser first,
+so most mistakes never reach the server. The schema is the source of truth on the
+server.
+
+<Callout title="Client-side Zod">
+  To validate with the same schema while typing, call `safeParse` on one field inside
+  `validate`: `validate={(v) => inviteSchema.shape.email.safeParse(v).error?.issues[0]?.message}`.
+</Callout>
+
+## Other form libraries
+
+React Hook Form, TanStack Form and Conform all work. Use controlled props
+(`value`/`onChange`, or `isSelected` for checkboxes and `selectedKey` for selects) and
+pass the library's error to `isInvalid` and `errorMessage`:
+
+```tsx
+import { Controller, useForm } from "react-hook-form";
+
+const { control, handleSubmit } = useForm<{ email: string }>();
+
+<Controller
+  control={control}
+  name="email"
+  rules={{ required: "Enter your email." }}
+  render={({ field, fieldState }) => (
+    <TextField
+      label="Email"
+      value={field.value ?? ""}
+      onChange={field.onChange}
+      onBlur={field.onBlur}
+      name={field.name}
+      isInvalid={fieldState.invalid}
+      errorMessage={fieldState.error?.message}
+      validationBehavior="aria"
+    />
+  )}
+/>
+```
+
+## Layout tips
+
+- Stack fields with `gap-4`; group related fields under a heading and a `Separator`.
+- Put two short fields side by side with `grid gap-4 sm:grid-cols-2`.
+- Keep the primary button at the end and align it with the fields' left edge.
+- Use `description` for format hints instead of placeholder text, which disappears.

@@ -1,0 +1,113 @@
+---
+title: Motion & reduced motion
+description: How overlays animate with React Aria's entering and exiting states, the animation utilities components use, and how reduced motion is respected.
+---
+
+Motion in Desyne is short, functional and CSS-only. Overlays fade and scale in,
+panels slide, progress moves smoothly, and everything settles in 150–200ms. There's no
+animation library in the components.
+
+## Entering and exiting
+
+React Aria keeps an overlay mounted while it animates out and exposes the phase as
+data attributes: `data-entering` while it opens and `data-exiting` while it closes.
+Components pair those with the [tw-animate-css](https://github.com/Wombosvideo/tw-animate-css)
+utilities:
+
+```tsx title="components/ui/popover.tsx (excerpt)"
+"data-entering:fade-in-0 data-entering:zoom-in-[0.97] data-entering:animate-in data-entering:duration-150",
+"data-exiting:fade-out-0 data-exiting:zoom-out-[0.97] data-exiting:animate-out data-exiting:duration-100",
+```
+
+| Component | Motion |
+| --- | --- |
+| Dialog | Overlay fades; panel fades, scales from 97% and rises 8px (200ms in, 150ms out) |
+| Sheet | Slides in from its side (300ms in, 200ms out) |
+| Popover, Menu, Select, Combobox | Fade and scale from 97% (150ms in, 100ms out) |
+| Tooltip | Fade and scale from 95% (100ms) |
+| Disclosure | Height transition on the panel |
+| Progress Bar, Progress Circle, Meter | Value transitions; indeterminate bar sweeps |
+| Skeleton | Pulse or shimmer |
+| Toast | Sonner's slide and stack |
+
+`tw-animate-css` must be imported once in your global CSS:
+
+```css title="app/globals.css"
+@import "tailwindcss";
+@import "tw-animate-css";
+```
+
+`shadcn init` adds this line for you.
+
+### Animating your own overlays
+
+Use the same attributes on any React Aria overlay:
+
+```tsx
+import { Modal, ModalOverlay } from "react-aria-components";
+
+<ModalOverlay className="fixed inset-0 bg-black/40 data-entering:animate-in data-entering:fade-in-0 data-exiting:animate-out data-exiting:fade-out-0">
+  <Modal className="data-entering:animate-in data-entering:slide-in-from-bottom-4 data-exiting:animate-out data-exiting:slide-out-to-bottom-4">
+    …
+  </Modal>
+</ModalOverlay>
+```
+
+React Aria waits for the exit animation to finish before unmounting, so you don't need
+`AnimatePresence` or timeouts.
+
+## Reduced motion
+
+People who turn on **Reduce motion** in their OS get a calmer interface. Components
+that move continuously use Tailwind's `motion-reduce:` variant:
+
+| Component | Under reduced motion |
+| --- | --- |
+| Spinner | Stops rotating and gently pulses instead |
+| Progress Bar (indeterminate) | Becomes a full-width pulse instead of a sweep |
+| Progress Bar, Progress Circle | Value changes jump instead of easing |
+| Skeleton | Pulse and shimmer are removed, leaving a static block |
+| Disclosure | Opens and closes without the height transition |
+| Toast loading icon | Stops spinning |
+
+Short fades on overlays are kept: they help people track where content came from and
+don't involve large movement.
+
+### In your own code
+
+```tsx
+// Remove decorative motion
+<div className="animate-[float_6s_ease-in-out_infinite] motion-reduce:animate-none" />
+
+// Swap movement for opacity
+<div className="transition-transform hover:-translate-y-1 motion-reduce:transition-opacity motion-reduce:hover:translate-y-0" />
+```
+
+For JavaScript-driven animation (Motion, GSAP, canvas), read the preference:
+
+```tsx
+import { useEffect, useState } from "react";
+
+export function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const query = matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(query.matches);
+    const onChange = () => setReduced(query.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+  return reduced;
+}
+```
+
+If you use [Motion](https://motion.dev), `<MotionConfig reducedMotion="user">` does
+this for every animation in the tree. The Pro templates use that setup.
+
+## Guidelines
+
+- Keep UI transitions between 100 and 250ms. Exits faster than entrances.
+- Animate `opacity` and `transform`. Avoid animating layout properties on large areas.
+- Never make information depend on motion. A pulsing badge also needs text.
+- Marquees and auto-advancing carousels need a pause control and should stop under
+  reduced motion.

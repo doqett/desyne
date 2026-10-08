@@ -1,0 +1,154 @@
+---
+title: Kbd
+description: Displays a keyboard key or shortcut as a keycap. Two sizes, icon support, and a KbdGroup for combinations and sequences. Built on React Aria's Keyboard, so inside a menu item it's linked to the item as its shortcut description.
+---
+
+<ComponentLinks source="kbd" />
+
+<ComponentPreview name="kbd/demo" />
+
+## Installation
+
+<InstallTabs name="kbd" />
+
+## Usage
+
+```tsx
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
+```
+
+```tsx
+<KbdGroup>
+  <Kbd>⌘</Kbd>
+  <Kbd>K</Kbd>
+</KbdGroup>
+```
+
+<Callout title="Kbd displays shortcuts, it doesn't bind them">
+  `Kbd` only renders the keycap. Register the actual shortcut with your own
+  keydown listener or hotkey library, and keep the two in sync.
+</Callout>
+
+### When to use
+
+- Kbd: to show which key or combination triggers an action, in help text, tooltips, menus, buttons and shortcut references.
+- [`MenuShortcut`](/docs/components/menu): the menu's own unstyled, right-aligned shortcut text. Use `Kbd` in a menu item when you want keycaps instead.
+- [Badge](/docs/components/badge): for labels and counts that aren't keys.
+- Use the platform's symbols (⌘ ⇧ ⌥ ⌃ on macOS) or words (Ctrl, Shift, Alt) consistently, and switch between them per platform if your audience is mixed.
+
+## Anatomy
+
+```tsx
+<KbdGroup>           {/* inline row of keys */}
+  <Kbd>⌘</Kbd>       {/* one keycap */}
+  <Kbd>
+    <Icon />         {/* optional, auto-sized to 12px */}
+    Enter
+  </Kbd>
+</KbdGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Kbd` | `<kbd dir="ltr">` | React Aria `Keyboard`. A keycap with a thicker bottom border. Not selectable and ignores pointer events. |
+| `KbdGroup` | `<span>` | Inline flex row with a 4px gap between keys and separators. |
+| Icon | `<svg>` | Any svg without a `size-*` class is sized to 12px. |
+
+## Examples
+
+### Sizes
+
+`md` (22px tall) is the default for body text and help content. `sm` (18px) fits inside buttons, tooltips, menu items and inputs.
+
+<ComponentPreview name="kbd/sizes" />
+
+### Combinations and sequences
+
+Put one `Kbd` per key in a `KbdGroup` for combinations. Add a "+" between keys when your UI uses word labels (Ctrl, Shift), and "then" for sequences such as <kbd>G</kbd> then <kbd>I</kbd>. A single `Kbd` with several symbols (⌘⇧P) is more compact for tight spaces.
+
+<ComponentPreview name="kbd/group" />
+
+### With icons
+
+Icons are sized automatically. Pair icon-only keys with visually hidden text (`sr-only`) so the key's name is read out; symbol glyphs like ⌘ may be read inconsistently by screen readers.
+
+<ComponentPreview name="kbd/with-icon" />
+
+### In a tooltip
+
+Show the shortcut next to the action's name in a [`Tooltip`](/docs/components/tooltip). The `light` tooltip variant keeps the keycap colors readable; on the default dark tooltip, override the keycap colors with a class.
+
+<ComponentPreview name="kbd/in-tooltip" />
+
+### In a menu
+
+Inside a React Aria `MenuItem`, `Kbd` picks up the item's keyboard-shortcut slot: it gets an id and the item references it with `aria-describedby`, so screen readers announce the shortcut with the item. Add `ml-auto` to push it to the right.
+
+<ComponentPreview name="kbd/in-menu" />
+
+## Recipes
+
+### Shortcut reference
+
+A two-column cheat sheet: a description list per section, with combinations and sequences.
+
+<ComponentPreview name="kbd/recipe-shortcuts" />
+
+### Search trigger
+
+A search button that advertises <kbd>⌘</kbd> <kbd>K</kbd> and a window keydown listener that handles both ⌘K and Ctrl+K.
+
+<ComponentPreview name="kbd/recipe-search-trigger" />
+
+## Accessibility
+
+- `Kbd` renders the semantic `<kbd>` element with `dir="ltr"`, so key combinations keep their order in right-to-left layouts.
+- Screen readers read the text inside. Symbols like ⌘, ⇧ and ⌥ are read inconsistently across screen readers (by Unicode name, or skipped); include readable text (`<span className="sr-only">Command</span>`) where the shortcut matters, or use words.
+- Inside a menu item, the shortcut is exposed as the item's description via `aria-describedby`. Elsewhere, it's plain inline text.
+- Decorative separators such as "+" can be hidden with `aria-hidden` so the combination reads as the key names only.
+- A shortcut must never be the only way to reach an action. Keep a visible, clickable control.
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-slot="kbd"` | `Kbd` | Always |
+| `data-slot="kbd-group"` | `KbdGroup` | Always |
+
+### Customizing
+
+The keycap uses `bg-muted`, `text-muted-foreground` and a `border-b-2` bottom edge. On a colored surface, such as a solid button, override them:
+
+```tsx
+<Button>
+  Publish
+  <Kbd size="sm" className="border-white/20 bg-white/10 text-inherit">⌘↵</Kbd>
+</Button>
+```
+
+## API Reference
+
+### Kbd
+
+<TypeTable
+  type={{
+    size: { type: '"sm" | "md"', default: '"md"', description: "Height 18px or 22px, with matching min-width, padding and font size." },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+    children: { type: "ReactNode", description: "Key label, symbol or icon." },
+  }}
+/>
+
+Also accepts every prop of React Aria's `Keyboard` (the props of `<kbd>`).
+
+### KbdGroup
+
+No extra props. Accepts every prop of `<span>`.
+
+## Related
+
+- [Menu](/docs/components/menu): menu items with shortcuts.
+- [Tooltip](/docs/components/tooltip): show shortcuts next to icon buttons.
+- [Button](/docs/components/button): buttons with a keyboard hint.
+- [Command Palette](/docs/components/command-palette): the usual target of ⌘K.

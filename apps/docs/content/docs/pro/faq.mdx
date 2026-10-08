@@ -1,0 +1,65 @@
+---
+title: Pro FAQ
+description: Common questions about buying, installing and using Desyne Pro.
+---
+
+### Is it really a one-time payment?
+
+Yes. Pay once and keep access to every block and template, including the ones added
+later. There's no subscription.
+
+### Who processes the payment?
+
+[Paddle](https://www.paddle.com) is our merchant of record. It handles the checkout,
+sales tax and VAT, invoices and receipts, and refunds. Your receipt comes from Paddle.
+
+### Can I get a refund?
+
+Yes. You can ask for a full refund within 14 days of purchase at
+[paddle.net](https://paddle.net), or by emailing support@desyne.dev. A refunded
+license key stops working. See the [Refund Policy](https://pro.desyne.dev/refunds).
+
+### Do I need Pro to use the components?
+
+No. Every component in these docs is free for any project. Pro adds blocks and
+templates built from them.
+
+### Can I use Pro in client and commercial projects?
+
+Yes, in unlimited projects. You can't resell the blocks or templates as a kit, theme or
+template, or publish their source in a public repository.
+
+### Which stack do I need?
+
+React 19 and Tailwind CSS v4. Blocks run in Next.js, Vite, React Router or TanStack
+Start. Templates ship as Next.js projects.
+
+### How do I install a block?
+
+Add the Pro registry and your license key to `components.json`, then run the add
+command shown on the block. See [Installing blocks](/docs/pro/blocks).
+
+### Does my build need the license key?
+
+No. Installed blocks are files in your repository. The key is only needed when the
+shadcn CLI downloads a block.
+
+### How does the Team license work?
+
+Up to ten developers. The owner invites teammates by email, and each teammate gets their
+own key. See [Team seats](/docs/pro/licensing#team-seats).
+
+### My key stopped working.
+
+Someone may have regenerated it, or the license was refunded. Check the Account page:
+it shows the current key and the license status.
+
+### Do blocks work with my existing shadcn/ui components?
+
+Yes. Blocks import components from `@/components/ui/*` using shadcn token names. When a
+block needs a Desyne component you don't have, the CLI installs it. If you already
+have a shadcn component with the same file name, the CLI asks before replacing it.
+
+### How do I get support?
+
+Reply to your receipt email. Team licenses get priority support.

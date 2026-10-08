@@ -1,0 +1,243 @@
+---
+title: Drop Zone
+description: A drag-and-drop target for files, folders or text, paired with FileTrigger for click-to-browse. Accessible to keyboard and screen-reader users through paste and keyboard drag and drop, with type filtering and a drop-target state for styling.
+---
+
+<ComponentLinks aria="DropZone" source="drop-zone" />
+
+<ComponentPreview name="drop-zone/demo" />
+
+## Installation
+
+<InstallTabs name="drop-zone" />
+
+## Usage
+
+```tsx
+import { isFileDropItem, Text } from "react-aria-components";
+import { Button } from "@/components/ui/button";
+import { DropZone, FileTrigger } from "@/components/ui/drop-zone";
+```
+
+```tsx
+<DropZone
+  onDrop={async (e) => {
+    const files = await Promise.all(
+      e.items.filter(isFileDropItem).map((item) => item.getFile()),
+    );
+    upload(files);
+  }}
+>
+  <Text slot="label">Drop files here</Text>
+  <FileTrigger allowsMultiple onSelect={(list) => upload(Array.from(list ?? []))}>
+    <Button variant="outline" size="sm">Browse files</Button>
+  </FileTrigger>
+</DropZone>
+```
+
+<Callout title="Always offer a file picker">
+  Dragging isn't possible on many touch devices and is hard for some users.
+  Put a `FileTrigger` button inside (or next to) every drop zone so files can
+  also be chosen from the system dialog.
+</Callout>
+
+`DropZone` only receives data; it doesn't upload or store anything. `onDrop` gives you `DropItem`s: use `isFileDropItem`, `isDirectoryDropItem` and `isTextDropItem` from `react-aria-components` to narrow them, then `getFile()`, `getEntries()` or `getText(type)` to read them.
+
+### When to use
+
+- Drop Zone — uploading files or accepting dragged data into a specific area of the page.
+- `FileTrigger` alone — a plain "Upload" button where dragging adds nothing, such as a single attachment in a dense form.
+- [Grid List](/docs/components/grid-list) or [Table](/docs/components/table) with `useDragAndDrop` — reordering or dropping items between positions in a collection.
+
+## Anatomy
+
+```tsx
+<DropZone>                 {/* drop target + visually hidden button */}
+  <Icon />
+  <Text slot="label" />    {/* names the drop zone for screen readers */}
+  <FileTrigger>            {/* hidden <input type="file"> */}
+    <Button />             {/* opens the system file dialog */}
+  </FileTrigger>
+</DropZone>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `DropZone` | `<div>` + visually hidden `<button>` | Dashed box, centered column. The hidden button receives focus, paste and keyboard drops. |
+| `Text slot="label"` | `<span>` | From `react-aria-components`. Its text becomes the accessible name of the hidden button. |
+| `FileTrigger` | hidden `<input type="file">` | Re-exported from React Aria. Makes its child (any pressable, usually a `Button`) open the file dialog. |
+
+## Examples
+
+### Sizes
+
+`size` sets the minimum height and padding: `sm` for inline attachment areas, `md` (default) for forms, `lg` for a page's primary upload target.
+
+<ComponentPreview name="drop-zone/sizes" />
+
+### Accepted file types
+
+`getDropOperation` decides whether a drag is accepted while it's still over the zone. Return `"cancel"` for unsupported types and the zone won't highlight or accept the drop. Match it with `acceptedFileTypes` on `FileTrigger`, and still filter in `onDrop`, since some browsers don't reveal file types until the drop.
+
+<ComponentPreview name="drop-zone/accepted-types" />
+
+### Image previews
+
+Read each `FileDropItem` with `getFile()` and preview it with `URL.createObjectURL`. Revoke the URLs when they're no longer shown.
+
+<ComponentPreview name="drop-zone/image-preview" />
+
+### Drop-target state
+
+`children` (and `className`) accept a function of the zone's state. Use `isDropTarget` to change the message while something is dragged over it.
+
+<ComponentPreview name="drop-zone/render-props" />
+
+### Text and paste
+
+Drop zones accept any drag data, not only files. Focus the zone (click it or <kbd>Tab</kbd> to it) and paste with <kbd>Ctrl</kbd> + <kbd>V</kbd> / <kbd>⌘</kbd> + <kbd>V</kbd>: the pasted items arrive through the same `onDrop`, which is how keyboard users can "drop" without dragging.
+
+<ComponentPreview name="drop-zone/text" />
+
+### Folders
+
+A dropped folder arrives as a `DirectoryDropItem`; iterate `getEntries()` (recursively) to reach its files. On `FileTrigger`, `acceptDirectory` lets users pick a folder instead of files.
+
+<ComponentPreview name="drop-zone/directory" />
+
+### Disabled
+
+`isDisabled` stops the zone from accepting drops or paste and dims it. Disable the `FileTrigger`'s button too, and say why.
+
+<ComponentPreview name="drop-zone/disabled" />
+
+### Validation
+
+Check size and count yourself in `onDrop` and `onSelect`, show errors in an `aria-live` region, and disable the zone once the limit is reached. Link the rules to the zone with `aria-describedby`.
+
+<ComponentPreview name="drop-zone/validation" />
+
+### Form submission
+
+Files held in state aren't part of the form. Append them to the `FormData` in `onSubmit` before sending it.
+
+<ComponentPreview name="drop-zone/form" align="start" />
+
+## Recipes
+
+### Upload list
+
+A compact drop zone with an inline "browse" link, and a list of files with [`ProgressBar`](/docs/components/progress-bar)s and cancel buttons.
+
+<ComponentPreview name="drop-zone/recipe-upload-list" />
+
+### Avatar upload
+
+A circular drop zone around an [`Avatar`](/docs/components/avatar) that only accepts images, with upload and remove buttons beside it.
+
+<ComponentPreview name="drop-zone/recipe-avatar" />
+
+### Comment composer
+
+The whole composer is the drop target: a borderless [`Textarea`](/docs/components/textarea), attachment chips and a toolbar. Clicking the textarea still focuses it, because the zone only moves focus to its hidden button when you click a non-focusable area.
+
+<ComponentPreview name="drop-zone/recipe-composer" />
+
+## Accessibility
+
+- `DropZone` renders a visually hidden `<button>` inside the drop area. Clicking a non-interactive part of the zone focuses it, and <kbd>Tab</kbd> reaches it like any button.
+- The hidden button is named by a `Text slot="label"` inside the zone (plus `aria-labelledby`, if passed), or by `aria-label`. Without either, it falls back to a generic "DropZone" label, so always provide one.
+- Keyboard and screen-reader users can paste into the focused zone; pasted items are delivered to `onDrop` with the `"copy"` operation.
+- During a keyboard or screen-reader drag started from a React Aria draggable (for example a `GridList` using `useDragAndDrop`), drop zones become targets that can be reached with <kbd>Tab</kbd> and dropped on with <kbd>Enter</kbd>.
+- `FileTrigger` makes its child open the native file dialog, which is fully accessible. Always include one.
+- Announce results (files added, errors) in an `aria-live` region so users know the drop worked.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the drop zone's hidden button, then to the `FileTrigger` button |
+| <kbd>Ctrl</kbd> + <kbd>V</kbd> / <kbd>⌘</kbd> + <kbd>V</kbd> | Pastes clipboard contents into the focused zone |
+| <kbd>Enter</kbd> | During a keyboard drag, drops onto the focused zone |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> on the button | Opens the file dialog |
+
+## Styling
+
+### Data attributes
+
+| Attribute | Present when |
+| --- | --- |
+| `data-drop-target` | Something droppable is dragged over the zone (and `getDropOperation` didn't return `"cancel"`) |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-focused` / `data-focus-visible` | The hidden button is focused / focused with the keyboard |
+| `data-disabled` | `isDisabled` is true |
+
+By default the drop-target state switches to a solid brand-colored border on an accent background, and keyboard focus draws a ring.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `drop-zone` | Root |
+
+### Custom layouts
+
+`className` is merged with the defaults, so you can reshape the zone entirely: `min-h-0 p-0` removes the size padding, `items-stretch text-left` undoes the centered column, and `rounded-full` makes a circular target. See the avatar and composer recipes.
+
+### Render props
+
+`className` and `children` accept a function of the zone state:
+
+```tsx
+<DropZone className={({ isDropTarget }) => (isDropTarget ? "scale-[1.01]" : "")}>
+  {({ isDropTarget }) => (
+    <Text slot="label">{isDropTarget ? "Release to upload" : "Drop files here"}</Text>
+  )}
+</DropZone>
+```
+
+## API Reference
+
+### DropZone
+
+<TypeTable
+  type={{
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Minimum height and padding." },
+    onDrop: { type: "(e: DropEvent) => void", description: "Called with the dropped or pasted items (e.items)." },
+    getDropOperation: { type: "(types: DragTypes, allowedOperations: DropOperation[]) => DropOperation", description: 'Return "copy", "move", "link" or "cancel". types.has() accepts a MIME type, an array, or wildcards like "image/*".' },
+    onDropEnter: { type: "(e: DropEnterEvent) => void", description: "Called when a valid drag enters the zone." },
+    onDropMove: { type: "(e: DropMoveEvent) => void", description: "Called as a drag moves within the zone." },
+    onDropActivate: { type: "(e: DropActivateEvent) => void", description: "Called when a drag hovers over the zone for a while." },
+    onDropExit: { type: "(e: DropExitEvent) => void", description: "Called when a drag leaves the zone." },
+    isDisabled: { type: "boolean", default: "false", description: "Stops the zone from accepting drops and paste." },
+    children: { type: "ReactNode | ((state: DropZoneRenderProps) => ReactNode)" },
+    className: { type: "string | ((state: DropZoneRenderProps) => string)", description: "Classes for the root." },
+    onHoverChange: { type: "(isHovered: boolean) => void", description: "onHoverStart and onHoverEnd are also supported." },
+    "aria-label": { type: "string", description: "Accessible name, when there's no Text slot=\"label\"." },
+    "aria-labelledby": { type: "string" },
+    "aria-describedby": { type: "string", description: "Links rules or hints to the hidden button." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`DropZone`](https://react-aria.adobe.com/DropZone#api).
+
+### FileTrigger
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode", description: "A pressable element, usually a Button, that opens the file dialog." },
+    onSelect: { type: "(files: FileList | null) => void", description: "Called with the chosen files." },
+    acceptedFileTypes: { type: "string[]", description: 'MIME types or extensions, e.g. ["image/png", ".pdf"].' },
+    allowsMultiple: { type: "boolean", default: "false", description: "Allows choosing more than one file." },
+    acceptDirectory: { type: "boolean", default: "false", description: "Choose a folder instead of files." },
+    defaultCamera: { type: '"user" | "environment"', description: "On mobile, opens the front or back camera for capture." },
+  }}
+/>
+
+`FileTrigger` is re-exported unchanged from React Aria. See its [props](https://react-aria.adobe.com/FileTrigger#api).
+
+## Related
+
+- [Button](/docs/components/button) — the usual `FileTrigger` child.
+- [Progress Bar](/docs/components/progress-bar) — for upload progress.
+- [Avatar](/docs/components/avatar) — for profile photo uploads.

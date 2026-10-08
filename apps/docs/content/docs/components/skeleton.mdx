@@ -1,0 +1,155 @@
+---
+title: Skeleton
+description: A placeholder that mirrors the shape of content while it loads, so the layout doesn't jump when data arrives. Any size or shape via classes, with pulse, shimmer or static animation.
+---
+
+<ComponentLinks source="skeleton" />
+
+<ComponentPreview name="skeleton/demo" />
+
+## Installation
+
+<InstallTabs name="skeleton" />
+
+## Usage
+
+```tsx
+import { Skeleton } from "@/components/ui/skeleton";
+```
+
+```tsx
+<Skeleton className="h-4 w-48" />
+```
+
+A skeleton is an empty, rounded, muted `<div>`. Give it the size of the content it stands in for with `h-*`, `w-*` or `size-*`, and change the shape with `rounded-*`.
+
+<Callout title="Shimmer keyframes">
+  `animation="shimmer"` uses the `animate-shimmer` keyframes from the theme
+  CSS, which the registry adds on install. `pulse` uses Tailwind's built-in
+  `animate-pulse`.
+</Callout>
+
+### When to use
+
+- Skeleton — the layout of the incoming content is known (a card, a list, a table) and loading takes long enough to notice.
+- [Spinner](/docs/components/spinner) — a short wait in a small space, or when you can't predict the shape of the result.
+- [Progress Bar](/docs/components/progress-bar) — a long task with measurable progress.
+- Show nothing for waits under ~300ms; a flash of placeholders feels slower than a brief pause.
+
+## Anatomy
+
+A skeleton is a single element. Compose several to sketch the content they replace.
+
+```tsx
+<div aria-busy="true">            {/* the region that is loading */}
+  <Skeleton className="size-10 rounded-full" />   {/* avatar */}
+  <Skeleton className="h-4 w-32" />               {/* text line */}
+</div>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Skeleton` | `<div aria-hidden>` | `rounded-md bg-muted` plus the animation. Carries `data-slot="skeleton"`. Server-component safe. |
+| Shimmer highlight | `::before` | A gradient that sweeps across when `animation="shimmer"`. |
+
+## Examples
+
+### Shapes
+
+Match the real element's dimensions: `rounded-full` for avatars and pills, `rounded-lg` for thumbnails and media, the default `rounded-md` for text and buttons.
+
+<ComponentPreview name="skeleton/shapes" />
+
+### Animation
+
+`pulse` (default) fades the placeholder in and out. `shimmer` sweeps a soft highlight across, which reads well on large media blocks. `none` is static, for dense screens with many placeholders. Under `prefers-reduced-motion`, `pulse` and `shimmer` fall back to the static block automatically.
+
+<ComponentPreview name="skeleton/animations" />
+
+### Text
+
+Vary line widths and end on a shorter line so a block reads as a paragraph rather than a grid of bars.
+
+<ComponentPreview name="skeleton/text" />
+
+### List
+
+Repeat a row template for lists. A few rows are enough to suggest the content; you don't need to match the final count.
+
+<ComponentPreview name="skeleton/list" />
+
+### Inline values
+
+For values inside text, make the skeleton `inline-block` and size it to the line with `h-[1lh]` or `h-[1em]`, so the surrounding text doesn't shift when the value arrives.
+
+<ComponentPreview name="skeleton/inline" />
+
+### Swapping in content
+
+Render skeletons while loading and the real content once it's ready, keeping the container the same. Mark the container with `aria-busy` while it loads.
+
+<ComponentPreview name="skeleton/loading-state" />
+
+## Recipes
+
+### Table rows
+
+Keep the [`Table`](/docs/components/table) header and swap each row's cells for skeletons of similar width. Cells get a `textValue` so the table stays valid while loading.
+
+<ComponentPreview name="skeleton/recipe-table" />
+
+### Dashboard stats
+
+Static labels stay visible while only the numbers load, inside [`Card`](/docs/components/card)s. Sizing each skeleton to the line height of the final text avoids layout shift.
+
+<ComponentPreview name="skeleton/recipe-stats" />
+
+### Media grid
+
+A grid of shimmering thumbnails with author and title lines, for galleries and template pickers.
+
+<ComponentPreview name="skeleton/recipe-media-grid" />
+
+## Accessibility
+
+- Every skeleton is `aria-hidden`, so placeholders are never read out.
+- Put `aria-busy="true"` on the region that is loading and remove it when content arrives. Give the region a label (or keep a visible heading) so users know what is loading.
+- If users need to know when loading finishes, announce it with a live region (`aria-live="polite"`) or a [toast](/docs/components/toast).
+- Respects `prefers-reduced-motion`: the pulse stops (`motion-reduce:animate-none`) and the shimmer highlight is removed (`motion-reduce:before:hidden`), leaving a static `bg-muted` block with the same shape, so the loading layout stays clear without motion.
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="skeleton"` | Every skeleton |
+
+### Customizing
+
+- Size and shape come entirely from `className`: `h-*`, `w-*`, `size-*`, `aspect-*` and `rounded-*`.
+- Change the color with a background class, e.g. `bg-foreground/10` on muted surfaces.
+- The shimmer highlight is `via-foreground/[0.06]` on the `::before` element; override it with `before:via-…`.
+
+## API Reference
+
+### Skeleton
+
+<TypeTable
+  type={{
+    animation: {
+      type: '"pulse" | "shimmer" | "none"',
+      default: '"pulse"',
+      description: "pulse fades in and out; shimmer sweeps a highlight across; none is static. pulse and shimmer become static under prefers-reduced-motion.",
+    },
+    className: { type: "string", description: "Size, shape and color classes, merged with tailwind-merge." },
+  }}
+/>
+
+Also accepts every prop of `<div>`. `aria-hidden` is set by default.
+
+## Related
+
+- [Spinner](/docs/components/spinner) — a compact loading indicator.
+- [Progress Bar](/docs/components/progress-bar) — measurable progress for long tasks.
+- [Card](/docs/components/card) and [Table](/docs/components/table) — common containers for skeleton layouts.

@@ -1,0 +1,76 @@
+---
+title: Introduction
+description: Accessible React components built on React Aria, styled with shadcn tokens, installed as source you own.
+---
+
+Desyne is a copy-paste component library for React. Every component is built on
+[React Aria Components](https://react-aria.adobe.com/) and styled with Tailwind CSS v4
+using the same CSS variables as [shadcn/ui](https://ui.shadcn.com) (`--background`,
+`--primary`, `--border`, …). You install components with the shadcn CLI, and they land
+in your repo as plain `.tsx` files.
+
+<ComponentPreview name="dialog/demo" />
+
+## What you get
+
+- **Accessible behaviour out of the box.** Keyboard navigation, focus management,
+  screen reader announcements and ARIA patterns come from React Aria, not from
+  hand-written `onKeyDown` handlers.
+- **Your code, not a dependency.** The CLI copies source into `components/ui`. There is
+  no `@desyne/*` package to upgrade and nothing you can't change.
+- **shadcn-compatible tokens.** Components read the standard shadcn variables, so they
+  inherit an existing shadcn theme and sit next to shadcn components without clashing.
+- **One design language.** Controls share a 28 / 32 / 40px height scale, one focus ring,
+  one field system and one tone system, so screens stay consistent as they grow.
+- **Real examples.** Every component page has live previews you can copy, including
+  recipes that combine several components into a working pattern.
+
+## How it fits together
+
+| Piece | What it is |
+| --- | --- |
+| Components | `components/ui/*.tsx`, one file per component, installed by name |
+| `lib/utils.ts` | shadcn's `cn()` helper (`clsx` + `tailwind-merge`) |
+| `lib/primitive.ts` | Shared helpers: the focus ring, the `tones` color system and `composeTailwindRenderProps` |
+| Tokens | CSS variables with shadcn names, plus `--brand`, `--success`, `--warning` and `--info` |
+| Registry | A shadcn registry at `/r/{name}.json` under the `@desyne` namespace |
+
+Components style React Aria states with Tailwind's native data variants
+(`data-hovered:`, `data-pressed:`, `data-focus-visible:`, `data-selected:`,
+`data-invalid:`), so you don't need a Tailwind plugin.
+
+## Requirements
+
+- React 19
+- Tailwind CSS v4
+- TypeScript (recommended; the source is typed)
+- Any React framework: Next.js, Vite, React Router or TanStack Start
+
+## Acknowledgements
+
+Desyne stands on the work of others, and we're grateful for it:
+
+- **[React Aria Components](https://react-aria.adobe.com/)** by Adobe. Every interactive
+  component is built on its primitives, and the accessibility, keyboard and
+  internationalisation behaviour you get comes from that work.
+- **[shadcn/ui](https://ui.shadcn.com)** by shadcn. The copy-the-source model, the CLI and
+  registry format we install through, and the token names we theme with all come from
+  shadcn/ui.
+- **[Intent UI](https://intentui.com)** by Irsyad A. Panjaitan. It showed what a polished,
+  React Aria–based take on the shadcn approach can look like, and inspired parts of our
+  component APIs, block catalogue and docs.
+
+We also rely on [Tailwind CSS](https://tailwindcss.com), [Lucide](https://lucide.dev),
+[Recharts](https://recharts.org), [Motion](https://motion.dev) and
+[Fumadocs](https://fumadocs.dev). If you like Desyne, go star their repos too.
+
+## Where to next
+
+<Cards>
+  <Card title="Installation" href="/docs/installation" description="Set up a Next.js, Vite or existing shadcn project." />
+  <Card title="Theming" href="/docs/theming" description="Tokens, brand colors, radius, density and dark mode." />
+  <Card title="Accessibility" href="/docs/accessibility" description="What React Aria handles for you, and what you still own." />
+  <Card title="Components" href="/docs/components" description="Every component, with live previews and code." />
+  <Card title="Forms & validation" href="/docs/forms" description="Native validation, server errors and Zod." />
+  <Card title="AI & llms.txt" href="/docs/ai" description="Give your editor or assistant the whole library as Markdown." />
+</Cards>

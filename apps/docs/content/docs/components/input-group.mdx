@@ -1,0 +1,175 @@
+---
+title: Input Group
+description: Attach prefixes, suffixes, icons and buttons to a text input so they read as one field, such as an https:// prefix, a .com suffix, a currency, a copy button or a password toggle. Composes with React Aria's TextField, NumberField and SearchField, and the focus ring wraps the whole group.
+---
+
+<ComponentLinks aria="Group" source="input-group" />
+
+<ComponentPreview name="input-group/demo" />
+
+## Installation
+
+<InstallTabs name="input-group" />
+
+## Usage
+
+```tsx
+import { TextField } from "react-aria-components";
+import { Label } from "@/components/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+```
+
+```tsx
+<TextField className="group/field flex flex-col gap-1.5">
+  <Label>Website</Label>
+  <InputGroup>
+    <InputGroupAddon variant="segment">https://</InputGroupAddon>
+    <InputGroupInput />
+    <InputGroupAddon variant="segment">.com</InputGroupAddon>
+  </InputGroup>
+</TextField>
+```
+
+`InputGroup` is the same chrome as every other field (`FieldGroup` from `field.tsx`) with the padding moved onto its parts. Put it inside a React Aria field and `InputGroupInput` picks up the value, label, description and validation from the field.
+
+<Callout title="TextField already has prefix and suffix">
+  For a single icon or short text inside the field, [Text Field](/docs/components/text-field)'s
+  `prefix` and `suffix` props are enough. Reach for Input Group when you need
+  flush segments, buttons, several addons, or a `NumberField`.
+</Callout>
+
+### When to use
+
+- Input Group: fixed parts of a value (protocol, domain, unit, currency) or actions that act on the input (copy, reveal, clear, submit).
+- [Text Field](/docs/components/text-field): a plain input, optionally with one icon or text adornment.
+- [Search Field](/docs/components/search-field): search with a built-in clear button.
+- [Number Field](/docs/components/number-field): numbers with stepper buttons.
+
+## Anatomy
+
+```tsx
+<TextField>                         {/* or NumberField, SearchField */}
+  <Label />
+  <InputGroup>                      {/* role="group", draws the border and focus ring */}
+    <InputGroupAddon />             {/* inline text or icon, or a flush segment */}
+    <InputGroupInput />             {/* the <input> */}
+    <InputGroupButton />            {/* ghost button inside, or a flush segment */}
+  </InputGroup>
+  <Description />
+  <FieldError />
+</TextField>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `InputGroup` | React Aria `Group` (`role="group"`) | Field chrome with `variant` (outline, filled, underlined) and `size`. Shows the focus ring when anything inside has focus, and the invalid style when the field is invalid. |
+| `InputGroupInput` | React Aria `Input` | Bare input that fills the space. Pads itself only at the group's edges. |
+| `InputGroupAddon` | `<span>` | `inline`: muted text or icon inside the field. `segment`: a flush, tinted box divided by a border. |
+| `InputGroupButton` | React Aria `Button` | `ghost` (default): a small icon button inside the field. `segment`: a flush, full-height button divided by a border. |
+
+## Examples
+
+### Icons and inline text
+
+Inline addons sit inside the border, before or after the input: a search icon, a [`Kbd`](/docs/components/kbd) shortcut, a character count.
+
+<ComponentPreview name="input-group/icons" />
+
+### Buttons
+
+`InputGroupButton` defaults to a 24px ghost icon button. Give icon-only buttons an `aria-label`. For a password toggle, switch the field's `type`.
+
+<ComponentPreview name="input-group/buttons" />
+
+### Segment button
+
+`variant="segment"` turns the button into a flush, full-height part of the field, for actions like Subscribe or Apply. `type="submit"` submits the surrounding form.
+
+<ComponentPreview name="input-group/segment-button" />
+
+### Currency and units
+
+The same parts work inside a React Aria `NumberField`: the input is formatted and parsed in the user's locale, and Up and Down arrows change the value.
+
+<ComponentPreview name="input-group/currency" />
+
+### Variants and sizes
+
+`variant` and `size` work as on every other field. Underlined groups drop the side padding so content lines up with the underline.
+
+<ComponentPreview name="input-group/variants" />
+
+## Accessibility
+
+- The input gets its name from the surrounding field's `Label` (or `aria-label` on the field), and its description and error message through React Aria.
+- `InputGroup` is a React Aria `Group` with `role="group"`. The focus ring is drawn on the group when the input or a button inside it has focus, so it always wraps the full field.
+- Addons are plain text. A screen reader user won't hear "https://" when focusing the input; if the prefix matters, mention it in the label or description ("Website, without https://").
+- Buttons are separate tab stops after (or before) the input. Icon-only buttons need an `aria-label`, and buttons that change state (copy, reveal) should update it ("Copied", "Hide password").
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Values |
+| --- | --- | --- |
+| `data-slot="input-group"` | `InputGroup` | Always, plus React Aria's `data-focus-within`, `data-hovered`, `data-invalid`, `data-disabled` |
+| `data-slot="input-group-input"` | `InputGroupInput` | Always |
+| `data-slot="input-group-addon"` | `InputGroupAddon` | Always |
+| `data-slot="input-group-button"` | `InputGroupButton` | Always |
+| `data-variant` | Addon, button | `inline` · `segment` / `ghost` · `segment` |
+
+### Padding
+
+Parts read `--ig-px` for their edge padding: 8, 10 and 12px for `sm`, `md` and `lg`, and 0 for underlined groups. Override it on the group: `className="[--ig-px:--spacing(4)]"`.
+
+## API Reference
+
+### InputGroup
+
+<TypeTable
+  type={{
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"', description: "Field surface, as on every other field." },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Height: 28, 32 or 40px." },
+    className: { type: "string | ((state: GroupRenderProps) => string)", description: "Classes, or a function of the render state." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Group`](https://react-aria.adobe.com/Group#api).
+
+### InputGroupAddon
+
+<TypeTable
+  type={{
+    variant: { type: '"inline" | "segment"', default: '"inline"', description: "Inside the field, or a flush tinted segment with a divider." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<span>`.
+
+### InputGroupButton
+
+<TypeTable
+  type={{
+    variant: { type: '"ghost" | "segment"', default: '"ghost"', description: "A small button inside the field, or a flush full-height segment." },
+    size: { type: "ButtonProps['size']", default: '"icon-xs"', description: "Button size. Segment buttons use sm unless set." },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', default: '"neutral"', description: "Tone of the button." },
+    className: { type: "string | ((state: ButtonRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Button`](https://react-aria.adobe.com/Button#api), such as `onPress` and `type`.
+
+### InputGroupInput
+
+Accepts every prop of React Aria's [`Input`](https://react-aria.adobe.com/TextField#input), such as `placeholder`.
+
+## Related
+
+- [Text Field](/docs/components/text-field): single icon or text adornments.
+- [Number Field](/docs/components/number-field): numeric input with steppers.

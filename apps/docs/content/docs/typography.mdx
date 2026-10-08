@@ -1,0 +1,86 @@
+---
+title: Typography
+description: Fonts, the text scale components use, and how to style headings and long-form content.
+---
+
+Components don't ship a font. They inherit `font-family` from your page and use
+Tailwind's text scale, so the type system is whatever your app sets on `<body>`.
+
+<Callout title="Typography component">
+  For headings, body text, lists, inline code and long-form content, use the
+  [Typography](/docs/components/typography) component. It renders plain elements
+  with no `"use client"`, so it works in server components.
+</Callout>
+
+## Set a font
+
+The examples, blocks and templates use [Inter](https://rsms.me/inter/) through
+`next/font`, exposed as Tailwind's `--font-sans`:
+
+```tsx title="app/layout.tsx"
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <body className="font-sans antialiased">{children}</body>
+    </html>
+  );
+}
+```
+
+```css title="app/globals.css"
+@theme inline {
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+```
+
+Any neutral sans works. Fonts with tabular figures (Inter, Geist, IBM Plex Sans) suit
+data-heavy screens: tables and stats in the library use `tabular-nums`.
+
+## The scale components use
+
+| Where | Class | Size |
+| --- | --- | --- |
+| Buttons, fields, menu items, table cells (`md`) | `text-sm` | 14px |
+| `sm` controls, badges, descriptions, field errors | `text-xs` | 12px |
+| `lg` controls | `text-base` | 16px |
+| Dialog titles | `text-base font-semibold` | 16px |
+| Card titles | `text-sm font-medium` | 14px |
+| Keyboard shortcuts, code | `font-mono` | inherits |
+
+Body copy sits at 14px in dense product UI. For reading-heavy pages, set a larger base
+on the page container (`text-base`) and leave controls at their own sizes.
+
+## Hierarchy without extra sizes
+
+Most screens need only three levels: a title, body text and muted secondary text.
+
+```tsx
+<div className="grid gap-1">
+  <h2 className="font-semibold text-lg tracking-tight">Billing</h2>
+  <p className="text-muted-foreground text-sm">
+    Manage your plan, payment method and invoices.
+  </p>
+</div>
+```
+
+- Use `text-muted-foreground` for secondary text instead of a smaller size.
+- Use `tracking-tight` on headings 18px and larger.
+- Use `text-balance` on headings and `text-pretty` on paragraphs to avoid orphans.
+- Keep line length around 60–75 characters (`max-w-prose`) for long text.
+
+## Labels and descriptions
+
+Form text comes from `field.tsx`, so all fields match:
+
+| Part | Style |
+| --- | --- |
+| `Label` | `text-sm font-medium`, with a red `*` when the field is required |
+| `Description` | `text-xs text-muted-foreground` |
+| `FieldError` | `text-xs text-destructive` |
+
+Change those once in `field.tsx` to restyle every form.

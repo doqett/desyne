@@ -1,0 +1,20 @@
+node_modules
+.next
+.source
+.turbo
+out
+dist
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+.vercel
+# generated registry output
+apps/docs/public/r
+apps/docs/examples/__index__.tsx
+
+# local backups made while editing
+.backup/
+# downloaded/generated archives
+*.zip
+.env*
+!.env.example

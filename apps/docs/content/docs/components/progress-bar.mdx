@@ -1,0 +1,234 @@
+---
+title: Progress Bar
+description: Shows the progress of an operation over time, as a bar or a circle. Determinate or indeterminate, with a visible label, locale-aware value formatting, custom value text, three sizes and seven colors.
+---
+
+<ComponentLinks aria="ProgressBar" source="progress-bar" />
+
+<ComponentPreview name="progress-bar/demo" />
+
+## Installation
+
+<InstallTabs name="progress-bar" />
+
+## Usage
+
+```tsx
+import { ProgressBar, ProgressCircle } from "@/components/ui/progress-bar";
+```
+
+```tsx
+<ProgressBar label="Uploading files" value={40} />
+<ProgressCircle aria-label="Syncing" value={60} />
+```
+
+<Callout title="Animation keyframes">
+  The indeterminate bar uses the `animate-indeterminate` keyframes from the
+  theme CSS, which the registry adds on install. The circle's indeterminate
+  state uses Tailwind's built-in `animate-spin`.
+</Callout>
+
+### When to use
+
+- Progress Bar — a task that is running and will finish: uploads, imports, exports, multi-step setup. Use `isIndeterminate` while the duration is unknown.
+- [Meter](/docs/components/meter) — a level within a known range that isn't "progressing": storage used, quota, password strength.
+- [Spinner](/docs/components/spinner) — a short, unmeasured wait in a small space, such as inside a button or badge.
+- [Skeleton](/docs/components/skeleton) — while the layout of content that is about to appear is known.
+
+## Anatomy
+
+```tsx
+<ProgressBar label="…">   {/* role="progressbar" */}
+  {/* header: Label + value text */}
+  {/* track */}
+  {/*   fill (width = percentage) */}
+</ProgressBar>
+
+<ProgressCircle>           {/* role="progressbar" */}
+  {/* svg: track circle + fill circle */}
+  {/* centered value text (md and lg) */}
+</ProgressCircle>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ProgressBar` | `<div role="progressbar">` | React Aria `ProgressBar`. Sets `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext`. |
+| Label | `Label` (`<span>`) | Rendered when `label` is set and wired up as the accessible name. |
+| Value text | `<span>` | The formatted value (or `valueLabel`). Hidden when `showValue={false}` or indeterminate. |
+| Track | `<div>` | Full-width, rounded, tinted with the tone at 15%. |
+| Fill | `<div>` | Width follows the percentage with a 500ms transition; slides back and forth when indeterminate. |
+| `ProgressCircle` | `<div role="progressbar">` | Same semantics; renders an `aria-hidden` SVG ring and an optional centered value. |
+
+## Examples
+
+### Sizes
+
+`md` (8px) is the default. Use `sm` (4px) inside cards, lists and dialogs, and `lg` (12px) when the bar is the main content of the view.
+
+<ComponentPreview name="progress-bar/sizes" />
+
+### Colors
+
+`brand` is the default. Switch to `success` when a task completes, and to `warning` or `danger` when it stalls or fails, so the state is visible at a glance.
+
+<ComponentPreview name="progress-bar/colors" />
+
+### Indeterminate
+
+Set `isIndeterminate` when you can't measure progress yet, such as while connecting or analyzing. The value text is hidden and `aria-valuenow` is removed, so screen readers announce it as busy rather than 0%.
+
+<ComponentPreview name="progress-bar/indeterminate" />
+
+### Custom value text
+
+`valueLabel` replaces the percentage with your own text, like "3 of 12 files". It's also used as `aria-valuetext`, so pass a string. Combine it with `maxValue` to work in your own units.
+
+<ComponentPreview name="progress-bar/value-label" />
+
+### Formatting and ranges
+
+`minValue` and `maxValue` (0 and 100 by default) set the range. `formatOptions` takes any `Intl.NumberFormatOptions`: the default `percent` style formats the percentage, every other style formats the raw value in the user's locale.
+
+<ComponentPreview name="progress-bar/format" />
+
+### Without a visible label
+
+When the label lives elsewhere in your layout, point to it with `aria-labelledby` (or pass `aria-label`) and hide the built-in value with `showValue={false}`.
+
+<ComponentPreview name="progress-bar/no-label" />
+
+### Live updates
+
+Update `value` as work progresses; the fill animates between values. Change `label` and `color` to reflect the final state.
+
+<ComponentPreview name="progress-bar/live" />
+
+### Progress circle
+
+`ProgressCircle` shows the same information in a compact ring: `sm` (20px) for inline status, `md` (48px) and `lg` (80px) for dashboards and cards. It has no built-in label, so `aria-label` or `aria-labelledby` is required. The percentage appears in the center at `md` and `lg`. It has its own page, [Progress Circle](/docs/components/progress-circle), with more sizes and custom center content.
+
+<ComponentPreview name="progress-bar/circle" />
+
+### Indeterminate circle
+
+With `isIndeterminate`, the ring becomes a spinning quarter arc.
+
+<ComponentPreview name="progress-bar/circle-indeterminate" />
+
+### Circle with value text
+
+`valueLabel` works for circles too; keep it short enough to fit the ring. Pair small circles with a nearby text label.
+
+<ComponentPreview name="progress-bar/circle-value-label" />
+
+## Recipes
+
+### Upload list
+
+Per-file progress in a list. Each bar has its own `aria-label`, turns `danger` on failure, and is replaced by a check icon once the upload finishes.
+
+<ComponentPreview name="progress-bar/recipe-upload-list" />
+
+### Data import
+
+Start indeterminate while the file is analyzed, then switch to a determinate bar that counts rows with `valueLabel`.
+
+<ComponentPreview name="progress-bar/recipe-import" />
+
+### Onboarding checklist
+
+A large `ProgressCircle` driven by the number of completed steps, using `maxValue` so the ring maps directly to the checklist.
+
+<ComponentPreview name="progress-bar/recipe-onboarding" />
+
+## Accessibility
+
+- Renders `role="progressbar"` with `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and a formatted `aria-valuetext` (your `valueLabel`, or the value formatted with `formatOptions`).
+- Indeterminate bars omit `aria-valuenow` and `aria-valuetext`, so they're announced as busy.
+- Every progress bar needs an accessible name: `label`, `aria-label` or `aria-labelledby`. `ProgressCircle` has no `label` prop, so always pass one of the aria props.
+- Progress bars are not live regions; screen readers read the value when the user reaches it. Announce completion separately (for example with a [toast](/docs/components/toast)) if it matters.
+- Respects `prefers-reduced-motion`. The fill jumps to each new value instead of animating. The indeterminate bar stops sliding and becomes a full-width bar that fades gently in and out, so it never looks like a partial value, and the indeterminate circle stops spinning and fades the same way. Screen readers get the same `aria-valuenow` / `aria-valuetext` (or no value when indeterminate) in both modes.
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="progress-bar"` | `ProgressBar` root |
+| `data-slot="progress-circle"` | `ProgressCircle` root |
+| `data-slot="label"` | The visible label |
+
+### Render props
+
+`className` accepts a function of the render state, which exposes `percentage`, `valueText` and `isIndeterminate`:
+
+```tsx
+<ProgressBar
+  label="Upload"
+  value={value}
+  className={({ percentage }) => (percentage === 100 ? "opacity-60" : "")}
+/>
+```
+
+Indeterminate bars have no `aria-valuenow`, so you can also target them with `[&:not([aria-valuenow])]:…`.
+
+### Tone variables
+
+`color` sets `--tone` on the root. The track uses `--tone` at 15% and the fill uses it at full strength, so a custom color only needs one variable:
+
+```tsx
+<ProgressBar label="Rendering" value={40} className="[--tone:var(--color-violet-600)]" />
+```
+
+## API Reference
+
+### ProgressBar
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label, used as the accessible name." },
+    value: { type: "number", default: "0", description: "Current value, clamped to the range." },
+    minValue: { type: "number", default: "0", description: "Start of the range." },
+    maxValue: { type: "number", default: "100", description: "End of the range." },
+    isIndeterminate: { type: "boolean", default: "false", description: "Shows an animated bar and hides the value when progress can't be measured." },
+    showValue: { type: "boolean", default: "true", description: "Shows the value text next to the label." },
+    valueLabel: { type: "ReactNode", description: 'Replaces the formatted value, e.g. "3 of 12 files". Also used as aria-valuetext, so prefer a string.' },
+    formatOptions: { type: "Intl.NumberFormatOptions", default: "{ style: 'percent' }", description: "How the value is formatted." },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', default: '"brand"', description: "Color tone of the track and fill." },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Track height: 4px, 8px or 12px." },
+    "aria-label": { type: "string", description: "Accessible name when there is no visible label." },
+    "aria-labelledby": { type: "string", description: "Id of an element that labels the bar." },
+    className: { type: "string | ((state: ProgressBarRenderProps) => string)", description: "Classes, or a function of the render state." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ProgressBar`](https://react-aria.adobe.com/ProgressBar#api), such as `id`, `style` and `aria-describedby`. The children are rendered by the component and can't be replaced.
+
+### ProgressCircle
+
+<TypeTable
+  type={{
+    value: { type: "number", default: "0", description: "Current value, clamped to the range." },
+    minValue: { type: "number", default: "0" },
+    maxValue: { type: "number", default: "100" },
+    isIndeterminate: { type: "boolean", default: "false", description: "Spins a quarter arc and hides the value." },
+    showValue: { type: "boolean", default: "true", description: "Shows the value in the center. Ignored at size sm." },
+    valueLabel: { type: "ReactNode", description: "Replaces the formatted value in the center and in aria-valuetext." },
+    formatOptions: { type: "Intl.NumberFormatOptions", default: "{ style: 'percent' }" },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', default: '"brand"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Diameter: 20px, 48px or 80px." },
+    "aria-label": { type: "string", description: "Accessible name. Required unless aria-labelledby is set." },
+    "aria-labelledby": { type: "string" },
+    className: { type: "string | ((state: ProgressBarRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ProgressBar`](https://react-aria.adobe.com/ProgressBar#api).
+
+## Related
+
+- [Meter](/docs/components/meter) — a level within a range, like storage used.
+- [Spinner](/docs/components/spinner) — a compact indeterminate indicator.
+- [Skeleton](/docs/components/skeleton) — placeholders while content loads.
+- [Toast](/docs/components/toast) — announce when a long task finishes.

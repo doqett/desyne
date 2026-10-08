@@ -1,0 +1,306 @@
+---
+title: Date Picker
+description: A segmented date field with a calendar popover, for single dates, dates with a time, or date ranges. Users can type or pick; both stay in sync, with min/max bounds, unavailable dates, validation and native form submission built in.
+---
+
+<ComponentLinks aria="DatePicker" source="date-picker" />
+
+<ComponentPreview name="date-picker/demo" />
+
+## Installation
+
+<InstallTabs name="date-picker" />
+
+## Usage
+
+```tsx
+import { DatePicker, DateRangePicker } from "@/components/ui/date-picker";
+```
+
+```tsx
+<DatePicker label="Due date" />
+<DateRangePicker label="Trip dates" />
+```
+
+<Callout title="Values are @internationalized/date objects">
+  `value` is a `CalendarDate` (or `CalendarDateTime` / `ZonedDateTime` when you
+  need a time), and ranges are `{ start, end }`. Create values with `today()`,
+  `parseDate()` or `parseZonedDateTime()` from
+  [`@internationalized/date`](https://react-spectrum.adobe.com/internationalized/date/),
+  and store them with `value.toString()`.
+</Callout>
+
+### When to use
+
+- Date Picker — the default for dates in forms. Typing is fast for known dates; the calendar helps with relative ones ("the second Friday").
+- Date Range Picker — a start and end date in one field: bookings, reports, leave requests.
+- [Date Field](/docs/components/date-field) — typed entry only, for dates far from today (birthdays) where a calendar would need many clicks.
+- [Calendar](/docs/components/calendar) — an always-visible grid, when there's room on the page.
+
+## Anatomy
+
+```tsx
+<DatePicker>                 {/* or <DateRangePicker> */}
+  <Label />
+  <FieldGroup>               {/* field chrome */}
+    <DateInput />            {/* segments; start + end for ranges */}
+    <Button />               {/* opens the calendar */}
+  </FieldGroup>
+  <Description />
+  <FieldError />
+  <Popover>
+    <Dialog>
+      <Calendar />           {/* or <RangeCalendar> */}
+    </Dialog>
+  </Popover>
+</DatePicker>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `DatePicker` | `<div>` | Root. `data-slot="date-picker"`. |
+| `DateRangePicker` | `<div>` | Root for ranges. `data-slot="date-range-picker"`. |
+| Group | `<div role="group">` | [`FieldGroup`](/docs/components/text-field) with the shared `variant` / `size` styles. Highlights while the popover is open. |
+| Date input | `<div>` | Segmented input, styled with `dateSegmentStyles`. Ranges render a `start` and `end` input with an arrow between. |
+| Trigger | `<button>` | Ghost icon [`Button`](/docs/components/button) with a calendar icon. |
+| Label / Description / FieldError | `<span>` | Rendered from `label`, `description` and validation. |
+| Popover | `Popover` › `Dialog` | Placed `bottom start`, flips when there's no room. |
+| Calendar | `Calendar` / `RangeCalendar` | The same [Calendar](/docs/components/calendar). Inherits `minValue`, `maxValue`, `isDateUnavailable`, `firstDayOfWeek` and `pageBehavior` from the picker. |
+
+## Examples
+
+### Controlled
+
+`value` and `onChange` own the value; set it to `null` to clear.
+
+<ComponentPreview name="date-picker/controlled" />
+
+### Range
+
+`DateRangePicker` edits a `{ start, end }` range with two segmented inputs and a `RangeCalendar`. Picking in the calendar sets both at once.
+
+<ComponentPreview name="date-picker/range" />
+
+### Variants
+
+<ComponentPreview name="date-picker/variants" />
+
+### Sizes
+
+<ComponentPreview name="date-picker/sizes" />
+
+### Min and max
+
+Dates outside `minValue` / `maxValue` are disabled in the calendar, and typed values outside them are flagged invalid with a localized message. Here `validationBehavior="aria"` shows the error straight away; with the default `native` behavior it appears after the value changes or the form is submitted.
+
+<ComponentPreview name="date-picker/validation" />
+
+### Month and year dropdowns
+
+`captionLayout`, `fromYear` and `toYear` are passed to the calendar in the popover (see [Calendar](/docs/components/calendar#month-and-year-dropdowns)). Use `captionLayout="dropdown"` for dates years away from today, like a date of birth, so nobody has to click back month by month. `placeholderValue` sets the month the calendar opens on.
+
+<ComponentPreview name="date-picker/birthday" />
+
+The range picker takes the same props. Here the year list is limited to this year and next by `minValue` and `maxValue`.
+
+<ComponentPreview name="date-picker/booking" />
+
+### Unavailable dates
+
+`isDateUnavailable` strikes dates through in the calendar and marks a typed unavailable date invalid.
+
+<ComponentPreview name="date-picker/unavailable" />
+
+### Date and time
+
+With `granularity="minute"` (or `hour` / `second`) the field adds time segments. The calendar picks the date and keeps the time. Use a `ZonedDateTime` for a specific time zone, `hideTimeZone` to hide its abbreviation, and `hourCycle` to force a 12- or 24-hour clock.
+
+<ComponentPreview name="date-picker/date-time" />
+
+### Range validation
+
+`validate` receives the whole range. Combine it with `isRequired` and `minValue`; with `validationBehavior="aria"` on the form, errors update live.
+
+<ComponentPreview name="date-picker/range-validation" />
+
+### Form submission
+
+`name` submits a `DatePicker` value as an ISO 8601 string. `DateRangePicker` submits two fields, named with `startName` and `endName`.
+
+<ComponentPreview name="date-picker/form" />
+
+### Locales and first day of the week
+
+Format, segment order and the calendar's first weekday follow the locale. Wrap pickers in `I18nProvider` to set one, or override the week start with `firstDayOfWeek`.
+
+<ComponentPreview name="date-picker/locales" />
+
+### Disabled and read-only
+
+`isDisabled` disables the segments and the trigger. `isReadOnly` keeps the value focusable and readable, but the calendar can't open.
+
+<ComponentPreview name="date-picker/disabled" />
+
+### Controlled open state
+
+`isOpen` and `onOpenChange` control the popover, for example to open it from another button. `shouldCloseOnSelect={false}` keeps it open after a date is picked.
+
+<ComponentPreview name="date-picker/controlled-open" />
+
+## Recipes
+
+### Report period with presets
+
+A preset [`Select`](/docs/components/select) next to a `DateRangePicker`. Choosing a preset fills the range; editing the range switches the preset to "Custom". `maxValue` blocks future dates.
+
+<ComponentPreview name="date-picker/recipe-report-range" />
+
+### Hotel search
+
+A native `<form>` with a required range (sold-out nights unavailable, the night count in the description), `startName` / `endName` for submission, and a [`NumberField`](/docs/components/number-field) for guests.
+
+<ComponentPreview name="date-picker/recipe-travel" />
+
+### Quick picks
+
+Shortcut buttons under the field for common due dates. They set the same controlled value the picker uses, and the active one is highlighted.
+
+<ComponentPreview name="date-picker/recipe-quick-dates" />
+
+## Accessibility
+
+- The field is a `role="group"` labelled by `label`. Segments are spin buttons, exactly like [Date Field](/docs/components/date-field#accessibility).
+- The trigger button is labelled "Calendar" together with the field label, and is disabled when the picker is disabled or read-only.
+- The popover is a dialog. Focus moves into the calendar when it opens (to the selected date, or today) and returns to the field when it closes.
+- Everything outside the popover is hidden from screen readers while it's open.
+- `description` and the error message are linked with `aria-describedby`; invalid pickers set `aria-invalid`.
+- Always provide a label: `label`, `aria-label`, or `aria-labelledby`.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Alt</kbd>+<kbd>↓</kbd> / <kbd>Alt</kbd>+<kbd>↑</kbd> | Opens the calendar from the field |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Opens the calendar from the trigger button |
+| <kbd>←</kbd> / <kbd>→</kbd> / <kbd>↑</kbd> / <kbd>↓</kbd> | In the field: moves between / steps segments. In the calendar: moves between days |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | In the calendar: previous / next month |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | In the calendar: selects the focused date and closes |
+| <kbd>Esc</kbd> | Closes the calendar and returns focus to the field |
+
+See [Calendar](/docs/components/calendar#keyboard) and [Date Field](/docs/components/date-field#keyboard) for the full lists.
+
+## Styling
+
+### Data attributes
+
+On the `DatePicker` / `DateRangePicker` root (use `group-data-*/field:` for children):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-open` | The calendar popover is open (the group border uses it) |
+| `data-focus-within` / `data-focus-visible` | Something inside has focus / keyboard focus |
+| `data-invalid` | Validation failed or `isInvalid` is set |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+| `data-required` | `isRequired` is true |
+
+On the field group:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-hovered` | Hovered with a mouse |
+| `data-focus-within` / `data-focus-visible` | A segment or the trigger has focus / keyboard focus |
+| `data-invalid` / `data-disabled` | Mirrors the picker |
+
+Segments expose the same attributes as in [Date Field](/docs/components/date-field#data-attributes), and calendar cells as in [Calendar](/docs/components/calendar#data-attributes).
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `date-picker` / `date-range-picker` | Root |
+| `field-group` | Field chrome |
+| `button` | Calendar trigger |
+| `label`, `description`, `field-error` | Field text |
+| `popover` | Calendar popover |
+| `calendar` / `range-calendar` | Calendar inside the popover |
+
+### Customizing
+
+- `className` sizes and positions the whole picker (e.g. `w-full max-w-60`). It also accepts a function of the render props.
+- The field chrome uses the shared `fieldVariants`, so pickers line up with text fields and selects of the same `size`.
+- Segments use the exported `dateSegmentStyles` from [Date Field](/docs/components/date-field#style-helpers).
+- The popover and calendar are fixed parts. For a different popover layout (presets beside the calendar, two months), compose React Aria's `DatePicker` with this library's [`Popover`](/docs/components/popover) and [`Calendar`](/docs/components/calendar).
+
+## API Reference
+
+### DatePicker
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text under the field." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message." },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    value: { type: "DateValue | null", description: "Controlled value." },
+    defaultValue: { type: "DateValue | null", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: DateValue | null) => void", description: "Called when the value changes." },
+    granularity: { type: '"day" | "hour" | "minute" | "second"', default: '"day"', description: "Smallest unit shown in the field." },
+    minValue: { type: "DateValue | null", description: "Earliest valid date. Earlier dates are disabled in the calendar." },
+    maxValue: { type: "DateValue | null", description: "Latest valid date." },
+    isDateUnavailable: { type: "(date: DateValue) => boolean", description: "Marks dates unavailable in the calendar and invalid when typed." },
+    placeholderValue: { type: "DateValue | null", description: "Where arrow keys start when empty, and the calendar's initial month." },
+    firstDayOfWeek: { type: '"sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat"', description: "Overrides the locale's first day of the week." },
+    pageBehavior: { type: '"visible" | "single"', default: '"visible"', description: "Calendar paging behavior." },
+    captionLayout: { type: '"label" | "dropdown" | "dropdown-months" | "dropdown-years"', default: '"label"', description: "Calendar header: a month heading, or month and/or year selects." },
+    fromYear: { type: "number", description: "First year in the calendar's year select. Defaults to minValue's year, or 100 years ago." },
+    toYear: { type: "number", description: "Last year in the calendar's year select. Defaults to maxValue's year, or 10 years ahead." },
+    hourCycle: { type: "12 | 24", description: "Overrides the locale's hour cycle." },
+    hideTimeZone: { type: "boolean", default: "false", description: "Hides the time zone of zoned values." },
+    shouldForceLeadingZeros: { type: "boolean", description: "Always zero-pads month, day and hour." },
+    isOpen: { type: "boolean", description: "Controlled open state of the calendar." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the calendar opens or closes." },
+    shouldCloseOnSelect: { type: "boolean | (() => boolean)", default: "true", description: "Close the calendar after a date is picked." },
+    isRequired: { type: "boolean", default: "false", description: "Requires a value before the form can submit." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state." },
+    validate: { type: "(value: DateValue) => string | string[] | true | null | undefined", description: "Custom validation. Return an error message to mark the field invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live." },
+    isDisabled: { type: "boolean", default: "false" },
+    isReadOnly: { type: "boolean", default: "false" },
+    autoFocus: { type: "boolean", description: "Focuses the first segment on mount." },
+    name: { type: "string", description: "Submits the value as an ISO 8601 string with forms." },
+    form: { type: "string", description: "Id of the form this field belongs to." },
+    autoComplete: { type: "string", description: "Autofill hint for the hidden date input." },
+    className: { type: "string | ((state: DatePickerRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`DatePicker`](https://react-aria.adobe.com/DatePicker#api).
+
+### DateRangePicker
+
+Accepts the same props as `DatePicker`, with range values:
+
+<TypeTable
+  type={{
+    value: { type: "RangeValue<DateValue> | null", description: "Controlled range: { start, end }." },
+    defaultValue: { type: "RangeValue<DateValue> | null", description: "Uncontrolled initial range." },
+    onChange: { type: "(range: RangeValue<DateValue> | null) => void", description: "Called when the range changes." },
+    validate: { type: "(range: RangeValue<DateValue>) => string | string[] | true | null | undefined", description: "Custom validation of the whole range." },
+    isDateUnavailable: { type: "(date: DateValue, anchorDate: CalendarDate | null) => boolean", description: "Also receives the first date picked in the calendar." },
+    allowsNonContiguousRanges: { type: "boolean", default: "false", description: "Allows a range to include unavailable dates." },
+    startName: { type: "string", description: "Form field name for the start date." },
+    endName: { type: "string", description: "Form field name for the end date." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`DateRangePicker`](https://react-aria.adobe.com/DateRangePicker#api).
+
+## Related
+
+- [Calendar](/docs/components/calendar) — the calendar on its own, including multiple months and multi-date selection.
+- [Date Field](/docs/components/date-field) — typed dates and times, and `TimeField`.
+- [Popover](/docs/components/popover) — for building custom picker layouts.
+- [Select](/docs/components/select) — pairs well with range pickers for presets.

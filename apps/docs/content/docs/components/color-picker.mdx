@@ -1,0 +1,357 @@
+---
+title: Color Picker
+description: A ready-made swatch button that opens a saturation/brightness area, hue slider, hex field and presets in a popover, plus every building block (ColorArea, ColorSlider, ColorField, ColorSwatch, ColorSwatchPicker) to compose your own inline or popover editors.
+---
+
+<ComponentLinks aria="ColorPicker" source="color-picker" />
+
+<ComponentPreview name="color-picker/demo" />
+
+## Installation
+
+<InstallTabs name="color-picker" />
+
+## Usage
+
+```tsx
+import { ColorPicker } from "@/components/ui/color-picker";
+```
+
+```tsx
+<ColorPicker label="Accent" defaultValue="#6366f1" swatches={["#ef4444", "#22c55e"]} />
+```
+
+`ColorPicker` is a complete control. For a custom popover, pass the parts as `children`. For an inline editor, wrap the parts in React Aria's `ColorPicker`, which keeps one shared color in sync between them:
+
+```tsx
+import { ColorPicker as ColorPickerState } from "react-aria-components";
+import { ColorArea, ColorField, ColorSlider } from "@/components/ui/color-picker";
+
+<ColorPickerState defaultValue="#6366f1">
+  <ColorArea colorSpace="hsb" xChannel="saturation" yChannel="brightness" />
+  <ColorSlider label="Hue" colorSpace="hsb" channel="hue" />
+  <ColorField label="Hex" />
+</ColorPickerState>;
+```
+
+Values can be passed as any CSS color string (`"#6366f1"`, `"rgb(…)"`, `"hsl(…)"`) or a `Color` object from `parseColor`. `onChange` always receives a `Color`; call `color.toString("hex")` (or `"rgb"`, `"hsl"`, `"css"`…) to serialize it.
+
+### When to use
+
+- Color Picker — any color, when users need precise control or a custom brand color.
+- [`ColorSwatchPicker`](#swatch-picker) on its own — a fixed palette, such as label or calendar colors. Faster and keeps colors consistent.
+- [`ColorField`](#color-field) — users who already know the hex value, like designers pasting from a design tool.
+- [`ColorSwatch`](#swatches) — displaying a color that isn't editable.
+
+## Anatomy
+
+```tsx
+<ColorPicker>                 {/* trigger button + popover dialog */}
+  <ColorArea />               {/* 2D saturation × brightness, with a ColorThumb */}
+  <ColorSlider />             {/* one channel: hue, alpha, red… */}
+  <ColorField />              {/* hex or single-channel text input */}
+  <ColorSwatchPicker>         {/* preset list */}
+    <ColorSwatchPickerItem /> {/* one preset, renders a ColorSwatch */}
+  </ColorSwatchPicker>
+</ColorPicker>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ColorPicker` | `<button>` + popover `role="dialog"` | Outline button with a swatch and `label`. The dialog holds the default editor, or your `children`. With `name`, also a hidden `<input>` after the button. |
+| `ColorArea` | `<div>` + two hidden `<input type="range">` | Drags two channels at once. Defaults to 192px square; add `w-full` to fill its container. |
+| `ColorSlider` | `<div role="group">` | Label and value output (when `label` is set) above a 12px gradient track. |
+| `ColorThumb` | `<div>` | The white ring handle used by `ColorArea` and `ColorSlider`. Exported for custom compositions. |
+| `ColorField` | `<div>` + `<input>` | Monospace text input with optional `label`, `description` and error. |
+| `ColorSwatch` | `<div role="img">` | A static color preview, labelled with a human-readable color name. |
+| `ColorSwatchPicker` | `<div role="listbox">` | A wrapping row of selectable presets. |
+| `ColorSwatchPickerItem` | `<div role="option">` | One preset; shows a ring when hovered, focused or selected. |
+
+## Examples
+
+### Controlled
+
+Pass a `Color` as `value` and update it in `onChange`. Keep the `Color` object in state and serialize it only when you need a string.
+
+<ComponentPreview name="color-picker/controlled" />
+
+### Custom popover content
+
+`children` replace the default popover content. Here an alpha slider is added so users can pick translucent colors; the parts inside still share the picker's value.
+
+<ComponentPreview name="color-picker/custom-content" />
+
+### Inline editor
+
+The same parts without a popover, wrapped in React Aria's `ColorPicker`. Use it in sidebars and design tools where the editor is always visible.
+
+<ComponentPreview name="color-picker/area-slider" />
+
+### Channel sliders
+
+`ColorSlider` edits one `channel` in a `colorSpace`: `rgb` (red, green, blue), `hsl` (hue, saturation, lightness), `hsb` (hue, saturation, brightness), plus `alpha`. The track previews the gradient for that channel.
+
+<ComponentPreview name="color-picker/channel-sliders" />
+
+### Channel fields
+
+A `ColorField` with a `channel` edits a single number instead of the hex string, so users can type exact RGB or HSL values.
+
+<ComponentPreview name="color-picker/channel-fields" />
+
+### Color field
+
+A standalone hex input. The value is parsed when the user presses <kbd>Enter</kbd> or leaves the field, and arrow keys step it. `isInvalid` with `errorMessage` shows your own validation, such as a contrast check.
+
+<ComponentPreview name="color-picker/color-field" />
+
+### Swatch picker
+
+`ColorSwatchPicker` is a single-select list of presets with its own `value`, `defaultValue` and `onChange`. Give it an `aria-label` describing what the color is for.
+
+<ComponentPreview name="color-picker/swatches" />
+
+### Swatches
+
+`ColorSwatch` displays a color. It's announced by its color name (e.g. "dark vibrant blue"); pass `colorName` to use your own palette's name instead.
+
+<ComponentPreview name="color-picker/swatch" />
+
+### Disabled and read-only
+
+`isDisabled` on `ColorPicker` disables the trigger, keeps the popover closed and leaves its value out of form submissions. On `ColorArea` and `ColorSlider` it dims them and removes them from the tab order. `ColorField` supports both `isDisabled` and `isReadOnly`.
+
+<ComponentPreview name="color-picker/disabled" />
+
+### Form submission
+
+`ColorField` takes a `name` and submits its hex value. `ColorPicker` takes a `name` too: it renders a hidden input next to the trigger, inside your form, so it submits even though the editor lives in a popover. The value is an uppercase `#RRGGBB` hex string by default; `valueFormat` picks another format, such as `"hexa"` to keep alpha or `"rgb"` / `"hsl"` / `"css"`. `form` associates the input with a `<form>` by id.
+
+<ComponentPreview name="color-picker/form" align="start" />
+
+## Recipes
+
+### Theme editor
+
+A brand color applied live to buttons and badges through the `--tone` and `--tone-fg` variables, with a readable foreground picked automatically.
+
+<ComponentPreview name="color-picker/recipe-theme-editor" />
+
+### Label editor
+
+A name field and a palette of presets, with a live preview of the resulting label.
+
+<ComponentPreview name="color-picker/recipe-label-editor" />
+
+### Gradient builder
+
+Two pickers and a [`Slider`](/docs/components/slider) for the angle, producing copyable CSS.
+
+<ComponentPreview name="color-picker/recipe-gradient" />
+
+## Accessibility
+
+- The `ColorPicker` trigger is a button; the popover is a labelled dialog (named by `label`, then `aria-label`, or "Color picker") that traps focus, closes on <kbd>Esc</kbd> and returns focus to the trigger.
+- The default editor's preset list is labelled "Presets".
+- `ColorArea` exposes two visually hidden range inputs, one per channel, announced as a two-dimensional slider. Values are announced with the color's name, like "vibrant purple".
+- `ColorSlider` is a native range input announced with its channel name and value. Without a `label` it's labelled by the channel name; pass `aria-label` to override it.
+- `ColorField` without a visible `label` needs an `aria-label` (the default popover uses "Hex").
+- `ColorSwatchPicker` is a listbox: one tab stop, arrow keys to move, and each option announced by color name.
+- Don't rely on color alone to convey meaning in what users build with the picked color; check contrast when a color is used for text.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves between the trigger, area, sliders, fields and swatches |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | On the trigger: opens the popover. On a swatch: selects it. |
+| <kbd>←</kbd> / <kbd>→</kbd> / <kbd>↑</kbd> / <kbd>↓</kbd> | In the area: adjusts the x / y channel. In a slider: adjusts the channel. In the swatch picker: moves focus. |
+| <kbd>Shift</kbd> + arrows | In the area or a slider: adjusts by a larger step |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Adjusts the area's y channel, or a slider, by a larger step |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Adjusts the area's x channel by a larger step; sets a slider to its min / max |
+| <kbd>↑</kbd> / <kbd>↓</kbd> in a field | Steps the value |
+| <kbd>Esc</kbd> | Closes the popover |
+
+## Styling
+
+### Data attributes
+
+| Part | Attributes |
+| --- | --- |
+| `ColorArea` | `data-disabled` |
+| `ColorSlider` | `data-disabled`, `data-orientation` |
+| `ColorThumb` | `data-dragging`, `data-hovered`, `data-focused`, `data-focus-visible`, `data-disabled` |
+| `ColorField` | `data-disabled`, `data-invalid`, `data-readonly`, `data-required`, `data-channel` |
+| `ColorSwatchPickerItem` | `data-selected`, `data-hovered`, `data-pressed`, `data-focused`, `data-focus-visible`, `data-disabled` |
+
+The thumb grows while dragging or keyboard-focused (`data-dragging:size-5.5`, `data-focus-visible:size-5.5`).
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `color-area`, `color-slider`, `color-thumb` | Area, slider and their thumb |
+| `color-field` | Field root (`input` on the input itself) |
+| `color-swatch` | Every swatch, including the trigger's and each preset's |
+| `color-swatch-picker`, `color-swatch-picker-item` | Preset list and items |
+| `label`, `description`, `field-error` | Field and slider text |
+| `color-picker-trigger` | The `ColorPicker` trigger button (it also has `button`'s styles) |
+| `popover` | The `ColorPicker` popover |
+
+### Sizing
+
+`ColorArea` is `size-48` by default; `className="w-full"` makes it fill the popover or its container. `ColorSwatch` is `size-7`; `ColorSwatchPickerItem` always renders a `size-7` swatch. The popover is `13.5rem` wide.
+
+### Render props
+
+Every part's `className` accepts a function of its state, e.g. the swatch picker item's `isSelected` or the thumb's `isDragging`:
+
+```tsx
+<ColorSwatchPickerItem
+  color="#2563eb"
+  className={({ isSelected }) => (isSelected ? "scale-110" : "")}
+/>
+```
+
+## API Reference
+
+### ColorPicker
+
+<TypeTable
+  type={{
+    label: { type: "string", description: "Text in the trigger button, and the popover dialog's accessible name." },
+    value: { type: "string | Color", description: "Controlled color." },
+    defaultValue: { type: "string | Color", description: "Uncontrolled initial color." },
+    onChange: { type: "(value: Color) => void", description: "Called whenever any part changes the color." },
+    swatches: { type: "string[]", description: "Preset colors shown under the default editor. Ignored when children are passed." },
+    children: { type: "ReactNode", description: "Replaces the default popover content (area, hue slider, hex field, presets)." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the trigger, keeps the popover closed and excludes the value from forms." },
+    name: { type: "string", description: "Renders a hidden input with this name next to the trigger." },
+    form: { type: "string", description: "Id of the form the hidden input belongs to." },
+    valueFormat: { type: '"hex" | "hexa" | "rgb" | "rgba" | "hsl" | "hsla" | "hsb" | "hsba" | "css"', default: '"hex"', description: "Format of the submitted value. hex drops alpha." },
+    isOpen: { type: "boolean", description: "Whether the popover is open (controlled)." },
+    defaultOpen: { type: "boolean", description: "Whether the popover is open initially (uncontrolled)." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the popover opens or closes." },
+    placement: { type: "Placement", default: '"bottom start"', description: "Popover position relative to the trigger." },
+    className: { type: "string | ((state: ButtonRenderProps) => string)", description: "Classes for the trigger button." },
+    id: { type: "string", description: "Id of the trigger button." },
+    "aria-label": { type: "string", description: "Trigger label when there's no label. Also names the dialog." },
+    "aria-labelledby": { type: "string", description: "Labels the trigger by another element." },
+    "aria-describedby": { type: "string", description: "Describes the trigger by another element." },
+  }}
+/>
+
+These are the props `ColorPicker` accepts. React Aria's [`ColorPicker`](https://react-aria.adobe.com/ColorPicker#api) is the state provider underneath.
+
+### ColorArea
+
+<TypeTable
+  type={{
+    colorSpace: { type: '"rgb" | "hsl" | "hsb"', description: "Color space the channels belong to." },
+    xChannel: { type: "ColorChannel", description: 'Horizontal channel, e.g. "saturation".' },
+    yChannel: { type: "ColorChannel", description: 'Vertical channel, e.g. "brightness".' },
+    value: { type: "string | Color", description: "Controlled color, when not inside a ColorPicker." },
+    defaultValue: { type: "string | Color" },
+    onChange: { type: "(value: Color) => void", description: "Called continuously while dragging." },
+    onChangeEnd: { type: "(value: Color) => void", description: "Called when dragging ends." },
+    isDisabled: { type: "boolean", default: "false" },
+    xName: { type: "string", description: "Form name for the x channel input." },
+    yName: { type: "string", description: "Form name for the y channel input." },
+    className: { type: "string | ((state: ColorAreaRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ColorArea`](https://react-aria.adobe.com/ColorArea#api).
+
+### ColorSlider
+
+<TypeTable
+  type={{
+    channel: { type: "ColorChannel", description: 'Required. "hue", "saturation", "brightness", "lightness", "red", "green", "blue" or "alpha".' },
+    colorSpace: { type: '"rgb" | "hsl" | "hsb"', description: "Color space the channel belongs to." },
+    label: { type: "string", description: "Visible label. Also shows the formatted channel value." },
+    value: { type: "string | Color", description: "Controlled color, when not inside a ColorPicker." },
+    defaultValue: { type: "string | Color" },
+    onChange: { type: "(value: Color) => void" },
+    onChangeEnd: { type: "(value: Color) => void" },
+    isDisabled: { type: "boolean", default: "false" },
+    name: { type: "string", description: "Form name for the channel value." },
+    "aria-label": { type: "string", description: "Overrides the default channel-name label." },
+    className: { type: "string | ((state: ColorSliderRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ColorSlider`](https://react-aria.adobe.com/ColorSlider#api). Styled for horizontal sliders only.
+
+### ColorField
+
+<TypeTable
+  type={{
+    label: { type: "string", description: "Visible label." },
+    description: { type: "string", description: "Helper text under the input." },
+    placeholder: { type: "string" },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message." },
+    channel: { type: "ColorChannel", description: "Edit one channel as a number instead of the hex string." },
+    colorSpace: { type: '"rgb" | "hsl" | "hsb"', description: "Color space for channel." },
+    value: { type: "string | Color | null", description: "Controlled color." },
+    defaultValue: { type: "string | Color | null" },
+    onChange: { type: "(color: Color | null) => void", description: "Called when typed text is committed (Enter or blur) or the value is stepped." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    isDisabled: { type: "boolean", default: "false" },
+    isReadOnly: { type: "boolean", default: "false" },
+    isRequired: { type: "boolean", default: "false" },
+    isInvalid: { type: "boolean" },
+    validate: { type: "(value: Color | null) => ValidationError | true | null | undefined" },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"' },
+    isWheelDisabled: { type: "boolean", description: "Stops the scroll wheel from changing the value." },
+    className: { type: "string | ((state: ColorFieldRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ColorField`](https://react-aria.adobe.com/ColorField#api).
+
+### ColorSwatch
+
+<TypeTable
+  type={{
+    color: { type: "string | Color", description: "The color to show. Inside a ColorPicker, defaults to the picker's color." },
+    colorName: { type: "string", description: "Accessible name. Defaults to a generated description of the color." },
+    className: { type: "string | ((state: ColorSwatchRenderProps) => string)" },
+  }}
+/>
+
+### ColorSwatchPicker
+
+<TypeTable
+  type={{
+    value: { type: "string | Color", description: "Controlled selected color." },
+    defaultValue: { type: "string | Color" },
+    onChange: { type: "(value: Color) => void" },
+    layout: { type: '"grid" | "stack"', default: '"grid"', description: "Keyboard navigation model. The visual layout is always a wrapping row." },
+    children: { type: "ReactNode", description: "ColorSwatchPickerItem elements." },
+    "aria-label": { type: "string", description: "Required when there's no aria-labelledby." },
+    className: { type: "string | ((state) => string)" },
+  }}
+/>
+
+### ColorSwatchPickerItem
+
+<TypeTable
+  type={{
+    color: { type: "string | Color", description: "Required. The preset color." },
+    isDisabled: { type: "boolean", default: "false" },
+    className: { type: "string | ((state: ColorSwatchPickerItemRenderProps) => string)" },
+  }}
+/>
+
+See React Aria's [`ColorSwatchPicker`](https://react-aria.adobe.com/ColorSwatchPicker#api) and [`ColorSwatch`](https://react-aria.adobe.com/ColorSwatch#api).
+
+### ColorThumb
+
+Accepts React Aria's [`ColorThumb`](https://react-aria.adobe.com/ColorArea#colorthumb) props (`className`, `style`, hover events). `ColorArea` and `ColorSlider` render one for you.
+
+## Related
+
+- [Slider](/docs/components/slider) — the same interaction for plain numbers.
+- [Popover](/docs/components/popover) — the overlay the picker opens in.
+- [Text Field](/docs/components/text-field) — `ColorField` shares its input styles.

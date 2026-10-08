@@ -1,0 +1,295 @@
+---
+title: Button
+description: Triggers an action or event. Six visual styles, seven colors, eight sizes and a built-in pending state — with press handling that works the same on mouse, touch, pen and keyboard.
+---
+
+<ComponentLinks aria="Button" source="button" />
+
+<ComponentPreview name="button/demo" />
+
+## Installation
+
+<InstallTabs name="button" />
+
+## Usage
+
+```tsx
+import { Button } from "@/components/ui/button";
+```
+
+```tsx
+<Button onPress={() => save()}>Save changes</Button>
+```
+
+<Callout title="Use onPress, not onClick">
+  React Aria normalizes mouse, touch, pen and keyboard input into a single
+  `onPress` event. It fires once per press, ignores scroll gestures on touch
+  devices and never leaves a "sticky" hover state behind. `onClick` still
+  works, but you lose those guarantees.
+</Callout>
+
+### When to use
+
+- Use a button to perform an action: submit a form, open a dialog, start a process.
+- Use a [link](/docs/components/link) to navigate. If it changes the URL, it should be a link — style it with [`buttonVariants`](#as-a-link) if it needs to look like a button.
+- Use a [toggle button](/docs/components/toggle-button) for an on/off state that persists, like bold or mute.
+- Keep one `solid` button per view for the primary action; use `outline`, `soft` or `ghost` for everything else.
+
+## Anatomy
+
+A button is a single element. Icons, spinners and keyboard hints are plain children that the button sizes and spaces for you.
+
+```tsx
+<Button>
+  <Icon />        {/* optional leading icon, auto-sized */}
+  Label
+  <Kbd />         {/* optional trailing hint or icon */}
+</Button>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Button` | `<button>` | Root. Carries `data-slot="button"` and all state attributes. |
+| Icon | `<svg>` | Sized by the button (`size-4`, or `size-3`/`size-3.5` for small sizes) unless you set a `size-*` class. |
+| Spinner | `<svg>` | Injected before the label while `isPending` is true. |
+
+## Examples
+
+### Variants
+
+`solid` for the primary action, `soft` and `outline` for secondary actions, `dashed` for "add" affordances, `ghost` for toolbars and dense UIs, and `link` for inline actions.
+
+<ComponentPreview name="button/variants" />
+
+### Colors
+
+Every variant works with every color. `outline`, `dashed` and `ghost` default to `neutral`; the rest default to `primary`. Use `brand` for accent actions, and `danger` only for destructive ones.
+
+<ComponentPreview name="button/colors" />
+
+### Sizes
+
+`md` (32px) is the default. `xs` and `sm` suit tables and toolbars, `lg` suits marketing pages and touch-first layouts.
+
+<ComponentPreview name="button/sizes" />
+
+### Full width
+
+Buttons are inline by default. Add `w-full` for stacked actions in cards, forms and mobile layouts.
+
+<ComponentPreview name="button/block" />
+
+### With icon
+
+Icons are sized and spaced automatically. Place them before the label for actions ("Add", "Upload") and after it for direction ("Next", external links).
+
+<ComponentPreview name="button/with-icon" />
+
+### Icon only
+
+Use the `icon-xs`, `icon-sm`, `icon` and `icon-lg` sizes for square buttons. They have no visible text, so `aria-label` is required.
+
+<ComponentPreview name="button/icon" />
+
+### With tooltip
+
+Pair icon-only buttons with a [`Tooltip`](/docs/components/tooltip) so sighted mouse users get the same label screen readers announce.
+
+<ComponentPreview name="button/tooltip" />
+
+### With keyboard shortcut
+
+Put a [`Kbd`](/docs/components/kbd) inside the button to advertise its shortcut. The button doesn't bind the key for you — register it with your own hotkey handler.
+
+<ComponentPreview name="button/with-kbd" />
+
+### Button group
+
+Wrap related buttons in a React Aria `Group` and remove the inner radii to attach them. The group gives assistive tech a single labelled region.
+
+<ComponentPreview name="button/group" />
+
+### Pending
+
+`isPending` shows a spinner, blocks further presses and keeps focus on the button, so keyboard and screen-reader users aren't thrown back to the top of the page. The button also announces its busy state.
+
+<ComponentPreview name="button/pending" />
+
+### Async actions
+
+Drive `isPending` from your own state to show progress and a success state for async work.
+
+<ComponentPreview name="button/loading" />
+
+### Disabled
+
+`isDisabled` removes the button from the tab order and ignores presses. Prefer `isPending` while work is in flight, and consider explaining why an action is unavailable instead of silently disabling it.
+
+<ComponentPreview name="button/disabled" />
+
+### In a form
+
+Buttons default to `type="button"`. Set `type="submit"` or `type="reset"` to take part in a form; native validation and `FormData` work as usual.
+
+<ComponentPreview name="button/form" />
+
+### As a link
+
+Links must stay links for navigation to work (middle-click, "open in new tab", prefetching). Apply `buttonVariants` to a React Aria `Link`, Next.js `Link` or any element to borrow the button styles.
+
+<ComponentPreview name="button/as-link" />
+
+```tsx
+import NextLink from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+
+<NextLink href="/pricing" className={buttonVariants({ variant: "outline" })}>
+  See pricing
+</NextLink>;
+```
+
+## Recipes
+
+### Toolbar
+
+Ghost icon buttons inside a React Aria `Toolbar` get arrow-key navigation between items, with tooltips that show the shortcut.
+
+<ComponentPreview name="button/recipe-toolbar" />
+
+### Split button
+
+A primary action attached to a [`Menu`](/docs/components/menu) of alternatives.
+
+<ComponentPreview name="button/recipe-split" />
+
+### Empty state
+
+A primary and a secondary action, centered in an empty-state card.
+
+<ComponentPreview name="button/recipe-empty-state" />
+
+## Accessibility
+
+- Renders a native `<button>`, so it's focusable, announced as a button and works with every assistive technology out of the box.
+- The focus ring only appears for keyboard focus (`data-focus-visible`), never on mouse click.
+- Icon-only buttons must have an `aria-label` (or `aria-labelledby`).
+- `isPending` sets `aria-disabled` and announces the busy state, but keeps the button in the tab order so focus isn't lost.
+- `isDisabled` sets the native `disabled` attribute and removes the button from the tab order.
+- Don't nest interactive elements (links, other buttons) inside a button.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the button |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Presses the button |
+
+## Styling
+
+### Data attributes
+
+Style states with Tailwind's native data variants, e.g. `data-pressed:scale-[0.98]`.
+
+| Attribute | Present when |
+| --- | --- |
+| `data-hovered` | Hovered with a mouse or pen (never on touch) |
+| `data-pressed` | Being pressed |
+| `data-focused` | Focused by any means |
+| `data-focus-visible` | Focused with the keyboard |
+| `data-disabled` | `isDisabled` is true |
+| `data-pending` | `isPending` is true |
+| `data-slot="button"` | Always — target buttons from a parent with `*:data-[slot=button]:…` |
+
+### Tone variables
+
+Colors are applied through two CSS variables, so you can create a one-off tone without touching the variants:
+
+```tsx
+<Button className="[--tone:var(--color-pink-600)] [--tone-fg:white]">
+  Custom tone
+</Button>
+```
+
+| Variable | Used for |
+| --- | --- |
+| `--tone` | Background (`solid`), text and border (other variants), focus ring |
+| `--tone-fg` | Text on `solid` buttons |
+
+### Render props
+
+`className` and `children` also accept a function of the button's state:
+
+```tsx
+<Button className={({ isPressed }) => (isPressed ? "scale-95" : "")}>
+  {({ isPending }) => (isPending ? "Saving…" : "Save")}
+</Button>
+```
+
+### `buttonVariants`
+
+The `tailwind-variants` function behind the component. Use it to style non-button elements, or to build your own variants on top.
+
+```tsx
+import { buttonVariants } from "@/components/ui/button";
+
+buttonVariants({ variant: "soft", color: "success", size: "sm" });
+```
+
+## API Reference
+
+### Button
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"solid" | "soft" | "outline" | "dashed" | "ghost" | "link"',
+      default: '"solid"',
+      description: 'Visual style. The shadcn names "default", "destructive" and "secondary" are accepted as aliases.',
+    },
+    color: {
+      type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"',
+      description: 'Color tone. Defaults to "primary" for solid, soft and link; "neutral" for outline, dashed and ghost.',
+    },
+    size: {
+      type: '"xs" | "sm" | "md" | "lg" | "icon-xs" | "icon-sm" | "icon" | "icon-lg"',
+      default: '"md"',
+      description: 'Height and padding. "default" is accepted as a shadcn alias for "md".',
+    },
+    onPress: { type: "(e: PressEvent) => void", description: "Called when a press is released over the button." },
+    onPressStart: { type: "(e: PressEvent) => void", description: "Called when a press starts." },
+    onPressEnd: { type: "(e: PressEvent) => void", description: "Called when a press ends, whether or not it was released over the button." },
+    onPressChange: { type: "(isPressed: boolean) => void", description: "Called when the pressed state changes." },
+    onPressUp: { type: "(e: PressEvent) => void", description: "Called when a press is released, even if it started elsewhere." },
+    isPending: { type: "boolean", default: "false", description: "Shows a spinner, blocks presses and announces the busy state while keeping focus." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the button and removes it from the tab order." },
+    type: { type: '"button" | "submit" | "reset"', default: '"button"', description: "Native button type for form participation." },
+    form: { type: "string", description: "Id of the form the button belongs to, when it's rendered outside it." },
+    name: { type: "string", description: "Submitted with the form data along with value." },
+    value: { type: "string", description: "Submitted with the form data along with name." },
+    autoFocus: { type: "boolean", description: "Focuses the button on mount." },
+    slot: { type: "string | null", description: 'React Aria slot, e.g. "close" inside a Dialog.' },
+    className: { type: "string | ((state: ButtonRenderProps) => string)", description: "Classes, or a function of the render state." },
+    children: { type: "ReactNode | ((state: ButtonRenderProps) => ReactNode)", description: "Content, or a function of the render state." },
+    "aria-label": { type: "string", description: "Accessible name. Required for icon-only buttons." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Button`](https://react-aria.adobe.com/Button#api), including focus, hover and keyboard handlers.
+
+### buttonVariants
+
+<TypeTable
+  type={{
+    variant: { type: "ButtonProps['variant']", default: '"solid"' },
+    color: { type: "Tone", description: "No default — pass one explicitly when styling non-button elements." },
+    size: { type: "ButtonProps['size']", default: '"md"' },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Toggle Button](/docs/components/toggle-button) — a button with a persistent on/off state.
+- [Toggle Button Group](/docs/components/toggle-button-group) — single or multiple selection across a set of buttons.
+- [Link](/docs/components/link) — for navigation.
+- [Menu](/docs/components/menu) — for a button that opens a list of actions.

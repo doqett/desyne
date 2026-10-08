@@ -1,0 +1,95 @@
+---
+title: Icons
+description: Lucide icons by default, automatic sizing inside components, and labelling icon-only controls.
+---
+
+Components use [Lucide](https://lucide.dev) (`lucide-react`) for their built-in icons
+(chevrons, checks, close buttons) and the examples use it throughout. Any React icon
+set that renders an `<svg>` works.
+
+```bash
+npm install lucide-react
+```
+
+## Sizing is automatic
+
+Components size icon children for you. Button, for example, applies
+`[&_svg:not([class*='size-'])]:size-4`, so an icon picks up the right size for the
+button's size unless you set one:
+
+| Button size | Icon size |
+| --- | --- |
+| `xs`, `icon-xs` | 12px |
+| `sm`, `icon-sm` | 14px |
+| `md`, `lg`, `icon`, `icon-lg` | 16px |
+
+```tsx
+import { PlusIcon } from "lucide-react";
+
+<Button><PlusIcon /> New project</Button>          {/* 16px */}
+<Button size="sm"><PlusIcon /> New</Button>        {/* 14px */}
+<Button><PlusIcon className="size-5" /> Big</Button> {/* your size wins */}
+```
+
+Menu items, select items, tabs, badges, alerts, card titles and field addons do the
+same, and they also handle spacing and muted color. Don't add margins to icons; the
+parent's `gap` spaces them.
+
+## Icon-only controls need a label
+
+An icon is invisible to screen readers. Give the control an accessible name:
+
+```tsx
+import { TrashIcon } from "lucide-react";
+
+<Button variant="ghost" size="icon" aria-label="Delete file">
+  <TrashIcon />
+</Button>
+```
+
+Pair it with a tooltip so sighted mouse users get the same information:
+
+```tsx
+<TooltipTrigger>
+  <Button variant="ghost" size="icon" aria-label="Delete file">
+    <TrashIcon />
+  </Button>
+  <Tooltip>Delete file</Tooltip>
+</TooltipTrigger>
+```
+
+The tooltip doesn't replace `aria-label`: tooltips only show on hover and keyboard
+focus, never on touch.
+
+## Decorative icons
+
+When an icon sits next to text that already says the same thing, it's decorative.
+Lucide icons render as plain `<svg>` without a title, and React Aria computes the
+control's name from its text, so the icon adds nothing to the announcement. For
+standalone decorative icons, add `aria-hidden`:
+
+```tsx
+<p className="flex items-center gap-2 text-muted-foreground text-sm">
+  <InfoIcon aria-hidden className="size-4" />
+  Changes are saved automatically.
+</p>
+```
+
+## Field prefixes and suffixes
+
+Text fields, selects and the input group take icons as `prefix` and `suffix`:
+
+```tsx
+import { AtSignIcon, UserIcon } from "lucide-react";
+
+<TextField label="Email" prefix={<AtSignIcon />} placeholder="you@company.com" />
+<Select label="Owner" prefix={<UserIcon />}>…</Select>
+```
+
+## Using another icon set
+
+Swap the imports in the component files. Built-in icons live in a handful of places:
+`ChevronDownIcon` in Select, `ChevronsUpDownIcon` in Combobox, `CheckIcon` in Checkbox
+and list items, `XIcon` in Dialog (Sheet reuses its close button) and Tag, `ChevronLeftIcon`/`ChevronRightIcon` in Calendar and
+Pagination, `Loader2Icon` for pending buttons. Search the folder for `lucide-react` to
+find them all.

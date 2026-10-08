@@ -1,0 +1,259 @@
+---
+title: Form
+description: React Aria's Form with consistent spacing, live validation by default and server-side errors mapped onto fields by name. Includes FormSection (fieldset + legend), FormRow for side-by-side fields and FormActions for the button row.
+---
+
+<ComponentLinks aria="Form" source="form" />
+
+<ComponentPreview name="form/demo" />
+
+## Installation
+
+<InstallTabs name="form" />
+
+## Usage
+
+```tsx
+import { Form, FormActions, FormRow, FormSection } from "@/components/ui/form";
+```
+
+```tsx
+<Form onSubmit={handleSubmit} validationErrors={serverErrors}>
+  <FormSection title="Contact" description="Where we send receipts.">
+    <FormRow>
+      <TextField label="First name" name="firstName" isRequired />
+      <TextField label="Last name" name="lastName" isRequired />
+    </FormRow>
+    <TextField label="Email" name="email" type="email" isRequired />
+  </FormSection>
+  <FormActions>
+    <Button type="submit">Save</Button>
+  </FormActions>
+</Form>
+```
+
+Every field in this library (`TextField`, `Select`, `DatePicker`, `Checkbox`, …) reads its validation settings from the surrounding `Form`, so you set them once.
+
+<Callout title="Validation is live by default">
+  React Aria's own default is `validationBehavior="native"`, where the browser
+  blocks submit and errors appear only after a submit attempt. This `Form`
+  defaults to `"aria"`: errors appear as soon as a field is committed (on blur
+  or change) and nothing blocks `onSubmit`, so you decide what to do with an
+  invalid form. Pass `validationBehavior="native"` to get the browser behavior
+  back.
+</Callout>
+
+### When to use
+
+- `Form` — any group of inputs that's submitted together: sign-up, checkout, settings, filters.
+- `FormSection` — related fields inside a long form (Profile, Billing, Notifications). It's a real `<fieldset>`, so the title names the group for screen readers.
+- `FormRow` — two to four short fields that belong on one line (first and last name; city, state and ZIP).
+- `FormActions` — the submit and cancel buttons, aligned and spaced consistently.
+- A single field that saves on its own (a search box, an inline rename) doesn't need a form.
+
+## Anatomy
+
+```tsx
+<Form>                       {/* <form> */}
+  <FormSection>              {/* <fieldset> */}
+    {/* <legend>title</legend> + <p>description</p> */}
+    <FormRow>                {/* <div> grid */}
+      <TextField />
+      <TextField />
+    </FormRow>
+  </FormSection>
+  <FormActions>              {/* <div> */}
+    <Button type="submit" />
+  </FormActions>
+</Form>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Form` | `<form>` | React Aria `Form`. Provides `validationBehavior` and `validationErrors` to every field inside. `layout` and `gap` set the spacing. |
+| `FormSection` | `<fieldset>` | Groups fields. `title` renders a `<legend>`, `description` is linked with `aria-describedby`. `layout="aside"` puts the text in a left column on wide screens. |
+| `FormRow` | `<div>` | A grid of 2, 3 or 4 columns that collapses to one column on small screens. Fields align to the top so error messages don't push neighbors around. |
+| `FormActions` | `<div>` | A wrapping row of buttons. `align` sets start, end or space-between; `separator` adds a top border. |
+
+## Examples
+
+### Validation
+
+Fields validate themselves with HTML constraints (`isRequired`, `type="email"`, `minLength`, `pattern`, `minValue`/`maxValue`) and with a `validate` function for custom rules. `validate` returns an error message, an array of messages, or `null` when the value is fine. Messages use the browser's localized text unless you return your own. Submitting focuses the first invalid field.
+
+<ComponentPreview name="form/validation" />
+
+### Server errors
+
+Pass an object of `{ [fieldName]: message }` to `validationErrors`. Each field shows the message whose key matches its `name` and is marked invalid. The error clears as soon as the user edits that field, so they aren't stuck looking at a stale message. Try submitting the defaults, then change one field.
+
+<ComponentPreview name="form/server-errors" />
+
+With a Next.js server action, return the errors from the action and hand them to the form:
+
+```tsx title="app/workspaces/new/actions.ts"
+"use server";
+
+export async function createWorkspace(_prev: State, data: FormData): Promise<State> {
+  const slug = String(data.get("slug"));
+  if (await db.workspace.exists({ slug })) {
+    return { errors: { slug: `“${slug}” is already taken.` } };
+  }
+  await db.workspace.create({ slug });
+  redirect(`/${slug}`);
+}
+```
+
+```tsx title="app/workspaces/new/form.tsx"
+"use client";
+
+import { useActionState } from "react";
+import { createWorkspace } from "./actions";
+
+export function NewWorkspaceForm() {
+  const [state, action, pending] = useActionState(createWorkspace, { errors: {} });
+  return (
+    <Form action={action} validationErrors={state.errors}>
+      <TextField label="Workspace URL" name="slug" isRequired />
+      <FormActions>
+        <Button type="submit" isPending={pending}>Create workspace</Button>
+      </FormActions>
+    </Form>
+  );
+}
+```
+
+React resets uncontrolled fields after a form action finishes. If you want to keep what the user typed when there are errors, return their values too and pass them as `defaultValue`, or use `onSubmit` as in the example above.
+
+### Schema validation (Zod)
+
+Validate the whole form against a schema on submit and feed the resulting field errors to `validationErrors`. With [Zod](https://zod.dev) that's `safeParse` plus `flatten().fieldErrors`:
+
+```tsx
+import { z } from "zod";
+
+const shipping = z.object({
+  name: z.string().min(1, "Enter the recipient's name."),
+  address: z.string().min(5, "That address looks too short."),
+  postcode: z.string().regex(/^\d{5}(-\d{4})?$/, "Use a 5-digit ZIP code, like 94107."),
+  country: z.enum(["US", "CA", "MX"], { message: "Choose a country." }),
+});
+
+function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+  const result = shipping.safeParse(Object.fromEntries(new FormData(e.currentTarget)));
+  if (!result.success) {
+    setErrors(result.error.flatten().fieldErrors); // { postcode: ["Use a 5-digit…"] }
+    return;
+  }
+  save(result.data); // fully typed
+}
+
+<Form validationErrors={errors} onSubmit={onSubmit}>…</Form>
+```
+
+`validationErrors` accepts a string or an array of strings per field, so Zod's output fits as-is. Run the same schema on the server to keep both sides in sync. The live example below uses a few lines of hand-written rules in place of Zod, with the same result shape.
+
+<ComponentPreview name="form/schema" />
+
+### Settings page
+
+Several `FormSection`s with `layout="aside"` put each section's title and description in a left column on wide screens, a common layout for settings and account pages. `gap="lg"` adds room between sections, and `FormActions separator` closes the form with a hairline.
+
+<ComponentPreview name="form/settings" />
+
+### Inline
+
+`layout="inline"` lines fields and buttons up in a row that wraps, aligned to the bottom edge so a button sits level with the input even when the field has a label. Good for newsletter sign-ups, search bars and table filters. Use `aria-label` when there's no visible label.
+
+<ComponentPreview name="form/inline" />
+
+### Submitting state
+
+While a request runs, show `isPending` on the submit button. It keeps the button focusable, shows a spinner and announces the pending state, and ignores further presses so the form can't be sent twice. Make the fields `isReadOnly` rather than `isDisabled` so their values stay readable and are still submitted.
+
+<ComponentPreview name="form/submitting" />
+
+## Accessibility
+
+- `Form` renders a native `<form>`, so <kbd>Enter</kbd> in a text field submits it and the browser's autofill works. Give each field a `name`.
+- On submit, the first invalid field receives focus, and each field's error is linked to it with `aria-describedby` and announced.
+- Server errors from `validationErrors` mark fields `aria-invalid` like any other error.
+- `FormSection` is a `<fieldset>` whose `<legend>` names the group, so screen readers announce "Notifications, group" when focus enters it. The description is linked with `aria-describedby`.
+- Status messages after submit ("Saved", "Sent") should live in an element with `role="status"` or `aria-live="polite"` so they're announced, as in the examples.
+- Required fields show an asterisk and set `aria-required`. Say what the asterisk means near the top of long forms.
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="form"` | The `<form>`. Also has `data-layout="vertical"` or `"inline"`. |
+| `data-slot="form-section"` | The `<fieldset>`, with `data-layout="stacked"` or `"aside"` |
+| `data-slot="form-section-title"` | The `<legend>` |
+| `data-slot="form-section-description"` | The description `<p>` |
+| `data-slot="form-section-content"` | The column that holds the fields |
+| `data-slot="form-row"` | A `FormRow` grid |
+| `data-slot="form-actions"` | The button row. Has `data-separator` when `separator` is set. |
+
+React Aria sets `data-invalid` on each field, not on the form. To style the whole form while it has errors, use `has-data-invalid:` on the form's `className`.
+
+## API Reference
+
+### Form
+
+<TypeTable
+  type={{
+    layout: { type: '"vertical" | "inline"', default: '"vertical"', description: "Stack fields, or put them in a wrapping row aligned to the bottom." },
+    gap: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Space between children: 12px, 20px or 32px." },
+    validationBehavior: { type: '"aria" | "native"', default: '"aria"', description: "aria shows errors live and never blocks submit; native uses the browser's constraint validation and blocks submit." },
+    validationErrors: { type: "Record<string, string | string[]>", description: "Errors keyed by field name, typically from the server. Cleared per field when the user edits it." },
+    onSubmit: { type: "(e: FormEvent<HTMLFormElement>) => void", description: "Called on submit. Call e.preventDefault() to handle it in JavaScript." },
+    action: { type: "string | ((formData: FormData) => void | Promise<void>)", description: "A URL, or a React form action (server action)." },
+    onReset: { type: "(e: FormEvent<HTMLFormElement>) => void", description: "Called when the form is reset." },
+    onInvalid: { type: "(e: FormEvent<HTMLFormElement>) => void", description: "Called when native validation fails on submit." },
+    className: { type: "string", description: "Classes for the <form>." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Form`](https://react-aria.adobe.com/Form#api) and native `<form>` attributes such as `method`, `encType`, `autoComplete` and `noValidate`.
+
+### FormSection
+
+<TypeTable
+  type={{
+    title: { type: "ReactNode", description: "Rendered as the <legend>; names the group." },
+    description: { type: "ReactNode", description: "Helper text under the title, linked with aria-describedby." },
+    layout: { type: '"stacked" | "aside"', default: '"stacked"', description: "Title above the fields, or in a left column from the md breakpoint." },
+    disabled: { type: "boolean", description: "Native fieldset disabling: every native control inside is disabled and left out of submission. Set isDisabled on fields too so they look disabled." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts native `<fieldset>` attributes.
+
+### FormRow
+
+<TypeTable
+  type={{
+    columns: { type: "2 | 3 | 4", default: "2", description: "Columns from the sm breakpoint (4 columns become 2 below lg)." },
+    className: { type: "string" },
+  }}
+/>
+
+### FormActions
+
+<TypeTable
+  type={{
+    align: { type: '"start" | "end" | "between"', default: '"end"', description: "Horizontal alignment of the buttons." },
+    separator: { type: "boolean", default: "false", description: "Adds a top border and padding." },
+    className: { type: "string" },
+  }}
+/>
+
+## Related
+
+- [Text Field](/docs/components/text-field), [Select](/docs/components/select), [Checkbox](/docs/components/checkbox) — the fields that go inside.
+- [Button](/docs/components/button) — `isPending` for the submit state.
+- [Alert](/docs/components/alert) — form-level errors that don't belong to one field.

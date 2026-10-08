@@ -1,0 +1,207 @@
+---
+title: Command Palette
+description: A keyboard-driven command menu in a modal, filtered as you type. Built on React Aria's Autocomplete and Menu, with sections, shortcuts, icons, links, disabled commands and a custom empty state; accent- and case-insensitive matching out of the box.
+---
+
+<ComponentLinks aria="Autocomplete" source="command-palette" />
+
+<ComponentPreview name="command-palette/demo" />
+
+## Installation
+
+<InstallTabs name="command-palette" />
+
+## Usage
+
+```tsx
+import {
+  CommandItem,
+  CommandPalette,
+  CommandSection,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command-palette";
+```
+
+```tsx
+const [isOpen, setOpen] = useState(false);
+
+<CommandPalette
+  isOpen={isOpen}
+  onOpenChange={setOpen}
+  onAction={(key) => run(key)}
+>
+  <CommandItem id="new-project">New project</CommandItem>
+  <CommandItem id="invite">Invite teammate</CommandItem>
+</CommandPalette>
+```
+
+Control the palette with `isOpen` and `onOpenChange`, and bind the <kbd>⌘</kbd>+<kbd>K</kbd> shortcut yourself with a `keydown` listener (see the demo's code).
+
+The palette closes itself after a command runs: once `onAction` (or an item's own `onAction`) has been called, it calls `onOpenChange(false)`. Links (`href` items) close it too. Pass `closeOnAction={false}` to keep it open, for example for multi-step commands, and close it yourself with `setOpen(false)` when you're done.
+
+### When to use
+
+- Command Palette — a global, searchable list of actions and destinations, usually on <kbd>⌘</kbd>+<kbd>K</kbd>. Also good for any "pick one from many" step, like assigning a teammate.
+- [Menu](/docs/components/menu) — a short, contextual list of actions attached to a button.
+- [Combo Box](/docs/components/combobox) — a searchable form field that keeps a value.
+- [Search Field](/docs/components/search-field) — searching content on the page rather than running commands.
+
+## Anatomy
+
+```tsx
+<CommandPalette>                 {/* overlay + modal + dialog + search input + menu */}
+  <CommandSection title="…">     {/* optional group with a heading */}
+    <CommandItem>                {/* a command */}
+      <Icon />
+      Label
+      <CommandShortcut />        {/* keyboard hint */}
+    </CommandItem>
+  </CommandSection>
+  <CommandSeparator />
+</CommandPalette>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `CommandPalette` | `ModalOverlay` › `Modal` › `Dialog` › `Autocomplete` | Backdrop, a panel near the top of the screen (`pt-[15vh]`), a search input and a `role="menu"` list that scrolls after 320px. |
+| Search input | `SearchField` › `<input type="search">` | Auto-focused, with `aria-label="Search commands"` and a search icon. |
+| `CommandItem` | `<div role="menuitem">` | A command. Same component as [`MenuItem`](/docs/components/menu#menuitem): `variant`, `href`, `isDisabled` and render props all work. |
+| `CommandSection` | `<section role="group">` | Groups items under an optional `title`. Hidden when none of its items match. |
+| `CommandSeparator` | `<hr>` | Divider between sections. |
+| `CommandShortcut` | `<kbd>` | Right-aligned shortcut hint. The palette doesn't bind it. |
+| Empty state | `<div>` | `emptyMessage`, shown when nothing matches. |
+
+## Examples
+
+### Dynamic items
+
+Pass `items` and a render function instead of static children. Each item needs an `id`; `onAction` receives it. Only the items that match the query are rendered.
+
+<ComponentPreview name="command-palette/dynamic" />
+
+### Rich items
+
+Put React Aria's `Text` with `slot="label"` and `slot="description"` inside a `CommandItem` for two-line results. The description is announced separately, and filtering still uses `textValue`.
+
+<ComponentPreview name="command-palette/rich-items" />
+
+### Search keywords
+
+Filtering matches the query anywhere in an item's `textValue`, ignoring case and accents. Add synonyms to `textValue` so "dark" finds Appearance or "2fa" finds Security. The item's accessible name still comes from its visible content.
+
+<ComponentPreview name="command-palette/keywords" />
+
+### Links
+
+Give an item an `href` to navigate. Same-page anchors, external URLs with `target="_blank"`, and routes through React Aria's `RouterProvider` all work.
+
+<ComponentPreview name="command-palette/links" />
+
+### Disabled commands
+
+`disabledKeys` keeps commands visible but not selectable, and keyboard navigation skips them. Say why, for example with a hint on the item.
+
+<ComponentPreview name="command-palette/disabled" />
+
+### Empty state
+
+`emptyMessage` accepts any node. Use it to suggest what to try next. `placeholder` sets the input's hint, and `aria-label` names the dialog (it defaults to "Command palette").
+
+<ComponentPreview name="command-palette/empty-state" />
+
+## Recipes
+
+### App search
+
+The classic <kbd>⌘</kbd>+<kbd>K</kbd> palette: a search-style trigger button with a [`Kbd`](/docs/components/kbd) hint, a global shortcut, recent items, actions with shortcuts and navigation. `className="max-w-xl"` widens the panel.
+
+<ComponentPreview name="command-palette/recipe-app-search" />
+
+### Assign a teammate
+
+A palette used as a picker: people with [`Avatar`](/docs/components/avatar)s, searchable by name or email through `textValue`, that sets the assignee on an issue card.
+
+<ComponentPreview name="command-palette/recipe-assign" />
+
+### Theme switcher
+
+A narrow palette (`max-w-sm`) that switches the theme, with a check on the current option.
+
+<ComponentPreview name="command-palette/recipe-theme" />
+
+## Accessibility
+
+- The palette is a modal dialog: focus is trapped, the page is hidden from screen readers, and focus returns to the previously focused element on close.
+- Focus stays in the search input while <kbd>↑</kbd> / <kbd>↓</kbd> move a virtual focus through the results, so users can keep typing. The highlighted command is announced as it changes.
+- Name the dialog with `aria-label` when it has a specific purpose ("Assign issue"); the default is "Command palette".
+- Commands are `menuitem`s with their text from `textValue`; section titles label their groups.
+- Shortcuts shown with `CommandShortcut` are hints only. Register the keys with your own handler.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| Any character | Filters the commands |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Moves the highlight through the results |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Highlights the first / last result |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Moves the highlight by a page |
+| <kbd>Enter</kbd> | Runs the highlighted command |
+| <kbd>Esc</kbd> | Clears the query, or closes the palette when the query is empty |
+
+## Styling
+
+### Data attributes
+
+On each `CommandItem`, the same attributes as [`MenuItem`](/docs/components/menu#data-attributes): `data-focused` for the highlighted result, `data-disabled`, `data-hovered`, `data-pressed` and `data-variant`. The panel has `data-entering` / `data-exiting` during its fade and zoom.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `command-palette-overlay` | Backdrop |
+| `command-palette` | Panel |
+| `menu-item`, `menu-section`, `menu-separator`, `menu-shortcut` | Items and their parts |
+
+### Customizing
+
+- `className` styles the panel. It's `w-full max-w-lg` by default: use `max-w-xl` for a wider palette or `max-w-sm` for a focused picker.
+- The result list is capped at `max-h-80` and scrolls; icons in items are sized and muted like in [Menu](/docs/components/menu#customizing).
+- The backdrop reuses `overlayStyles` from [Dialog](/docs/components/dialog#customizing).
+
+## API Reference
+
+### CommandPalette
+
+<TypeTable
+  type={{
+    isOpen: { type: "boolean", description: "Controlled open state." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the palette opens or closes." },
+    onAction: { type: "(key: Key) => void", description: "Called when a command runs, with the item's id." },
+    closeOnAction: { type: "boolean", default: "true", description: "Close the palette after a command's action fires. Set false to keep it open and close it yourself." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Static CommandItems and CommandSections, or a render function." },
+    disabledKeys: { type: "Iterable<Key>", description: "Commands that can't be highlighted or run." },
+    placeholder: { type: "string", default: '"Type a command or search…"', description: "Placeholder of the search input." },
+    emptyMessage: { type: "ReactNode", default: '"No results found."', description: "Shown when no command matches the query." },
+    "aria-label": { type: "string", default: '"Command palette"', description: "Accessible name of the dialog." },
+    isDismissable: { type: "boolean", default: "true", description: "Close when clicking the backdrop." },
+    isKeyboardDismissDisabled: { type: "boolean", default: "false", description: "Ignore the Esc key." },
+    shouldCloseOnInteractOutside: { type: "(element: Element) => boolean", description: "Fine-grained control over which outside clicks close the palette." },
+    className: { type: "string", description: "Classes for the panel." },
+  }}
+/>
+
+Also accepts the other props of React Aria's [`ModalOverlay`](https://react-aria.adobe.com/Modal#api). Filtering is provided by [`Autocomplete`](https://react-aria.adobe.com/Autocomplete).
+
+### CommandItem / CommandSection / CommandSeparator / CommandShortcut
+
+Re-exports of [`MenuItem`](/docs/components/menu#menuitem), [`MenuSection`](/docs/components/menu#menusection), `MenuSeparator` and `MenuShortcut`. They accept the same props; `CommandItem` also takes `textValue`, which is what the query is matched against.
+
+## Related
+
+- [Menu](/docs/components/menu) — the same items in a dropdown.
+- [Dialog](/docs/components/dialog) — the modal the palette is built on.
+- [Combo Box](/docs/components/combobox) — a searchable field that keeps a value.
+- [Kbd](/docs/components/kbd) — show the shortcut that opens the palette.

@@ -1,0 +1,3 @@
+[install]
+# hoisted avoids duplicate peer-variant installs (e.g. two fumadocs-core copies)
+linker = "hoisted"

@@ -1,0 +1,173 @@
+---
+title: Server components
+description: Which components are server-safe, how client components fit into the App Router, and patterns for passing data and actions across the boundary.
+---
+
+React Aria components rely on state, effects and event handlers, so almost every
+Desyne component is a client component and starts with `"use client"`. You can still
+render them from server components: the directive marks the boundary, and their props
+are serialised from the server.
+
+## Server-safe components
+
+These render plain elements with no hooks and no `"use client"`, so they stay on the
+server and add no JavaScript:
+
+| Component | Notes |
+| --- | --- |
+| [Badge](/docs/components/badge) | Tones work on the server |
+| [Card](/docs/components/card) | All parts (`CardHeader`, `CardTitle`, `CardContent`, …) |
+| [Item](/docs/components/item) | List rows for settings and summaries |
+| [Skeleton](/docs/components/skeleton) | Pair with `loading.tsx` |
+| [Spinner](/docs/components/spinner) | |
+| [Empty](/docs/components/empty) | Empty states |
+| [Typography](/docs/components/typography) | Headings, text and prose |
+
+`lib/primitive.ts` has no React Aria import and no `"use client"`, so tones and
+`composeTailwindRenderProps` can be used in server code too.
+
+## Using client components from a server page
+
+Import them directly. Pass serialisable props (strings, numbers, plain objects,
+arrays, dates as strings):
+
+```tsx title="app/settings/page.tsx"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { getPreferences } from "@/lib/data";
+
+export default async function SettingsPage() {
+  const prefs = await getPreferences(); // runs on the server
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Notifications</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <Switch defaultSelected={prefs.digest}>Weekly digest</Switch>
+        <Switch defaultSelected={prefs.mentions}>Mentions</Switch>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+Uncontrolled props (`defaultSelected`, `defaultValue`) are the easy path: the server
+supplies the initial value and the component manages the rest.
+
+## Event handlers need a client component
+
+Functions can't cross from server to client, so `onPress`, `onChange` and render
+functions (`{(item) => …}`) must live in a client file. Wrap the interactive part:
+
+```tsx title="app/settings/digest-switch.tsx"
+"use client";
+
+import { Switch } from "@/components/ui/switch";
+import { toast } from "@/components/ui/toast";
+import { setDigest } from "./actions";
+
+export function DigestSwitch({ initial }: { initial: boolean }) {
+  return (
+    <Switch
+      defaultSelected={initial}
+      onChange={async (on) => {
+        await setDigest(on);
+        toast.success(on ? "Digest on" : "Digest off");
+      }}
+    >
+      Weekly digest
+    </Switch>
+  );
+}
+```
+
+```ts title="app/settings/actions.ts"
+"use server";
+
+export async function setDigest(enabled: boolean) {
+  // await db.preferences.update({ digest: enabled })
+}
+```
+
+Server actions are the exception to "no functions": they can be passed as props or
+imported into client components. See [Forms](/docs/forms#with-zod) for
+`useActionState` with validation.
+
+## Collections with render functions
+
+Dynamic collections take a render function, which is a client concern. Keep the data
+fetching on the server and the rendering in a small client component:
+
+```tsx title="app/team/page.tsx"
+import { MemberTable } from "./member-table";
+
+export default async function TeamPage() {
+  const members = await db.members.list(); // [{ id, name, role }]
+  return <MemberTable members={members} />;
+}
+```
+
+```tsx title="app/team/member-table.tsx"
+"use client";
+
+import { Cell, Column, Row, Table, TableBody, TableHeader } from "@/components/ui/table";
+
+type Member = { id: string; name: string; role: string };
+
+export function MemberTable({ members }: { members: Member[] }) {
+  return (
+    <Table aria-label="Team members">
+      <TableHeader>
+        <Column isRowHeader>Name</Column>
+        <Column>Role</Column>
+      </TableHeader>
+      <TableBody items={members}>
+        {(m) => (
+          <Row>
+            <Cell>{m.name}</Cell>
+            <Cell>{m.role}</Cell>
+          </Row>
+        )}
+      </TableBody>
+    </Table>
+  );
+}
+```
+
+Static collections, where children are written out as JSX, can be rendered from a
+server component:
+
+```tsx
+<Select label="Region" name="region" defaultSelectedKey="eu">
+  <SelectItem id="eu">Europe</SelectItem>
+  <SelectItem id="us">United States</SelectItem>
+</Select>
+```
+
+## Providers
+
+`RouterProvider`, `I18nProvider` and `next-themes` are client components. Put them in a
+single `app/providers.tsx` with `"use client"` and render it from your root layout; the
+pages inside remain server components. See [Routing](/docs/routing) and
+[Dark mode](/docs/dark-mode).
+
+## Loading states
+
+Use server-safe Skeletons in `loading.tsx` so the placeholder streams before any
+JavaScript loads:
+
+```tsx title="app/team/loading.tsx"
+import { Skeleton } from "@/components/ui/skeleton";
+
+export default function Loading() {
+  return (
+    <div className="grid gap-2">
+      {Array.from({ length: 6 }, (_, i) => (
+        <Skeleton key={i} className="h-10 w-full" />
+      ))}
+    </div>
+  );
+}
+```

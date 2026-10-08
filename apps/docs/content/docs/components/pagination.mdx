@@ -1,0 +1,282 @@
+---
+title: Pagination
+description: Move between pages of results. Use the ready-made Paginator for state-driven lists with automatic ellipses, a compact "Page x of y" mode and two sizes, or compose link-based pagination where every page has its own URL. Exports the getPageRange helper behind the ellipsis logic.
+---
+
+<ComponentLinks source="pagination" />
+
+<ComponentPreview name="pagination/demo" />
+
+## Installation
+
+<InstallTabs name="pagination" />
+
+## Usage
+
+```tsx
+import { Paginator } from "@/components/ui/pagination";
+```
+
+```tsx
+const [page, setPage] = useState(1);
+
+<Paginator page={page} pageCount={20} onPageChange={setPage} />;
+```
+
+For link-based pagination, where each page has its own URL, compose the parts:
+
+```tsx
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+```
+
+```tsx
+<Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious href="?page=1" />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="?page=2" isActive>2</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext href="?page=3" />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
+```
+
+### When to use
+
+- `Paginator` — client-side state: tables, lists and search results where the page lives in React state and URLs don't need to change.
+- Link-based parts — server-rendered or routed lists where each page should be linkable, bookmarkable and crawlable (`?page=3`).
+- Simple mode — narrow spaces like card footers and mobile layouts, or very large page counts where numbers don't help.
+- Consider infinite scrolling or a "Load more" [Button](/docs/components/button) for feeds, where users browse rather than look for a specific page.
+
+## Anatomy
+
+```tsx
+<Pagination>                 {/* <nav aria-label="pagination"> */}
+  <PaginationContent>        {/* <ul> */}
+    <PaginationItem>         {/* <li> */}
+      <PaginationPrevious />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink />     {/* page number */}
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationEllipsis /> {/* skipped pages */}
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
+
+<Paginator />                {/* all of the above, with buttons, in one component */}
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Pagination` | `<nav aria-label="pagination">` | Landmark. Centered, full width by default. |
+| `PaginationContent` | `<ul>` | Row of items with `gap-1`. |
+| `PaginationItem` | `<li>` | Wraps one link, button or ellipsis. |
+| `PaginationLink` | React Aria `Link` | A page link styled with `buttonVariants`: `ghost` normally, `outline` with a primary border when `isActive` (which also sets `aria-current="page"`). |
+| `PaginationPrevious` / `PaginationNext` | `PaginationLink` | Chevron plus "Previous" / "Next" text. The text is hidden below the `sm` breakpoint. |
+| `PaginationEllipsis` | `<span aria-hidden>` | "…" icon for skipped pages. |
+| `Paginator` | `Pagination` with buttons | Previous and next icon buttons, page-number buttons from `getPageRange()`, or "Page x of y" in simple mode. |
+
+## Examples
+
+### Sizes
+
+`md` (32px, default) and `sm` (28px) for tables and dense toolbars.
+
+<ComponentPreview name="pagination/sizes" />
+
+### Simple
+
+`simple` replaces the page numbers with "Page x of y" between the arrows. It takes a fixed amount of space regardless of the page count.
+
+<ComponentPreview name="pagination/simple" />
+
+### Siblings
+
+`siblings` sets how many pages are shown on each side of the current page (default `1`). The first and last pages are always shown, and a gap becomes an ellipsis.
+
+<ComponentPreview name="pagination/siblings" />
+
+### Few pages
+
+When every page fits (`pageCount` up to `siblings * 2 + 5`, so 7 by default), all numbers are shown with no ellipsis. Previous is disabled on the first page and Next on the last.
+
+<ComponentPreview name="pagination/few-pages" />
+
+### Link-based
+
+Compose `PaginationLink`, `PaginationPrevious`, `PaginationNext` and `PaginationEllipsis` when each page is a URL. Mark the current page with `isActive`.
+
+<ComponentPreview name="pagination/links" />
+
+### Link sizes
+
+Link parts accept `size="sm"` or `size="md"` (`"default"` and `"icon"` are accepted as aliases for `md`).
+
+<ComponentPreview name="pagination/links-sizes" />
+
+### With a router and getPageRange
+
+Build the page list with `getPageRange(page, pageCount, siblings?)`, which returns numbers and `"ellipsis"` markers, and disable Previous and Next at the ends with `isDisabled`. Wrap the app in React Aria's `RouterProvider` so the links use client-side navigation. The preview uses a local stand-in for the router.
+
+<ComponentPreview name="pagination/links-router" />
+
+With the Next.js App Router, read the page from the URL:
+
+```tsx title="app/invoices/page.tsx"
+import { InvoicePagination } from "./invoice-pagination";
+
+export default async function Page({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  const page = Number((await searchParams).page ?? 1);
+  // …fetch the rows for `page`
+  return <InvoicePagination page={page} pageCount={24} />;
+}
+```
+
+`InvoicePagination` is a client component that renders the parts as in the preview, with an `href` of `?page=N` for each page. Your app's `RouterProvider` passes `router.push` as `navigate`.
+
+```ts
+getPageRange(5, 10); // [1, "ellipsis", 4, 5, 6, "ellipsis", 10]
+getPageRange(2, 10); // [1, 2, 3, "ellipsis", 10]
+getPageRange(2, 6); // [1, 2, 3, 4, 5, 6]
+```
+
+## Recipes
+
+### Table footer
+
+A rows-per-page [`Select`](/docs/components/select), a range summary and a small paginator under a [`Table`](/docs/components/table). Changing the page size resets to page 1. Pass `className="mx-0 w-auto"` to stop the paginator from centering itself.
+
+<ComponentPreview name="pagination/recipe-table" />
+
+### Card footer
+
+A compact simple paginator aligned to the end of a [`Card`](/docs/components/card) footer with `className="justify-end"`.
+
+<ComponentPreview name="pagination/recipe-activity" />
+
+## Accessibility
+
+- Rendered in a `<nav aria-label="pagination">` landmark. Pass your own `aria-label` (for example "Search results pages") when a page has more than one.
+- The current page has `aria-current="page"`.
+- `Paginator` labels its buttons "Previous page", "Next page" and "Page 3"; the link parts label Previous and Next "Go to previous page" and "Go to next page". Override any of them with `aria-label`.
+- Previous and Next are disabled (and removed from the tab order) at the ends.
+- Ellipses are `aria-hidden`.
+- After changing pages in client-side lists, consider moving focus to the top of the results or announcing the change, so screen-reader users know the content updated.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves between the controls |
+| <kbd>Enter</kbd> | Activates the focused page, Previous or Next |
+| <kbd>Space</kbd> | Activates a `Paginator` button (links respond to <kbd>Enter</kbd> only) |
+
+## Styling
+
+### Data attributes
+
+On `PaginationLink`, `PaginationPrevious`, `PaginationNext` and the `Paginator` buttons:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-hovered` / `data-pressed` | Hovered / being pressed |
+| `data-focus-visible` | Focused with the keyboard |
+| `data-disabled` | Disabled |
+| `data-active` | Link parts with `isActive` |
+| `data-current` | Link parts with `isActive` (from `aria-current`) |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `pagination` | `<nav>` root |
+| `pagination-content` | `<ul>` |
+| `pagination-item` | Each `<li>` |
+| `pagination-link` | Each link part |
+| `pagination-ellipsis` | Ellipsis |
+
+### Customizing
+
+- Items use [`buttonVariants`](/docs/components/button#buttonvariants), so they follow button tones and radii. Page numbers are `tabular-nums` so widths don't shift.
+- `className` on `Pagination` or `Paginator` styles the `<nav>`. It's centered with `mx-auto flex w-full justify-center`; use `justify-start`, `justify-end` or `mx-0 w-auto` to align it.
+- `className` on `PaginationLink` must be a string.
+
+## API Reference
+
+### Paginator
+
+<TypeTable
+  type={{
+    page: { type: "number", description: "Current page, starting at 1." },
+    pageCount: { type: "number", description: "Total number of pages." },
+    onPageChange: { type: "(page: number) => void", description: "Called with the new page when a page, Previous or Next is pressed." },
+    siblings: { type: "number", default: "1", description: "Pages shown on each side of the current page." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Button size: 28px or 32px." },
+    simple: { type: "boolean", default: "false", description: 'Shows "Page 3 of 10" instead of page numbers.' },
+    className: { type: "string", description: "Classes for the <nav>." },
+    "aria-label": { type: "string", default: '"pagination"', description: "Accessible name of the navigation landmark." },
+  }}
+/>
+
+Also accepts every prop of `<nav>` except `onChange`.
+
+### PaginationLink
+
+<TypeTable
+  type={{
+    href: { type: "string", description: "URL of the page." },
+    isActive: { type: "boolean", description: 'Marks the current page: outline style, aria-current="page" and data-active.' },
+    size: { type: '"sm" | "md" | "default" | "icon"', default: '"md"', description: "sm is 28px; the others are 32px." },
+    isDisabled: { type: "boolean", description: "Disables the link and renders it as a span." },
+    onPress: { type: "(e: PressEvent) => void", description: "Called when the link is pressed." },
+    routerOptions: { type: "RouterOptions", description: "Options passed to your router's navigate function." },
+    className: { type: "string", description: "Extra classes, merged with the button styles." },
+    children: { type: "ReactNode", description: "The page number or custom content." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Link`](https://react-aria.adobe.com/Link#api) except a function `className`.
+
+### PaginationPrevious / PaginationNext
+
+Accept the same props as `PaginationLink`. Their content is fixed (chevron and label); `aria-label` defaults to "Go to previous page" / "Go to next page".
+
+### Pagination / PaginationContent / PaginationItem / PaginationEllipsis
+
+Accept every prop of `<nav>` / `<ul>` / `<li>` / `<span>`.
+
+### getPageRange
+
+<TypeTable
+  type={{
+    page: { type: "number", description: "Current page, starting at 1." },
+    pageCount: { type: "number", description: "Total number of pages." },
+    siblings: { type: "number", default: "1", description: "Pages on each side of the current page." },
+  }}
+/>
+
+Returns `(number | "ellipsis")[]`: always the first and last page, the current page with its siblings, and `"ellipsis"` for each gap. When `pageCount` is at most `siblings * 2 + 5`, returns every page.
+
+## Related
+
+- [Table](/docs/components/table) — the most common place for pagination.
+- [Select](/docs/components/select) — rows-per-page pickers.
+- [Link](/docs/components/link) — the link used by the link-based parts.
+- [Button](/docs/components/button) — `buttonVariants` styles every item.

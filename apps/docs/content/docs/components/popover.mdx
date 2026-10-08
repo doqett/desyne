@@ -1,0 +1,253 @@
+---
+title: Popover
+description: Floating content anchored to a trigger, for small forms, details, pickers and notifications. Positions itself automatically, flips to stay on screen, moves focus in and restores it on close, with an optional arrow.
+---
+
+<ComponentLinks aria="Popover" source="popover" />
+
+<ComponentPreview name="popover/demo" />
+
+## Installation
+
+<InstallTabs name="popover" />
+
+## Usage
+
+```tsx
+import {
+  Popover,
+  PopoverDialog,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+```
+
+```tsx
+<PopoverTrigger>
+  <Button>Open</Button>
+  <Popover>
+    <PopoverDialog>
+      <PopoverTitle>Title</PopoverTitle>
+      {/* content */}
+    </PopoverDialog>
+  </Popover>
+</PopoverTrigger>
+```
+
+`PopoverTrigger` connects the first child (any pressable, usually a [`Button`](/docs/components/button)) to the `Popover` after it. `Popover` is the positioned surface; `PopoverDialog` adds padding and dialog semantics so focus moves in and the content is announced.
+
+<Callout title="Always wrap content in PopoverDialog">
+  `Popover` on its own is just a positioned container. That's what
+  [Menu](/docs/components/menu) and [Select](/docs/components/select) build on,
+  because they bring their own roles. For anything else, put a
+  `PopoverDialog` inside and name it with a `PopoverTitle` or an `aria-label`.
+</Callout>
+
+### When to use
+
+- Popover — small, interactive content tied to a specific control: a quick form, a share panel, a detail card, a notification list.
+- [Tooltip](/docs/components/tooltip) — a short, non-interactive label shown on hover or focus.
+- [Menu](/docs/components/menu) — a list of actions.
+- [Dialog](/docs/components/dialog) — a task that needs the user's full attention, or content too large for a popover.
+- [Sheet](/docs/components/sheet) — longer secondary content that slides in from an edge.
+
+## Anatomy
+
+```tsx
+<PopoverTrigger>
+  <Button />                {/* trigger */}
+  <Popover>                 {/* positioned surface, optional arrow */}
+    <PopoverDialog>         {/* role="dialog", padding, focus management */}
+      <PopoverTitle />      {/* accessible name */}
+    </PopoverDialog>
+  </Popover>
+</PopoverTrigger>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `PopoverTrigger` | — | Manages open state and wires the trigger to the popover. Same component as `DialogTrigger`. |
+| `Popover` | `<div>` (portal) | Positioned surface with border, shadow and enter/exit animations. Renders an `OverlayArrow` when `showArrow` is set. |
+| `PopoverDialog` | `<div role="dialog">` | Content wrapper with `w-72 p-4`. Receives focus on open. |
+| `PopoverTitle` | `Heading` (`slot="title"`, `<h2>`) | Becomes the dialog's accessible name. |
+
+## Examples
+
+### With arrow
+
+`showArrow` adds an arrow that points at the trigger and rotates with the placement. The default offset grows from 4px to 10px to make room for it. Arrows help most when the trigger is small, like an info icon.
+
+<ComponentPreview name="popover/arrow" />
+
+### Placement
+
+`placement` sets the preferred side and alignment: `top`, `bottom`, `left`, `right`, `start`, `end`, plus combinations like `bottom start` or `top end`. The default is `bottom`. When there isn't room, the popover flips to the opposite side (disable with `shouldFlip={false}`).
+
+<ComponentPreview name="popover/placement" />
+
+### Forms
+
+`PopoverDialog` accepts a render function, `({ close }) => …`. Wrap a React Aria `Form` in it to validate the fields and close the popover after a successful submit.
+
+<ComponentPreview name="popover/form" />
+
+### Controlled
+
+Pass `isOpen` and `onOpenChange` to `PopoverTrigger` to own the open state, for example to close the popover after a choice or to open it from code.
+
+<ComponentPreview name="popover/controlled" />
+
+### Custom anchor
+
+Use `Popover` without a trigger by passing `triggerRef`, `isOpen` and `onOpenChange`. It then positions itself relative to any element, here a field, while a separate link opens it.
+
+<ComponentPreview name="popover/trigger-ref" />
+
+### Rich content
+
+Any pressable can be the trigger, like an inline name that opens a profile card with an [`Avatar`](/docs/components/avatar), a [`Badge`](/docs/components/badge) and actions. Popovers open on press, not hover, so the content stays reachable for keyboard and touch users.
+
+<ComponentPreview name="popover/profile-card" />
+
+## Recipes
+
+### Share panel
+
+A copyable link, a [`Select`](/docs/components/select) for access level and an [`AvatarGroup`](/docs/components/avatar) of collaborators. Nested overlays like the select work inside a popover; <kbd>Esc</kbd> closes the innermost one first.
+
+<ComponentPreview name="popover/recipe-share" />
+
+### Notifications
+
+An icon button with an unread count opens a scrollable list with "Mark all read". The trigger's `aria-label` includes the count, since the badge is visual only. `p-0` on `PopoverDialog` lets the header and list run edge to edge.
+
+<ComponentPreview name="popover/recipe-notifications" />
+
+### Feedback form
+
+A small form with a [`TextareaField`](/docs/components/textarea) and an emoji [`ToggleButtonGroup`](/docs/components/toggle-button-group). The submit button shows `isPending` while the request runs, then the popover closes and a [toast](/docs/components/toast) confirms.
+
+<ComponentPreview name="popover/recipe-feedback" />
+
+## Accessibility
+
+- `PopoverDialog` renders `role="dialog"`. Focus moves into the popover on open (to an element with `autoFocus`, otherwise the popover itself) and returns to the trigger on close.
+- Name the dialog with `PopoverTitle` or `aria-label`. Without either, React Aria falls back to labelling it by the trigger.
+- The trigger gets `aria-expanded` and `aria-controls`, so screen readers announce that it opens a dialog.
+- Popovers are modal for assistive tech: content outside is hidden from screen readers while open. `isNonModal` turns this off, but only use it for patterns designed for it.
+- Clicking outside or pressing <kbd>Esc</kbd> closes the popover.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Opens the popover from the trigger |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus through the popover's content |
+| <kbd>Esc</kbd> | Closes the popover and returns focus to the trigger |
+
+## Styling
+
+### Data attributes
+
+On the `Popover`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-placement` | Always: the resolved side, `"top"`, `"bottom"`, `"left"` or `"right"` (after flipping) |
+| `data-trigger` | Set to the component that opened it, e.g. `"DialogTrigger"`, `"MenuTrigger"` or `"Select"` |
+| `data-entering` | Opening animation is running |
+| `data-exiting` | Closing animation is running |
+| `data-slot="popover"` | Always |
+
+`PopoverDialog` has `data-slot="popover-dialog"` and `PopoverTitle` has `data-slot="popover-title"`.
+
+### CSS variables
+
+| Variable | Value |
+| --- | --- |
+| `--trigger-width` | Width of the trigger, e.g. `min-w-(--trigger-width)` to match it |
+| `--trigger-anchor-point` | The point on the trigger the popover is anchored to, useful as a `transform-origin` |
+
+### Customizing
+
+- `className` on `Popover` styles the surface; `className` on `PopoverDialog` sets the width and padding (defaults `w-72 p-4`).
+- The slide direction of the enter animation follows `data-placement`, so the popover always grows away from its trigger.
+- `popoverStyles` is exported: the class string for the surface (border, background, shadow, animations). Reuse it for custom floating elements.
+
+```tsx
+import { popoverStyles } from "@/components/ui/popover";
+```
+
+### Render props
+
+`className` and `children` on `Popover` accept a function of its state:
+
+```tsx
+<Popover className={({ placement }) => (placement === "top" ? "mb-1" : "")}>
+  …
+</Popover>
+```
+
+## API Reference
+
+### PopoverTrigger
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode", description: "A pressable trigger followed by a Popover." },
+    isOpen: { type: "boolean", description: "Controlled open state." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the popover opens or closes." },
+  }}
+/>
+
+### Popover
+
+<TypeTable
+  type={{
+    showArrow: { type: "boolean", default: "false", description: "Renders an arrow pointing at the trigger." },
+    placement: { type: "Placement", default: '"bottom"', description: 'Preferred position, e.g. "top", "bottom start", "end top".' },
+    offset: { type: "number", default: "4 (10 with showArrow)", description: "Distance from the trigger along the main axis, in px." },
+    crossOffset: { type: "number", default: "0", description: "Shift along the cross axis, in px." },
+    containerPadding: { type: "number", default: "12", description: "Minimum space to keep between the popover and the viewport edge." },
+    shouldFlip: { type: "boolean", default: "true", description: "Flip to the opposite side when there isn't enough room." },
+    maxHeight: { type: "number", description: "Caps the popover's height, in px." },
+    triggerRef: { type: "RefObject<Element | null>", description: "Element to position against. Set automatically inside PopoverTrigger." },
+    isOpen: { type: "boolean", description: "Controlled open state, when used without PopoverTrigger." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the popover opens or closes." },
+    isKeyboardDismissDisabled: { type: "boolean", default: "false", description: "Ignore the Esc key. Provide another way to close." },
+    shouldCloseOnInteractOutside: { type: "(element: Element) => boolean", description: "Return false to keep the popover open for clicks on a given element." },
+    isNonModal: { type: "boolean", default: "false", description: "Keep content outside accessible to screen readers. Rarely needed." },
+    boundaryElement: { type: "Element", default: "document.body", description: "Element that bounds the positioning." },
+    className: { type: "string | ((state: PopoverRenderProps) => string)", description: "Classes for the surface, or a function of the render state." },
+    children: { type: "ReactNode | ((state: PopoverRenderProps) => ReactNode)", description: "Usually a PopoverDialog." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Popover`](https://react-aria.adobe.com/Popover#api).
+
+### PopoverDialog
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode | ((opts: { close: () => void }) => ReactNode)", description: "Content, or a function that receives close()." },
+    "aria-label": { type: "string", description: "Accessible name when there is no PopoverTitle." },
+    "aria-labelledby": { type: "string", description: "Id of an element that labels the dialog." },
+    role: { type: '"dialog" | "alertdialog"', default: '"dialog"', description: "ARIA role of the content." },
+    className: { type: "string", description: "Classes for the content wrapper (defaults to w-72 p-4)." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Dialog`](https://react-aria.adobe.com/Dialog#api).
+
+### PopoverTitle
+
+Accepts every prop of React Aria's [`Heading`](https://react-aria.adobe.com/Dialog#heading), including `level` to change the heading element (`<h2>` inside a dialog).
+
+## Related
+
+- [Tooltip](/docs/components/tooltip) — a short label on hover or focus.
+- [Menu](/docs/components/menu) — a list of actions in a popover.
+- [Dialog](/docs/components/dialog) — a centered modal for focused tasks.
+- [Date Picker](/docs/components/date-picker) — a calendar in a popover.

@@ -1,0 +1,157 @@
+---
+title: Routing integration
+description: Connect React Aria links to Next.js, React Router or TanStack Router with RouterProvider, so client-side navigation works everywhere.
+---
+
+Many components render links: `Link`, `Breadcrumb`, `Tab`, `MenuItem`, `ListBoxItem`,
+`GridListItem`, `Row`, `Tag`, `SidebarMenuButton` and `PaginationLink` all accept an
+`href`. By default React Aria renders a real `<a href>`, which works but does a full page
+load. `RouterProvider` routes those clicks through your framework's router instead.
+
+## Next.js (App Router)
+
+```tsx title="app/providers.tsx"
+"use client";
+
+import { useRouter } from "next/navigation";
+import { RouterProvider } from "react-aria-components";
+
+declare module "react-aria-components" {
+  interface RouterConfig {
+    routerOptions: NonNullable<Parameters<ReturnType<typeof useRouter>["push"]>[1]>;
+  }
+}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  return <RouterProvider navigate={router.push}>{children}</RouterProvider>;
+}
+```
+
+```tsx title="app/layout.tsx"
+import { Providers } from "./providers";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+The module augmentation is optional. It types `routerOptions`, which lets a single link
+pass options to `router.push`:
+
+```tsx
+<Link href="/settings#billing" routerOptions={{ scroll: false }}>Billing</Link>
+```
+
+This is the setup the Pro site uses, alongside `next-themes` and the `Toaster`.
+
+### Base paths
+
+If your app runs under a `basePath`, pass `useHref` so rendered `href`s include it:
+
+```tsx
+const withBase = (href: string) => (href.startsWith("/") ? `/docs${href}` : href);
+
+<RouterProvider navigate={(href) => router.push(href)} useHref={withBase}>
+```
+
+## React Router
+
+```tsx title="src/root.tsx"
+import { RouterProvider } from "react-aria-components";
+import { type NavigateOptions, Outlet, useHref, useNavigate } from "react-router";
+
+declare module "react-aria-components" {
+  interface RouterConfig {
+    routerOptions: NavigateOptions;
+  }
+}
+
+export default function Root() {
+  const navigate = useNavigate();
+  return (
+    <RouterProvider navigate={navigate} useHref={useHref}>
+      <Outlet />
+    </RouterProvider>
+  );
+}
+```
+
+`useHref` makes rendered links respect React Router's `basename`.
+
+## TanStack Router
+
+```tsx title="src/routes/__root.tsx"
+import {
+  type NavigateOptions,
+  Outlet,
+  type ToOptions,
+  useRouter,
+} from "@tanstack/react-router";
+import { RouterProvider } from "react-aria-components";
+
+declare module "react-aria-components" {
+  interface RouterConfig {
+    href: ToOptions["to"];
+    routerOptions: Omit<NavigateOptions, keyof ToOptions>;
+  }
+}
+
+function Root() {
+  const router = useRouter();
+  return (
+    <RouterProvider
+      navigate={(to, options) => router.navigate({ ...options, to })}
+      useHref={(to) => router.buildLocation({ to }).href}
+    >
+      <Outlet />
+    </RouterProvider>
+  );
+}
+```
+
+## Active states
+
+React Aria doesn't know the current route, so you mark the active item. For tabs,
+derive the selected key from the path:
+
+```tsx
+"use client";
+
+import { usePathname } from "next/navigation";
+import { Tab, TabList, Tabs } from "@/components/ui/tabs";
+
+export function SettingsTabs() {
+  const pathname = usePathname();
+  return (
+    <Tabs selectedKey={pathname}>
+      <TabList aria-label="Settings">
+        <Tab id="/settings" href="/settings">General</Tab>
+        <Tab id="/settings/billing" href="/settings/billing">Billing</Tab>
+        <Tab id="/settings/members" href="/settings/members">Members</Tab>
+      </TabList>
+    </Tabs>
+  );
+}
+```
+
+For sidebars, pass `isActive={pathname === item.href}` to `SidebarMenuButton`, which
+also sets `aria-current="page"`.
+
+## When to keep plain links
+
+Your framework's own `<Link>` (such as `next/link`) is still the right choice for content
+links in prose and cards: it prefetches routes. Use React Aria links where the component
+needs them (menus, tabs, rows, breadcrumbs), and `RouterProvider` makes those navigate
+client-side too.
+
+<Callout title="External links">
+  `RouterProvider` only handles same-origin URLs. Links with a different origin, a
+  `target="_blank"` or a modifier key (<kbd>⌘</kbd>-click) open natively.
+</Callout>

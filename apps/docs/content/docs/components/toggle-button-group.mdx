@@ -1,0 +1,217 @@
+---
+title: Toggle Button Group
+description: A set of toggle buttons with single or multiple selection. Use it as an attached button bar, a segmented control or a spaced toolbar; it's one tab stop with arrow-key navigation, and passes its variant and size down to every button.
+---
+
+<ComponentLinks aria="ToggleButtonGroup" source="toggle-button-group" />
+
+<ComponentPreview name="toggle-button-group/demo" />
+
+## Installation
+
+<InstallTabs name="toggle-button-group" />
+
+## Usage
+
+```tsx
+import { ToggleButton } from "@/components/ui/toggle-button";
+import { ToggleButtonGroup } from "@/components/ui/toggle-button-group";
+```
+
+```tsx
+<ToggleButtonGroup
+  aria-label="View"
+  defaultSelectedKeys={["list"]}
+  disallowEmptySelection
+>
+  <ToggleButton id="list">List</ToggleButton>
+  <ToggleButton id="board">Board</ToggleButton>
+</ToggleButtonGroup>
+```
+
+Give every `ToggleButton` an `id`: that's the key used in `selectedKeys`. The group passes its `variant` and `size` to its buttons, so you don't repeat them on each one.
+
+<Callout title="Add disallowEmptySelection for segmented controls">
+  By default, pressing the selected button in a single-selection group
+  deselects it, leaving nothing selected. For view switchers, tabs-like
+  controls and billing toggles, set `disallowEmptySelection` so one option is
+  always active.
+</Callout>
+
+### When to use
+
+- Toggle Button Group — a small set (2–6) of options that apply immediately, like a view switcher, a time range or text formatting.
+- [Toggle Button](/docs/components/toggle-button) — a single, independent on/off control.
+- [Radio Group](/docs/components/radio-group) — a labelled choice in a form, especially with descriptions.
+- [Tabs](/docs/components/tabs) — switching between panels of content, with a tab panel for each option.
+- [Select](/docs/components/select) — more options than fit on one line.
+
+## Anatomy
+
+```tsx
+<ToggleButtonGroup>        {/* toolbar or radiogroup, passes variant + size */}
+  <ToggleButton id="…" />  {/* one per option */}
+</ToggleButtonGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ToggleButtonGroup` | `<div role="radiogroup">` or `<div role="toolbar">` | `radiogroup` for `selectionMode="single"`, `toolbar` for `"multiple"`. Nested in a React Aria `Toolbar`, it becomes `role="group"`. Carries `data-slot="toggle-button-group"`. |
+| `ToggleButton` | `<button>` | An option. `role="radio"` in single mode, `aria-pressed` in multiple mode. See [Toggle Button](/docs/components/toggle-button). |
+
+## Examples
+
+### Variants
+
+`attached` (default) joins bordered buttons into one bar. `segmented` is a pill track with a raised selection. `spaced` keeps borderless buttons separate with a small gap, which suits toolbars. The group sets its buttons to `outline`, `segmented` and `default` respectively.
+
+<ComponentPreview name="toggle-button-group/variants" />
+
+### Segmented
+
+A segmented control for switching views, time ranges or modes. Pair it with `disallowEmptySelection` so an option is always selected.
+
+<ComponentPreview name="toggle-button-group/segmented" />
+
+### Sizes
+
+`size` is passed to every button, from `xs` (24px) to `lg` (40px). A `size` set on an individual `ToggleButton` wins over the group's.
+
+<ComponentPreview name="toggle-button-group/sizes" />
+
+### With icons
+
+Icons combine with labels in segmented controls. Icon-only buttons need an `aria-label` each.
+
+<ComponentPreview name="toggle-button-group/icons" />
+
+### Multiple selection
+
+`selectionMode="multiple"` lets any number of buttons be on at once, like a formatting bar. The group is then a `toolbar` and each button announces `aria-pressed`.
+
+<ComponentPreview name="toggle-button-group/multiple" />
+
+### Vertical
+
+`orientation="vertical"` stacks the buttons and switches keyboard navigation to <kbd>↑</kbd> / <kbd>↓</kbd>. All three variants support it.
+
+<ComponentPreview name="toggle-button-group/vertical" />
+
+### Controlled
+
+Use `selectedKeys` and `onSelectionChange` to own the selection. The callback receives a `Set` of keys in both single and multiple mode. Here a weekday picker uses `spaced` with `outline` buttons set directly on each item.
+
+<ComponentPreview name="toggle-button-group/controlled" />
+
+### Disabled
+
+`isDisabled` on the group disables every button; `isDisabled` on a single `ToggleButton` disables just that option, for example a format that isn't available on the current plan.
+
+<ComponentPreview name="toggle-button-group/disabled" />
+
+## Recipes
+
+### View switcher
+
+A small icon-only segmented control in a section header that switches a file list between grid and list layouts.
+
+<ComponentPreview name="toggle-button-group/recipe-view-switcher" />
+
+### Editor toolbar
+
+Several groups inside one React Aria `Toolbar`: multiple selection for styles, single selection for alignment, with [`Tooltip`](/docs/components/tooltip)s that show shortcuts. The toolbar owns arrow-key navigation across all groups, so the whole bar is one tab stop.
+
+<ComponentPreview name="toggle-button-group/recipe-editor-toolbar" />
+
+### Billing toggle
+
+A full-width segmented control (`*:flex-1`) that switches a pricing card between monthly and yearly billing, with a [`Badge`](/docs/components/badge) for the discount.
+
+<ComponentPreview name="toggle-button-group/recipe-pricing" />
+
+## Accessibility
+
+- In single-selection mode the group is a `radiogroup` and each button is a `radio` with `aria-checked`; in multiple mode it's a `toolbar` and each button uses `aria-pressed`.
+- The group is labelled with `aria-label` or `aria-labelledby`. Always describe what it controls ("Text alignment", "View as").
+- Arrow keys move focus between buttons. <kbd>Tab</kbd> leaves the group, and focus returns to the last focused button when you tab back in.
+- Inside a React Aria `Toolbar`, the group becomes a `group` and the toolbar handles arrow keys, so several groups share one tab stop.
+- Arrow-key direction is reversed in right-to-left locales for horizontal groups.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves focus into or out of the group |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves focus between buttons (horizontal) |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Moves focus between buttons (vertical) |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggles the focused button |
+
+## Styling
+
+### Data attributes
+
+On the `ToggleButtonGroup`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-orientation` | Always, `"horizontal"` or `"vertical"`; the variants use it to switch between row and column layouts |
+| `data-disabled` | `isDisabled` is true |
+| `data-slot="toggle-button-group"` | Always |
+
+Each `ToggleButton` has the usual `data-selected`, `data-hovered`, `data-pressed`, `data-focus-visible` and `data-disabled` attributes. See [Toggle Button](/docs/components/toggle-button#data-attributes).
+
+### Customizing
+
+- `className` on the group styles the container. Use child selectors to style the buttons in bulk, e.g. `*:flex-1` for equal-width segments or `w-full` for a full-width bar.
+- `attached` strips the buttons' radius and shadow and overlaps borders by 1px; the selected button is raised with `z-[1]` so its brand border stays visible.
+- To use a different item style than the group's default, set `variant` on each `ToggleButton`; it overrides the value from context.
+
+### Render props
+
+`className` accepts a function of the group's state:
+
+```tsx
+<ToggleButtonGroup
+  className={({ orientation }) => (orientation === "vertical" ? "w-40" : "")}
+/>
+```
+
+## API Reference
+
+### ToggleButtonGroup
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"attached" | "segmented" | "spaced"',
+      default: '"attached"',
+      description: "Layout of the group. Sets the buttons' variant to outline, segmented or default.",
+    },
+    size: { type: '"xs" | "sm" | "md" | "lg"', description: "Size applied to every button in the group (buttons default to md)." },
+    selectionMode: { type: '"single" | "multiple"', default: '"single"', description: "Whether one or many buttons can be selected." },
+    selectedKeys: { type: "Iterable<Key>", description: "Controlled selection." },
+    defaultSelectedKeys: { type: "Iterable<Key>", description: "Uncontrolled initial selection." },
+    onSelectionChange: { type: "(keys: Set<Key>) => void", description: "Called when the selection changes." },
+    disallowEmptySelection: { type: "boolean", default: "false", description: "Prevents deselecting the last selected button." },
+    orientation: { type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction and arrow-key axis." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables every button in the group." },
+    "aria-label": { type: "string", description: "Accessible name for the group." },
+    "aria-labelledby": { type: "string", description: "Id of an element that labels the group." },
+    slot: { type: "string | null", description: "React Aria slot name." },
+    className: { type: "string | ((state: ToggleButtonGroupRenderProps) => string)", description: "Classes, or a function of the render state." },
+    children: { type: "ReactNode | ((state: ToggleButtonGroupRenderProps) => ReactNode)", description: "ToggleButtons." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ToggleButtonGroup`](https://react-aria.adobe.com/ToggleButtonGroup#api).
+
+### ToggleButton
+
+Inside a group, `id` is required and `isSelected`, `defaultSelected` and `onChange` are ignored in favor of the group's selection. See the [Toggle Button API](/docs/components/toggle-button#api-reference) for the rest.
+
+## Related
+
+- [Toggle Button](/docs/components/toggle-button) — the individual buttons.
+- [Radio Group](/docs/components/radio-group) — single choice in a form.
+- [Tabs](/docs/components/tabs) — switch between panels of content.
+- [Button](/docs/components/button) — attach plain action buttons with a React Aria `Group`.

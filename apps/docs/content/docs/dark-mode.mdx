@@ -1,0 +1,143 @@
+---
+title: Dark mode
+description: Class-based dark mode with next-themes, a theme toggle, and how to preview or force a mode for part of a page.
+---
+
+Every token has a dark value under the `.dark` selector, and the tokens file declares a
+class-based variant:
+
+```css
+@custom-variant dark (&:is(.dark *));
+```
+
+So dark mode is on wherever an ancestor has `class="dark"`. Components never check the
+mode in JavaScript, which means no flash, no context and no re-render when it changes.
+
+## Next.js with next-themes
+
+[next-themes](https://github.com/pacocoursey/next-themes) toggles the class on `<html>`,
+follows the system setting and remembers the choice.
+
+```bash
+npm install next-themes
+```
+
+```tsx title="app/providers.tsx"
+"use client";
+
+import { ThemeProvider } from "next-themes";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
+  );
+}
+```
+
+```tsx title="app/layout.tsx"
+import { Providers } from "./providers";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+`suppressHydrationWarning` is needed because next-themes sets the class before React
+hydrates. `disableTransitionOnChange` stops every color transition from animating at once
+when the mode flips.
+
+## A theme toggle
+
+```tsx title="components/theme-toggle.tsx"
+"use client";
+
+import { MonitorIcon, MoonIcon, SunIcon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+import { ToggleButton } from "@/components/ui/toggle-button";
+import { ToggleButtonGroup } from "@/components/ui/toggle-button-group";
+
+export function ThemeToggle() {
+  const { theme = "system", setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null; // the theme is unknown on the server
+
+  return (
+    <ToggleButtonGroup
+      aria-label="Theme"
+      variant="segmented"
+      size="sm"
+      disallowEmptySelection
+      selectedKeys={[theme]}
+      onSelectionChange={(keys) => setTheme(String([...keys][0]))}
+    >
+      <ToggleButton id="light" aria-label="Light"><SunIcon /></ToggleButton>
+      <ToggleButton id="system" aria-label="System"><MonitorIcon /></ToggleButton>
+      <ToggleButton id="dark" aria-label="Dark"><MoonIcon /></ToggleButton>
+    </ToggleButtonGroup>
+  );
+}
+```
+
+For a single button, a `Button` with `variant="ghost" size="icon"` calling
+`setTheme(resolvedTheme === "dark" ? "light" : "dark")` works too. Give it an
+`aria-label`.
+
+## Vite and other setups
+
+Without next-themes, set the class yourself before first paint so there's no flash:
+
+```html title="index.html"
+<script>
+  const stored = localStorage.getItem("theme");
+  const dark = stored ? stored === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.classList.toggle("dark", dark);
+</script>
+```
+
+Then toggle `document.documentElement.classList` and write `localStorage.theme` from
+your toggle.
+
+## Forcing a mode for part of a page
+
+Because the variant matches descendants of `.dark`, you can render one region dark on a
+light page. The final call-to-action on the home page does exactly this:
+
+```tsx
+<section className="dark rounded-3xl bg-background p-12 text-foreground">
+  <h2>Ship the next screen this afternoon.</h2>
+  <Button color="brand">Get started</Button>
+</section>
+```
+
+Inside the section, `bg-background` and every component use dark tokens. To force light
+inside a dark page, re-declare the light values on a class such as `.light` in your CSS.
+
+## Writing dark-aware styles
+
+- Prefer tokens (`bg-card`, `border-border`) over `dark:` overrides. Tokens already
+  switch.
+- Use `dark:` for the few things tokens can't express, such as removing a shadow that
+  disappears on dark surfaces: `shadow-sm dark:shadow-none`.
+- Images and screenshots need two sources. Toggle them with `dark:hidden` and
+  `hidden dark:block`.
+- Set the browser's own UI to match with `color-scheme`:
+
+```css
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+```

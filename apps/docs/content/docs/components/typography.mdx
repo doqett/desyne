@@ -1,0 +1,236 @@
+---
+title: Typography
+description: A small type system on the theme's tokens. Heading separates the semantic level from the visual size, Text covers body copy in sizes, tones and weights, and Prose styles raw HTML or MDX with no plugin.
+---
+
+<ComponentLinks source="typography" />
+
+<ComponentPreview name="typography/demo" />
+
+## Installation
+
+<InstallTabs name="typography" />
+
+## Usage
+
+```tsx
+import {
+  Blockquote,
+  Code,
+  Heading,
+  Lead,
+  List,
+  Prose,
+  Small,
+  Text,
+} from "@/components/ui/typography";
+```
+
+```tsx
+<Heading level={1}>Billing</Heading>
+<Lead>Plans, invoices and payment methods for your workspace.</Lead>
+<Text tone="muted">Changes apply at the start of the next billing cycle.</Text>
+```
+
+None of these are client components, so they render in server components with no JavaScript.
+
+### When to use
+
+- `Heading` — every title in an app screen or page. Pick `level` for the document outline and `size` for the look.
+- `Text`, `Lead`, `Small`, `Code` — body copy you write in JSX, where you want the scale and tones without repeating class strings.
+- `Prose` — content you don't write as JSX: MDX, Markdown rendered to HTML, CMS rich text, release notes from an API. It styles plain `<h2>`, `<p>`, `<ul>` and friends.
+- Inside components such as [Card](/docs/components/card) or [Dialog](/docs/components/dialog), use their own title and description parts; they already follow this scale.
+
+## Anatomy
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Heading` | `<h1>`–`<h6>` | `level` picks the element (default 2). `size` picks the style; without it each level has a default size. |
+| `Text` | `<p>` | `as` switches to `span`, `div`, `strong`, `em` or `small`. Sizes `xs`–`lg`, six tones, four weights. |
+| `Lead` | `<p>` | Larger, muted intro paragraph under a page title. |
+| `Small` | `<small>` | Fine print: legal lines, timestamps, footnotes. |
+| `Code` | `<code>` | Inline code. Sized in `em`, so it matches the surrounding text. |
+| `Blockquote` | `<blockquote>` | With `attribution`, wrapped in `<figure>` with a `<figcaption>`. |
+| `List` | `<ul>` / `<ol>` | `ordered` for numbers. Put `<li>` elements inside. |
+| `Prose` | `<div>` | Styles the HTML elements inside it with descendant selectors. |
+
+## The scale
+
+| Size | Font size / line height | Default for | Typical use |
+| --- | --- | --- | --- |
+| `display` | 36px → 48px from `sm`, 1.05 | | Hero titles, big numbers |
+| `xl` | 30px → 36px from `sm`, 1.25 | `h1` | Page titles |
+| `lg` | 24px, 1.375 | `h2` | Section titles |
+| `md` | 20px, 1.375 | `h3` | Card and subsection titles |
+| `sm` | 18px, 1.375 | `h4` | Small groups, sidebars |
+| `xs` | 16px, 1.5 | `h5`, `h6` | Inline headings, list titles |
+
+Body text runs `xs` 12/20, `sm` 14/24, `md` 16/28 (default) and `lg` 18/32. Headings are `font-semibold` with tighter tracking from `md` up; all sizes are standard Tailwind steps, so they follow your theme's `--text-*` values if you've changed them.
+
+<ComponentPreview name="typography/scale" />
+
+## Examples
+
+### Level and size
+
+The outline and the look are separate decisions. A settings card might hold an `h2` that should look small; a stat might be an `h3` that should look huge. Set `level` for screen readers and the page outline, `size` for the eye. Don't skip levels to get a smaller heading.
+
+<ComponentPreview name="typography/levels" />
+
+### Text sizes and tones
+
+`tone` sets the color from the theme: `default` for primary reading, `subtle` for softer body copy, `muted` for captions and helper text, plus `brand`, `danger` and `success`. `default`, `subtle` and `muted` all meet WCAG AA contrast for body text in light and dark mode.
+
+<ComponentPreview name="typography/text" />
+
+### Inline elements
+
+`Code` for identifiers, file names and commands; `Small` for fine print; `Text as="strong"` or `as="span"` for emphasis inside other text.
+
+<ComponentPreview name="typography/inline" />
+
+### Lists and quotes
+
+`List` keeps native list semantics and uses muted markers. `marker="none"` removes the bullets but keeps it announced as a list. `Blockquote` with `attribution` becomes a `<figure>` with a caption, the recommended markup for a quote with a source.
+
+<ComponentPreview name="typography/quote-and-list" />
+
+### Prose
+
+Wrap rendered HTML or MDX in `Prose`. It styles headings (`h1`–`h4`), paragraphs, links, bold text, lists (nested too), inline code, code blocks, blockquotes, horizontal rules, tables, images, figures and `kbd`. The first and last child lose their outer margin so the article sits flush in its container. Cap the line length with `max-w-prose` (65 characters).
+
+<ComponentPreview name="typography/prose" />
+
+### Prose sizes
+
+`size` sets the base font size; every margin and heading inside is in `em`, so the whole article scales together. Use `sm` in side panels and comments, `lg` for long-form reading.
+
+<ComponentPreview name="typography/prose-sizes" />
+
+### With MDX
+
+Pass `Prose` as the wrapper for your MDX content:
+
+```tsx title="app/blog/[slug]/page.tsx"
+import { Prose } from "@/components/ui/typography";
+
+export default async function Post({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const { default: Content, title } = await import(`@/content/${slug}.mdx`);
+  return (
+    <Prose className="mx-auto max-w-prose">
+      <Content />
+    </Prose>
+  );
+}
+```
+
+For HTML from a CMS, sanitize it first and render it with `dangerouslySetInnerHTML` on the `Prose` element. To drop a styled component into an article (a [Card](/docs/components/card), a chart) without the article styles reaching it, close `Prose` before it and open a new one after.
+
+## Guidance
+
+- **One `h1` per page**, then `h2` for sections and `h3` inside them. Use `size` to adjust looks, never the level.
+- **Keep lines short.** 45–75 characters reads best: `max-w-prose` on articles, `max-w-xl` or `max-w-2xl` on intros.
+- **Use tone for hierarchy before size.** A muted line under a title usually reads better than a smaller font.
+- **Don't put long text in color.** `brand`, `danger` and `success` are for short emphasis; pair them with an icon or wording so color isn't the only cue.
+- **Balance and pretty.** Headings use `text-wrap: balance` and body text `text-wrap: pretty` to avoid lonely last words.
+- **Numbers line up** with `tabular-nums` in tables and stats.
+
+## Accessibility
+
+- `Heading` always renders a real heading element, so screen reader users can jump between headings and the outline matches what they see.
+- `List` keeps list semantics; with `marker="none"` it adds `role="list"` because Safari otherwise stops announcing unstyled lists.
+- `Blockquote` with `attribution` uses `<figure>` and `<figcaption>` so the source is associated with the quote.
+- Links inside `Prose` are underlined, not only colored.
+- Text sizes are in `rem` and `em`, so they follow the user's browser font size setting.
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="heading"` | `Heading` |
+| `data-slot="text"` | `Text` |
+| `data-slot="lead"` | `Lead` |
+| `data-slot="small"` | `Small` |
+| `data-slot="code"` | `Code` |
+| `data-slot="blockquote"` | `Blockquote` (the `<figure>` is `blockquote-figure`) |
+| `data-slot="list"` | `List` |
+| `data-slot="prose"` | `Prose` |
+
+### Reusing the styles
+
+`headingVariants`, `textVariants` and `proseVariants` are exported, so you can apply the scale to other elements:
+
+```tsx
+import { headingVariants, textVariants } from "@/components/ui/typography";
+
+<Link className={headingVariants({ size: "sm" })} href="/changelog">Changelog</Link>
+<label className={textVariants({ size: "sm", tone: "muted" })}>Optional</label>
+```
+
+To change a Prose rule, edit the matching line in `proseVariants` (they're grouped by element), or add a descendant class at the call site: `<Prose className="[&_a]:no-underline">`.
+
+## API Reference
+
+### Heading
+
+<TypeTable
+  type={{
+    level: { type: "1 | 2 | 3 | 4 | 5 | 6", default: "2", description: "Renders h1–h6." },
+    size: { type: '"display" | "xl" | "lg" | "md" | "sm" | "xs"', description: "Visual size. Defaults to xl for h1, lg for h2, md for h3, sm for h4 and xs for h5/h6." },
+    className: { type: "string" },
+  }}
+/>
+
+### Text
+
+<TypeTable
+  type={{
+    as: { type: '"p" | "span" | "div" | "strong" | "em" | "small"', default: '"p"', description: "Element to render." },
+    size: { type: '"xs" | "sm" | "md" | "lg"', default: '"md"', description: "Font size and line height." },
+    tone: { type: '"default" | "subtle" | "muted" | "brand" | "danger" | "success"', default: '"default"', description: "Text color." },
+    weight: { type: '"normal" | "medium" | "semibold" | "bold"', description: "Font weight. Inherits when omitted." },
+    className: { type: "string" },
+  }}
+/>
+
+### Blockquote
+
+<TypeTable
+  type={{
+    attribution: { type: "ReactNode", description: "Source shown under the quote. Wraps the quote in a <figure>." },
+    cite: { type: "string", description: "URL of the source (native attribute)." },
+    className: { type: "string", description: "Applied to the <figure> when attribution is set, otherwise to the <blockquote>." },
+  }}
+/>
+
+### List
+
+<TypeTable
+  type={{
+    ordered: { type: "boolean", default: "false", description: "Renders <ol> with numbers." },
+    marker: { type: '"disc" | "decimal" | "none"', description: "Overrides the marker style." },
+    spacing: { type: '"sm" | "md"', default: '"md"', description: "Gap between items: 4px or 8px." },
+    start: { type: "number", description: "First number of an ordered list." },
+    className: { type: "string" },
+  }}
+/>
+
+### Prose
+
+<TypeTable
+  type={{
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Base font size; everything inside scales with it." },
+    className: { type: "string" },
+  }}
+/>
+
+`Lead`, `Small` and `Code` take the native props of `<p>`, `<small>` and `<code>`.
+
+## Related
+
+- [Card](/docs/components/card) — titles and descriptions inside a card.
+- [Kbd](/docs/components/kbd) — keyboard keys and shortcuts.
+- [Link](/docs/components/link) — standalone links with variants.

@@ -1,0 +1,263 @@
+---
+title: Theming
+description: shadcn token names, an ink primary with an indigo brand accent, color tones, radius and density, dark mode and multiple themes.
+---
+
+Every component reads CSS variables with shadcn's names, so theming is a CSS job: change
+values in `globals.css` and every component follows. There's no theme provider and no
+JavaScript involved.
+
+The default theme is "enterprise-crisp": layered neutral surfaces, an **ink** primary for
+the main action, an **indigo brand** accent for selection, focus and links, a 10px base
+radius and compact 28 / 32 / 40px controls.
+
+## How the tokens are used
+
+| Token | Used for |
+| --- | --- |
+| `--background` / `--foreground` | Page canvas and body text |
+| `--card`, `--popover` | Raised surfaces: cards, menus, dialogs, popovers |
+| `--primary` / `--primary-foreground` | Solid buttons and the main call to action |
+| `--brand` / `--brand-foreground` | Selection and emphasis: checked checkboxes, switches, radios, selected tabs and dates, links |
+| `--secondary`, `--muted` / `--muted-foreground` | Quiet fills, inset panels and secondary text |
+| `--accent` / `--accent-foreground` | Hovered and highlighted items in lists and menus |
+| `--destructive` / `--destructive-foreground` | Errors, invalid fields and destructive actions |
+| `--success`, `--warning`, `--info` (+ `-foreground`) | Status colors used by tones |
+| `--border`, `--input` | Hairlines and field outlines |
+| `--ring` | Focus glow (`ring-ring/25`) and the focused-field border |
+| `--radius` | Base radius that the whole radius scale derives from |
+| `--chart-1` … `--chart-5` | Chart series |
+| `--sidebar-*` | The Sidebar component's own surface set |
+
+The full list with default values is on [Colors & tokens](/docs/colors).
+
+## Build a brand theme
+
+Most products only need three changes: the brand color, the primary action color and
+the radius.
+
+```css title="app/globals.css"
+:root {
+  --brand: oklch(0.56 0.14 160);            /* emerald */
+  --brand-foreground: oklch(0.99 0 0);
+  --ring: oklch(0.56 0.14 160);
+
+  --primary: oklch(0.56 0.14 160);          /* make solid buttons brand-colored too */
+  --primary-foreground: oklch(0.99 0 0);
+
+  --radius: 0.5rem;
+}
+
+.dark {
+  --brand: oklch(0.72 0.14 160);
+  --ring: oklch(0.72 0.14 160);
+  --primary: oklch(0.72 0.14 160);
+  --primary-foreground: oklch(0.2 0.05 160);
+}
+```
+
+Tips that keep a theme looking finished:
+
+- **Use OKLCH.** Equal lightness steps look equal, so a dark-mode brand is usually the
+  same hue and chroma with lightness raised by about 0.12–0.18.
+- **Tint the neutrals.** The default neutrals carry a trace of the brand hue (`286`).
+  Change the hue on `--background`, `--muted`, `--border` and friends to match your
+  brand and keep chroma below `0.01`.
+- **Keep `--ring` close to `--brand`.** The focus glow is the brand color at 25%
+  opacity, which reads as part of the design rather than a browser default.
+- **Check contrast.** Text on `--primary` and `--brand` should reach 4.5:1. Amber and
+  yellow brands usually need a dark `-foreground`.
+
+<Callout title="Ink or brand primary?">
+  The default keeps `--primary` near-black so the main action stands out without
+  competing with selected states. If your brand is the action color, set `--primary`
+  to the brand value as above.
+</Callout>
+
+## Tones
+
+Components with a `color` prop (Button, Badge, Alert, Tag Group, Slider, Progress Bar,
+Progress Circle, Meter, Spinner, Rating, Timeline) share one tone system. A tone is a
+class that sets two variables, `--tone` and `--tone-fg`, and the variant styles are
+written against them:
+
+```ts title="lib/primitive.ts"
+export const tones = {
+  primary: "[--tone-fg:var(--primary-foreground)] [--tone:var(--primary)]",
+  brand: "[--tone-fg:var(--brand-foreground)] [--tone:var(--brand)]",
+  neutral: "[--tone-fg:var(--background)] [--tone:var(--foreground)]",
+  danger: "[--tone-fg:var(--destructive-foreground)] [--tone:var(--destructive)]",
+  success: "[--tone-fg:var(--success-foreground)] [--tone:var(--success)]",
+  warning: "[--tone-fg:var(--warning-foreground)] [--tone:var(--warning)]",
+  info: "[--tone-fg:var(--info-foreground)] [--tone:var(--info)]",
+} as const;
+```
+
+So the soft style is `bg-(--tone)/10 text-(--tone)` for every color, and one variant
+definition covers all seven.
+
+```tsx
+<Button color="brand">Deploy</Button>
+<Button variant="soft" color="danger">Delete</Button>
+<Badge color="success" variant="soft">Live</Badge>
+<Alert color="warning">Your trial ends in 3 days.</Alert>
+```
+
+### Add a tone
+
+<Steps>
+<Step>
+Define the color in your CSS and expose it to Tailwind:
+
+```css title="app/globals.css"
+:root { --violet: oklch(0.55 0.22 300); --violet-foreground: oklch(0.99 0 0); }
+.dark { --violet: oklch(0.7 0.18 300); --violet-foreground: oklch(0.2 0.05 300); }
+
+@theme inline {
+  --color-violet: var(--violet);
+  --color-violet-foreground: var(--violet-foreground);
+}
+```
+</Step>
+<Step>
+Add it to `tones`:
+
+```ts title="lib/primitive.ts"
+export const tones = {
+  // …
+  violet: "[--tone-fg:var(--violet-foreground)] [--tone:var(--violet)]",
+} as const;
+```
+</Step>
+<Step>
+Add it to the `color` variant of the components that should accept it, for example in
+`button.tsx`:
+
+```ts
+color: {
+  // …
+  violet: tones.violet,
+},
+```
+
+`Tone` is derived from `tones`, so the prop types update automatically.
+</Step>
+</Steps>
+
+## Radius
+
+One variable drives the whole scale, defined in the `@theme inline` block:
+
+| Utility | Value | Used by |
+| --- | --- | --- |
+| `rounded-xs` | `--radius` − 6px | Tiny details |
+| `rounded-sm` | `--radius` − 4px | `xs` buttons, small tags |
+| `rounded-md` | `--radius` − 2px | Buttons, fields, menu items |
+| `rounded-lg` | `--radius` | Popovers, menus and list boxes |
+| `rounded-xl` | `--radius` + 4px | Cards and dialogs |
+
+With the default `--radius: 0.625rem`, controls are 8px, popovers 10px and cards 14px. Set
+`--radius: 0.375rem` for a sharper look or `0.875rem` for a softer one; the steps
+keep their relationship because they all derive from the same base. (Checkboxes keep a
+fixed 4px corner.)
+
+## Density
+
+Controls share one height scale so mixed rows line up:
+
+| Size | Height | Use it for |
+| --- | --- | --- |
+| `sm` | 28px | Toolbars, table filters, dense settings |
+| `md` (default) | 32px | Most forms and dialogs |
+| `lg` | 40px | Marketing pages, touch-first and onboarding flows |
+
+```tsx
+<div className="flex items-end gap-2">
+  <SearchField size="sm" aria-label="Filter" />
+  <Select size="sm" aria-label="Status">…</Select>
+  <Button size="sm">Apply</Button>
+</div>
+```
+
+Text-like fields also take a `variant`: `outline` (default), `filled` or `underlined`.
+For larger regions, Card takes `size` (`sm`, `md`, `lg`) and Table takes `density`
+(`compact`, `default`, `comfortable`).
+
+## Theme builder & styles
+
+The [theme builder](/themes) puts every token on one page: pick a **style**, a **base**
+neutral, a **brand** color (a preset or any custom color), the **radius**, **density** and
+**font**, and watch a live dashboard of real components update. Share the result as a link
+(`/themes?design=…`) or apply it to the previews on this site.
+
+| Style | Character | Defaults |
+| --- | --- | --- |
+| Default | Crisp hairlines, soft depth and medium radii | 0.625rem · default density · Inter |
+| Soft | Rounder shapes, filled fields, gentle diffused shadows | 0.875rem · default · Inter |
+| Sharp | Square corners, hairline borders, dense controls, no shadows | 0.25rem · compact · Geist |
+| Bold | Thick borders, strong contrast, chunky controls, heavy type | 0.5rem · comfortable · Inter |
+
+A style is a set of structural tokens: radius levels (`--radius-control`, `--radius-box`,
+`--radius-overlay`…), `--border-width`, field chrome (`--field-bg`, `--field-border`),
+shadows, `--ring-width` and heading weights. Picking a style resets radius, density and font
+to that style's defaults and keeps your base and brand. Bases are neutral palettes (zinc,
+neutral, slate, stone, olive, mauve); the brand drives `--brand`, `--ring` and `--chart-1`,
+with the dark-mode variant and the text color on it derived for you.
+
+### Install a theme
+
+Press **Install** in the builder to get a command for your design. It points at a
+`registry:theme` item that the shadcn CLI merges into your global CSS (`:root`, `.dark`
+and the font stack in `@theme inline`):
+
+```bash
+npx shadcn@latest add https://<your-docs-host>/r/themes/1~soft~zinc~indigo~0.875~default~inter.json
+```
+
+The **CSS** tab gives the same variables to paste by hand. Components read only tokens,
+so the ones you've already installed pick up a new theme without being reinstalled. If the
+theme uses a font other than Inter, load that font too (the CLI adds a Google Fonts
+`@import`; with Next.js you can use `next/font` instead).
+
+## Dark mode
+
+Dark values live under a `.dark` class, and the tokens file declares a class-based
+`dark:` variant. Put `class="dark"` on `<html>` (or any ancestor) and everything inside
+switches. See [Dark mode](/docs/dark-mode) for the toggle and `next-themes` setup.
+
+## Multiple themes
+
+Because themes are just variables, you can scope one to any element.
+
+```css title="app/globals.css"
+[data-theme="ocean"] {
+  --brand: oklch(0.6 0.13 230);
+  --ring: oklch(0.6 0.13 230);
+  --radius: 1rem;
+}
+.dark [data-theme="ocean"],
+[data-theme="ocean"].dark {
+  --brand: oklch(0.74 0.12 230);
+  --ring: oklch(0.74 0.12 230);
+}
+```
+
+```tsx
+<html data-theme="ocean">…</html>              {/* whole app */}
+<section data-theme="ocean">…</section>        {/* one area, e.g. a customer's portal */}
+```
+
+You can also set variables inline for a live preview, the way the theme studio on the
+home page does:
+
+```tsx
+<div style={{ "--brand": accent, "--radius": "1rem" } as React.CSSProperties}>
+  <Checkbox defaultSelected>Uses the preview accent</Checkbox>
+</div>
+```
+
+<Callout type="warn" title="Popovers render in a portal">
+  Menus, popovers, dialogs and toasts render at the end of `<body>`, outside the
+  element where you scoped a theme. Put theme attributes on `<html>` or `<body>` when
+  overlays should match, or wrap the portal content in its own themed element.
+</Callout>

@@ -1,0 +1,346 @@
+---
+title: Menu
+description: A dropdown list of actions or options, opened from a button, a long press or a right click. Supports icons, shortcuts, sections, single and multiple selection, links, submenus and typeahead, with full keyboard navigation.
+---
+
+<ComponentLinks aria="Menu" source="menu" />
+
+<ComponentPreview name="menu/demo" />
+
+## Installation
+
+<InstallTabs name="menu" />
+
+## Usage
+
+```tsx
+import {
+  MenuContent,
+  MenuItem,
+  MenuSection,
+  MenuSeparator,
+  MenuShortcut,
+  MenuTrigger,
+  SubmenuTrigger,
+} from "@/components/ui/menu";
+```
+
+```tsx
+<MenuTrigger>
+  <Button variant="outline">Actions</Button>
+  <MenuContent onAction={(key) => run(key)}>
+    <MenuItem id="edit">Edit</MenuItem>
+    <MenuItem id="duplicate">Duplicate</MenuItem>
+    <MenuSeparator />
+    <MenuItem id="delete" variant="destructive">
+      Delete
+    </MenuItem>
+  </MenuContent>
+</MenuTrigger>
+```
+
+`MenuTrigger` connects the first child (any pressable, usually a [`Button`](/docs/components/button)) to the `MenuContent` after it. Handle actions with `onAction` on `MenuContent`, which receives the item's `id`, or with `onAction` on each `MenuItem`.
+
+<Callout title="Set textValue when children aren't plain text">
+  Typeahead and the item's text for assistive tech come from `textValue`.
+  `MenuItem` fills it in when its children are a plain string; as soon as you
+  add an icon or a shortcut, pass `textValue` yourself.
+</Callout>
+
+### When to use
+
+- Menu — a list of actions ("Rename", "Delete") or view options ("Sort by", "Show columns") that don't need to be visible all the time.
+- [Select](/docs/components/select) — choosing a form value that's shown in the trigger and submitted.
+- [Command Palette](/docs/components/command-palette) — a searchable list of every action in the app.
+- [Toggle Button Group](/docs/components/toggle-button-group) — a few options that should stay visible.
+- [Popover](/docs/components/popover) — anything that isn't a list, like a small form.
+
+## Anatomy
+
+```tsx
+<MenuTrigger>
+  <Button />                     {/* trigger */}
+  <MenuContent>                  {/* popover + role="menu" */}
+    <MenuSection title="…">      {/* optional group with a heading */}
+      <MenuItem>                 {/* role="menuitem" */}
+        <Icon />
+        Label
+        <MenuShortcut />         {/* keyboard hint */}
+      </MenuItem>
+    </MenuSection>
+    <MenuSeparator />
+    <SubmenuTrigger>
+      <MenuItem />               {/* opens the submenu */}
+      <MenuContent />            {/* nested menu */}
+    </SubmenuTrigger>
+  </MenuContent>
+</MenuTrigger>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `MenuTrigger` | — | Opens the menu on press (or long press / right click) and wires up the trigger. From React Aria. |
+| `MenuContent` | `Popover` › `<div role="menu">` | The positioned popover (`min-w-44`) and the scrollable menu inside it. |
+| `MenuItem` | `<div role="menuitem">` | An action. Becomes `menuitemradio` / `menuitemcheckbox` with selection, and an `<a>` with `href`. Adds a selection indicator and a submenu chevron automatically. |
+| `MenuSection` | `<section role="group">` | Groups items under an optional `title`. Can have its own selection. |
+| `MenuSeparator` | `<hr>` | A 1px divider between items or sections. |
+| `MenuShortcut` | `<kbd>` | Right-aligned shortcut hint, linked to the item for assistive tech. |
+| `SubmenuTrigger` | — | Wraps a `MenuItem` and the nested `MenuContent` it opens. From React Aria. |
+
+## Examples
+
+### Sections
+
+`MenuSection` groups related items under a small uppercase `title`, and `MenuSeparator` divides groups. Icons in items are sized and muted automatically; `MenuShortcut` right-aligns a keyboard hint. The demo above shows all three.
+
+<ComponentPreview name="menu/demo" />
+
+### Single selection
+
+`selectionMode="single"` on `MenuContent` turns items into radio options with a dot indicator. Add `disallowEmptySelection` for settings like "Sort by" that always have a value, and reflect the choice in the trigger.
+
+<ComponentPreview name="menu/single-selection" />
+
+### Selection in sections
+
+Each `MenuSection` can have its own `selectionMode`, `selectedKeys` and `onSelectionChange`, mixing checkbox and radio groups in one menu. Multiple-selection menus stay open when an item is clicked, so several options can be toggled at once.
+
+<ComponentPreview name="menu/selection" />
+
+### Rich items
+
+Use React Aria's `Text` with `slot="label"` and `slot="description"` for two-line items. The slots wire up `aria-labelledby` and `aria-describedby`, so the description is announced separately from the name.
+
+<ComponentPreview name="menu/rich-items" />
+
+### Dynamic items
+
+Pass `items` and a render function instead of static children. Each item needs an `id` (or `key`) property; `onAction` receives it.
+
+<ComponentPreview name="menu/dynamic" />
+
+### Submenus
+
+Wrap a `MenuItem` and a nested `MenuContent` in `SubmenuTrigger`. The item gets a chevron, opens on hover (after a 200ms `delay`), <kbd>→</kbd> or <kbd>Enter</kbd>, and closes with <kbd>←</kbd>.
+
+<ComponentPreview name="menu/submenu" />
+
+### Links
+
+Give an item an `href` and it renders as a link, with `target`, `rel` and `download` passed through. It works with client-side routers through React Aria's `RouterProvider`.
+
+<ComponentPreview name="menu/links" />
+
+### Disabled items
+
+`disabledKeys` on `MenuContent` (or `isDisabled` on a `MenuItem`) keeps an item visible but unfocusable. Explain why nearby when it isn't obvious.
+
+<ComponentPreview name="menu/disabled" />
+
+### Placement
+
+The menu opens `bottom start` by default and flips when there isn't room. Use `placement="bottom end"` for triggers on the right edge of a layout, like a row's "more" button.
+
+<ComponentPreview name="menu/placement" />
+
+### Context menu
+
+`trigger="contextMenu"` opens the menu at the pointer on right click, on long press for touch, and with <kbd>Shift</kbd>+<kbd>F10</kbd> on Windows. The trigger must be a focusable React Aria element, like a `Button`.
+
+<ComponentPreview name="menu/context-menu" />
+
+## Recipes
+
+### Account menu
+
+A user button that opens upward, sized to the trigger with `popoverClassName="w-(--trigger-width)"`. A React Aria `Header` shows who's signed in, and a theme submenu uses single selection.
+
+<ComponentPreview name="menu/recipe-account" />
+
+### Row actions
+
+A "more" menu on each row. "Delete…" opens a controlled alert [`Dialog`](/docs/components/dialog) after the menu closes, and the other actions confirm with a [toast](/docs/components/toast). The ellipsis in the label signals that the action asks for more input.
+
+<ComponentPreview name="menu/recipe-row-actions" />
+
+### Column visibility
+
+A multiple-selection menu that shows and hides table columns. It stays open while toggling, and the table updates live.
+
+<ComponentPreview name="menu/recipe-column-visibility" />
+
+## Accessibility
+
+- The trigger gets `aria-haspopup="menu"` and `aria-expanded`; the menu is labelled by its trigger unless you pass `aria-label`.
+- Opening with the keyboard focuses the first item (<kbd>↑</kbd> focuses the last). Focus returns to the trigger on close.
+- Items are announced as `menuitem`, or `menuitemradio` / `menuitemcheckbox` with their checked state when the menu or section has a `selectionMode`.
+- Section titles label their group. `MenuShortcut` is linked to its item so the shortcut is announced.
+- Typeahead jumps to the next item that starts with the typed characters, using `textValue`.
+- Context menus don't get `aria-haspopup`, since they don't open on activation.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> / <kbd>↓</kbd> | Opens the menu and focuses the first item |
+| <kbd>↑</kbd> | Opens the menu and focuses the last item |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Moves focus between items, wrapping at the ends |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Focuses the first / last item |
+| <kbd>Enter</kbd> | Runs the focused item and closes the menu |
+| <kbd>Space</kbd> | Runs or toggles the focused item; multiple-selection menus stay open |
+| <kbd>→</kbd> / <kbd>←</kbd> | Opens / closes a submenu (reversed in right-to-left locales) |
+| <kbd>Esc</kbd> | Closes the menu (or the current submenu) |
+| Any character | Typeahead to a matching item |
+
+## Styling
+
+### Data attributes
+
+On each `MenuItem`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-focused` | The item has focus (keyboard or hover) |
+| `data-focus-visible` | The item has keyboard focus |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-pressed` | Being pressed |
+| `data-selected` | The item is selected |
+| `data-selection-mode` | The menu or section has `"single"` or `"multiple"` selection |
+| `data-disabled` | The item is disabled |
+| `data-has-submenu` | The item opens a submenu |
+| `data-open` | The item's submenu is open |
+| `data-variant` | `"default"` or `"destructive"` |
+
+`MenuContent`'s menu has `data-empty` when there are no items; its popover has the [popover attributes](/docs/components/popover#data-attributes), including `data-trigger="MenuTrigger"` or `"SubmenuTrigger"`.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `menu` | The `role="menu"` element |
+| `menu-item` | Items |
+| `menu-section` | Sections |
+| `menu-separator` | Separators |
+| `menu-shortcut` | Shortcut hints |
+| `popover` | The surrounding popover |
+
+### Customizing
+
+- `className` on `MenuContent` styles the menu itself (width, padding); `popoverClassName` styles the popover around it, e.g. `w-(--trigger-width)` to match the trigger.
+- Icons inside items are `size-4` and `text-muted-foreground` unless they have their own `size-*` or `text-*` class. Destructive items color their icons too.
+- The menu scrolls within the popover's available height.
+
+### Render props
+
+`MenuItem`'s `className` and `children` accept a function of its state:
+
+```tsx
+<MenuItem className={({ isFocused }) => (isFocused ? "bg-brand/10" : "")}>
+  {({ isSelected }) => (isSelected ? "Pinned" : "Pin")}
+</MenuItem>
+```
+
+## API Reference
+
+### MenuTrigger
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode", description: "A pressable trigger followed by MenuContent." },
+    trigger: { type: '"press" | "longPress" | "contextMenu"', default: '"press"', description: "How the menu opens." },
+    isOpen: { type: "boolean", description: "Controlled open state." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the menu opens or closes." },
+  }}
+/>
+
+### MenuContent
+
+<TypeTable
+  type={{
+    placement: { type: "Placement", default: '"bottom start"', description: 'Preferred position, e.g. "bottom end". Submenus default to "end top".' },
+    popoverClassName: { type: "string", description: "Classes for the popover around the menu." },
+    onAction: { type: "(key: Key) => void", description: "Called when an item is activated." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Static items and sections, or a render function." },
+    selectionMode: { type: '"none" | "single" | "multiple"', default: '"none"', description: "Turns items into radio or checkbox options." },
+    selectedKeys: { type: '"all" | Iterable<Key>', description: "Controlled selection." },
+    defaultSelectedKeys: { type: '"all" | Iterable<Key>', description: "Uncontrolled initial selection." },
+    onSelectionChange: { type: "(keys: Selection) => void", description: "Called when the selection changes." },
+    disallowEmptySelection: { type: "boolean", default: "false", description: "Prevents deselecting the last selected item." },
+    disabledKeys: { type: "Iterable<Key>", description: "Items that can't be focused or activated." },
+    shouldCloseOnSelect: { type: "boolean", description: "Override whether the menu closes when an item is selected." },
+    renderEmptyState: { type: "() => ReactNode", description: "Content shown when there are no items." },
+    autoFocus: { type: 'boolean | "first" | "last"', description: "Where focus goes when the menu opens. Set automatically by MenuTrigger." },
+    shouldFocusWrap: { type: "boolean", default: "true", description: "Wrap focus from the last item to the first and back." },
+    escapeKeyBehavior: { type: '"clearSelection" | "none"', default: '"clearSelection"', description: "Whether Esc clears the selection before closing." },
+    dependencies: { type: "any[]", description: "Values that should re-render dynamic items when they change." },
+    "aria-label": { type: "string", description: "Accessible name. Defaults to being labelled by the trigger." },
+    className: { type: "string | ((state: MenuRenderProps) => string)", description: "Classes for the menu element." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Menu`](https://react-aria.adobe.com/Menu#api).
+
+### MenuItem
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "destructive"', default: '"default"', description: "destructive colors the text and icon red." },
+    id: { type: "Key", description: "Unique key, passed to onAction and used for selection." },
+    textValue: { type: "string", description: "Text for typeahead and assistive tech. Filled in automatically for plain-string children." },
+    onAction: { type: "() => void", description: "Called when this item is activated." },
+    isDisabled: { type: "boolean", description: "Disables this item." },
+    href: { type: "string", description: "Renders the item as a link." },
+    target: { type: "string", description: "Link target, e.g. _blank." },
+    rel: { type: "string", description: "Link relationship." },
+    download: { type: "boolean | string", description: "Download the linked file." },
+    routerOptions: { type: "RouterOptions", description: "Options passed to your RouterProvider's navigate function." },
+    shouldCloseOnSelect: { type: "boolean", description: "Override whether the menu closes when this item is selected." },
+    value: { type: "T", description: "The item object, when using dynamic collections." },
+    "aria-label": { type: "string", description: "Accessible name, when the content isn't descriptive." },
+    className: { type: "string | ((state: MenuItemRenderProps) => string)", description: "Classes, or a function of the render state." },
+    children: { type: "ReactNode | ((state: MenuItemRenderProps) => ReactNode)", description: "Content, or a function of the render state." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`MenuItem`](https://react-aria.adobe.com/Menu#menuitem), including hover, focus and press handlers.
+
+### MenuSection
+
+<TypeTable
+  type={{
+    title: { type: "string", description: "Heading shown above the group; also labels it for assistive tech." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "MenuItems, or a render function." },
+    selectionMode: { type: '"none" | "single" | "multiple"', description: "Selection for this section only." },
+    selectedKeys: { type: '"all" | Iterable<Key>', description: "Controlled selection for this section." },
+    defaultSelectedKeys: { type: '"all" | Iterable<Key>', description: "Uncontrolled initial selection." },
+    onSelectionChange: { type: "(keys: Selection) => void", description: "Called when this section's selection changes." },
+    disallowEmptySelection: { type: "boolean", description: "Prevents deselecting the last selected item." },
+    shouldCloseOnSelect: { type: "boolean", description: "Override whether selecting an item in this section closes the menu." },
+    id: { type: "Key", description: "Unique key for the section." },
+    "aria-label": { type: "string", description: "Accessible name when there is no title." },
+    className: { type: "string", description: "Classes for the section." },
+  }}
+/>
+
+### SubmenuTrigger
+
+<TypeTable
+  type={{
+    children: { type: "ReactElement[]", description: "A MenuItem followed by a MenuContent." },
+    delay: { type: "number", default: "200", description: "Milliseconds of hover before the submenu opens." },
+  }}
+/>
+
+### MenuSeparator / MenuShortcut
+
+`MenuSeparator` accepts every prop of React Aria's [`Separator`](https://react-aria.adobe.com/Menu#separators). `MenuShortcut` accepts every prop of React Aria's `Keyboard` (a `<kbd>`).
+
+## Related
+
+- [Command Palette](/docs/components/command-palette) — the same items, searchable in a modal.
+- [Select](/docs/components/select) — pick a form value from a list.
+- [Popover](/docs/components/popover) — the surface menus render in.
+- [Button](/docs/components/button) — split buttons pair a button with a menu.

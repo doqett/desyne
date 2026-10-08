@@ -1,0 +1,297 @@
+---
+title: Text Field
+description: A single-line text input with a label, help text and validation. Supports icon and text adornments, every native input type, native and custom validation, server errors and form submission.
+---
+
+<ComponentLinks aria="TextField" source="text-field" />
+
+<ComponentPreview name="text-field/demo" />
+
+## Installation
+
+<InstallTabs name="text-field" />
+
+## Usage
+
+```tsx
+import { TextField } from "@/components/ui/text-field";
+```
+
+```tsx
+<TextField label="Email" name="email" type="email" isRequired />
+```
+
+`TextField` renders the label, the input, the description and the error message, and wires them together for assistive technology. Pass `value` and `onChange` to control it, or `defaultValue` to leave it uncontrolled.
+
+<Callout title="onChange receives a string">
+  React Aria calls `onChange` with the new value, not a DOM event, so you can
+  pass a state setter directly: `onChange={setName}`. Use `onInput` or
+  `onKeyDown` if you need the raw event.
+</Callout>
+
+### When to use
+
+- Text Field — short, free-form, single-line text: names, emails, URLs, codes.
+- [Textarea](/docs/components/textarea) — multi-line text such as comments, bios or descriptions.
+- [Number Field](/docs/components/number-field) — numbers that benefit from steppers, locale formatting and min/max constraints.
+- [Search Field](/docs/components/search-field) — search queries, with a clear button and <kbd>Esc</kbd> to clear.
+- [Combo Box](/docs/components/combobox) — free text with suggestions from a list.
+- [Input OTP](/docs/components/input-otp) — one-time codes split into individual character slots.
+
+## Anatomy
+
+```tsx
+<TextField>          {/* root: <div>, owns value, validation and state attributes */}
+  <Label />          {/* from `label` */}
+  <FieldGroup>       {/* the visible box: border, focus ring, invalid state */}
+    <FieldAddon />   {/* from `prefix` */}
+    <FieldInput />   {/* the native <input> */}
+    <FieldAddon />   {/* from `suffix` */}
+  </FieldGroup>
+  <Description />    {/* from `description` */}
+  <FieldError />     {/* shown only while invalid */}
+</TextField>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `TextField` | `<div>` | Root. Carries `data-slot="text-field"`, the `group/field` class and all state attributes. |
+| `Label` | `<label>` | Rendered when `label` is set. Adds a red `*` when `isRequired`. |
+| `FieldGroup` | `<div role="presentation">` | Draws the chrome (`fieldVariants`). Picks up `data-focus-within`, `data-hovered`, `data-invalid` and `data-disabled`. |
+| `FieldAddon` | `<span>` | Wraps `prefix` and `suffix`. Muted, non-selectable, and sizes any SVG icon inside it. |
+| `FieldInput` | `<input>` | Receives `type`, `name`, `placeholder`, `autoComplete`, `inputMode`, `maxLength`, `pattern` and every other input prop. |
+| `Description` | `<span slot="description">` | Rendered when `description` is set. Linked with `aria-describedby`. |
+| `FieldError` | `<span slot="errorMessage">` | Rendered only while the field is invalid. Shows `errorMessage` or the validation messages. |
+
+## Examples
+
+### Variants
+
+`outline` for most forms, `filled` for dense settings pages and tinted surfaces, `underlined` for minimal or inline editing. The same variants apply to every field component.
+
+<ComponentPreview name="text-field/variants" />
+
+### Sizes
+
+`sm` (28px), `md` (32px, default) and `lg` (40px) line up with the button sizes of the same name, so a field and a button sit flush in a row.
+
+<ComponentPreview name="text-field/sizes" />
+
+### Prefix and suffix
+
+`prefix` and `suffix` accept icons, text or any element. They sit inside the field, so the whole box highlights on focus. Use text adornments for fixed parts of the value (a scheme, a domain, a currency) that the user shouldn't type.
+
+<ComponentPreview name="text-field/prefix-suffix" />
+
+### Password with visibility toggle
+
+A React Aria `Button` in the `suffix` toggles `type` between `password` and `text`. Give it an `aria-label` that describes the action, and set `autoComplete` so password managers recognise the field.
+
+<ComponentPreview name="text-field/password" />
+
+### Input types and hints
+
+`type`, `inputMode` and `autoComplete` pick the right mobile keyboard and let browsers autofill. Turn off `spellCheck` and `autoCorrect` for identifiers like repository names or usernames.
+
+<ComponentPreview name="text-field/input-types" />
+
+### Disabled and read only
+
+`isDisabled` removes the field from the tab order and dims it. `isReadOnly` keeps it focusable and selectable, so users can still copy the value. Prefer read only for values users need but can't change.
+
+<ComponentPreview name="text-field/disabled" />
+
+### Controlled
+
+`value` and `onChange` let you derive UI from the value as it's typed, here a URL slug.
+
+<ComponentPreview name="text-field/controlled" />
+
+### Required and native validation
+
+`isRequired`, `type="email"`, `pattern`, `minLength` and `maxLength` use the browser's constraint validation. By default (`validationBehavior="native"`) the form won't submit while a field is invalid, and errors appear after the user submits.
+
+<ComponentPreview name="text-field/validation" />
+
+### Custom validation
+
+`validate` receives the current value and returns an error string, an array of strings, or `null` / `true` when valid. With `validationBehavior="aria"` on the `Form` (or the field), errors show live as the user types and don't block submission.
+
+<ComponentPreview name="text-field/custom-validation" />
+
+### Server errors
+
+Pass `validationErrors` to React Aria's `Form`, keyed by field `name`, to show errors returned by your API. Each error clears as soon as the user edits that field. For a single field, `isInvalid` with `errorMessage` does the same.
+
+<ComponentPreview name="text-field/server-errors" />
+
+### Form submission
+
+Give the field a `name` and its value is included in `FormData`, exactly like a native `<input>`. `type="reset"` restores each field's `defaultValue`.
+
+<ComponentPreview name="text-field/form" />
+
+### Custom composition
+
+When the props aren't enough, build the field from the parts in `field.tsx` inside React Aria's `TextField`. Here a label row with a plan hint and an inline action button. Add `group/field` to the root so the label reacts to the disabled and required states.
+
+<ComponentPreview name="text-field/composition" />
+
+## Recipes
+
+### Copy to clipboard
+
+A read-only field with a ghost icon button in the suffix. The value stays selectable, and the button confirms the copy.
+
+<ComponentPreview name="text-field/recipe-copy" />
+
+### Inline subscribe form
+
+A label-less field (`aria-label`) next to its submit button, with a pending state and a confirmation.
+
+<ComponentPreview name="text-field/recipe-newsletter" />
+
+### Profile settings
+
+A card form with a two-column grid, adornments, `autoComplete` hints and a footer with reset and submit.
+
+<ComponentPreview name="text-field/recipe-profile" />
+
+## Accessibility
+
+- The label, description and error message are linked to the input with `aria-labelledby` and `aria-describedby`. Clicking the label focuses the input.
+- Always provide a label: `label`, `aria-label`, or `aria-labelledby`. A `placeholder` is not a label.
+- Invalid fields get `aria-invalid`, and the error text is announced as part of the description.
+- The required asterisk is decorative (a CSS pseudo-element). Screen readers get `aria-required` (or native `required` with native validation) instead.
+- Icon-only buttons in `prefix` or `suffix` need an `aria-label`. Icons that are purely decorative need nothing: lucide icons are `aria-hidden` by default.
+- `isReadOnly` fields stay in the tab order; `isDisabled` fields don't.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the input, then to any focusable adornment |
+| <kbd>Enter</kbd> | Submits the surrounding form |
+
+## Styling
+
+### Data attributes
+
+On the `TextField` root. Children can react with `group-data-*/field:` variants, e.g. `group-data-invalid/field:text-destructive`.
+
+| Attribute | Present when |
+| --- | --- |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+| `data-required` | `isRequired` is true |
+| `data-invalid` | Validation failed, or `isInvalid` is true |
+
+On the `FieldGroup` (the visible box):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-focus-within` | The input (or an adornment) has focus |
+| `data-focus-visible` | Focus inside came from the keyboard |
+| `data-invalid` / `data-disabled` | Mirrors the field state |
+
+The input itself exposes `data-focused`, `data-focus-visible`, `data-hovered`, `data-invalid` and `data-disabled`.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `text-field` | Root |
+| `label`, `description`, `field-error` | Field text |
+| `field-group` | Visible box |
+| `field-input` | `<input>` |
+| `field-addon` | Prefix and suffix wrappers |
+
+### Render props
+
+`className` on `TextField` styles the root and also accepts a function of the field state:
+
+```tsx
+<TextField
+  label="Email"
+  className={({ isInvalid }) => (isInvalid ? "animate-shake" : "")}
+/>
+```
+
+### Style helpers
+
+`field.tsx` exports the building blocks and their styles, shared by every field component:
+
+```tsx
+import {
+  bareInputStyles, // classes for an <input> inside a FieldGroup
+  fieldVariants,   // tailwind-variants for the box: { variant, size }
+  inputVariants,   // same look for a standalone <input>, keyed off data-focused
+} from "@/components/ui/field";
+```
+
+## API Reference
+
+### TextField
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text shown under the input." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message while invalid." },
+    placeholder: { type: "string", description: "Hint shown while the input is empty. Not a substitute for a label." },
+    prefix: { type: "ReactNode", description: "Icon, text or element shown before the input." },
+    suffix: { type: "ReactNode", description: "Icon, text, button or element shown after the input." },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    value: { type: "string", description: "Controlled value." },
+    defaultValue: { type: "string", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: string) => void", description: "Called with the new value on every change." },
+    type: { type: '"text" | "search" | "url" | "tel" | "email" | "password" | (string & {})', default: '"text"', description: "Native input type." },
+    inputMode: { type: '"none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search"', description: "Virtual keyboard hint for touch devices." },
+    autoComplete: { type: "string", description: "Autofill hint, e.g. email, name, current-password, one-time-code." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    form: { type: "string", description: "Id of the form this field belongs to, when rendered outside it." },
+    isRequired: { type: "boolean", default: "false", description: "Requires a value before the form can submit." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the field and removes it from the tab order." },
+    isReadOnly: { type: "boolean", default: "false", description: "Makes the value unchangeable but still focusable and selectable." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state, e.g. for server errors." },
+    validate: { type: "(value: string) => ValidationError | true | null | undefined", description: "Custom validation. Return an error string (or array of strings) to mark the field invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live without blocking. Inherits from a parent Form." },
+    minLength: { type: "number", description: "Native minimum length constraint." },
+    maxLength: { type: "number", description: "Maximum number of characters the input accepts." },
+    pattern: { type: "string", description: "Native regex constraint the whole value must match." },
+    autoFocus: { type: "boolean", description: "Focuses the input on mount." },
+    autoCorrect: { type: "string", description: 'Safari autocorrect, "on" or "off".' },
+    spellCheck: { type: "string", description: 'Browser spell checking, "true" or "false".' },
+    enterKeyHint: { type: '"enter" | "done" | "go" | "next" | "previous" | "search" | "send"', description: "Label for the enter key on virtual keyboards." },
+    onFocus: { type: "(e: FocusEvent) => void" },
+    onBlur: { type: "(e: FocusEvent) => void" },
+    onKeyDown: { type: "(e: KeyboardEvent) => void" },
+    className: { type: "string | ((state: TextFieldRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`TextField`](https://react-aria.adobe.com/TextField#api), including clipboard, composition and selection event handlers.
+
+### Building blocks
+
+Exported from `@/components/ui/field` and shared by every field component.
+
+| Export | Wraps | Props |
+| --- | --- | --- |
+| `Label` | React Aria `Label` | `LabelProps` |
+| `Description` | React Aria `Text` with `slot="description"` | `TextProps` |
+| `FieldError` | React Aria `FieldError` | `FieldErrorProps`; `children` may be a function of the validation result |
+| `FieldGroup` | React Aria `Group` | `GroupProps` plus `variant` and `size` |
+| `FieldInput` | React Aria `Input` | `InputProps`; unstyled, for use inside `FieldGroup` |
+| `Input` | React Aria `Input` | `InputProps` plus `variant` and `size`; a standalone styled input without adornments |
+| `FieldAddon` | `<span>` | `ComponentProps<"span">` |
+
+## Related
+
+- [Textarea](/docs/components/textarea) — the multi-line version.
+- [Number Field](/docs/components/number-field) — numeric input with steppers and formatting.
+- [Search Field](/docs/components/search-field) — search input with a clear button.
+- [Combo Box](/docs/components/combobox) — text input with a list of suggestions.
+- [Select](/docs/components/select) — shares the same field variants and sizes.

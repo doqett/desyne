@@ -1,0 +1,259 @@
+---
+title: Carousel
+description: A swipeable, scrollable set of slides built on Embla Carousel. Horizontal or vertical, one or many slides per view, looping, previous and next buttons that disable at the ends, arrow-key navigation, WAI-ARIA labels and slide announcements, and full access to the Embla API for counters, dots, thumbnails and autoplay.
+---
+
+<ComponentLinks docs={{ label: "Embla Carousel", href: "https://www.embla-carousel.com" }} source="carousel" />
+
+<ComponentPreview name="carousel/demo" />
+
+## Installation
+
+<InstallTabs name="carousel" />
+
+The install adds `embla-carousel-react` as a dependency.
+
+## Usage
+
+```tsx
+import {
+  Carousel,
+  type CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  useCarousel,
+} from "@/components/ui/carousel";
+```
+
+```tsx
+<Carousel aria-label="Product photos">
+  <CarouselContent>
+    <CarouselItem>…</CarouselItem>
+    <CarouselItem>…</CarouselItem>
+    <CarouselItem>…</CarouselItem>
+  </CarouselContent>
+  <CarouselPrevious />
+  <CarouselNext />
+</Carousel>
+```
+
+<Callout title="Embla does the scrolling">
+  `Carousel` passes `opts` and `plugins` straight to Embla's
+  `useEmblaCarousel`, so every [Embla option](https://www.embla-carousel.com/api/options/)
+  (`loop`, `align`, `slidesToScroll`, `dragFree`, `startIndex`, …) and plugin
+  works. `orientation` sets Embla's `axis` for you.
+</Callout>
+
+### When to use
+
+- Carousel: a small set of peer items where showing one (or a few) at a time saves space, such as product photos, testimonials or onboarding steps.
+- [Tabs](/docs/components/tabs): when each panel has a name the user should pick directly.
+- A plain grid or scrolling row: when users need to scan or compare everything. Content hidden in later slides is often never seen.
+- Avoid autoplay for important content, and never put the only copy of critical information in a carousel.
+
+## Anatomy
+
+```tsx
+<Carousel>               {/* <section aria-roledescription="carousel" aria-label>, Embla + context */}
+  <CarouselContent>      {/* viewport (overflow-hidden) › flex track (id for aria-controls) */}
+    <CarouselItem />     {/* role="group" aria-roledescription="slide" aria-label="1 of 5" */}
+  </CarouselContent>
+  <CarouselPrevious />   {/* Button, disabled at the start */}
+  <CarouselNext />       {/* Button, disabled at the end */}
+  {/* visually hidden aria-live="polite" region, rendered for you */}
+</Carousel>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Carousel` | `<section>` | Creates the Embla instance, provides context, names the region, and handles the arrow keys for anything focused inside. Also renders the visually hidden live region. `relative`, so the buttons position against it. |
+| `CarouselContent` | `<div>` › `<div>` | The outer div is Embla's viewport (`overflow-hidden`); the inner div is the flex track and receives your `className` and props. A negative margin offsets the items' gutter. |
+| `CarouselItem` | `<div role="group">` | One slide, labelled with its position ("2 of 5") automatically. `basis-full` by default, with a 16px leading gutter (`pl-4`, or `pt-4` vertically). |
+| `CarouselPrevious` | [`Button`](/docs/components/button) | Round `outline` icon button placed outside the left (or top) edge, with `aria-controls` pointing at the track. Disabled when Embla can't scroll back. |
+| `CarouselNext` | [`Button`](/docs/components/button) | Same, on the right (or bottom) edge. |
+| `useCarousel` | hook | Context for custom controls: `api`, `scrollPrev`, `scrollNext`, `canScrollPrev`, `canScrollNext`, `orientation`, `contentId`. |
+
+## Examples
+
+### Multiple slides per view
+
+Set a `basis-*` class on `CarouselItem` to show several slides at once, with responsive variants like `md:basis-1/3`. `opts={{ align: "start" }}` aligns snaps to the leading edge instead of centering them.
+
+<ComponentPreview name="carousel/multiple" />
+
+### Spacing
+
+The gap between slides is the items' leading padding, balanced by a negative margin on the content. Change both together: `-ml-2` on `CarouselContent` and `pl-2` on each `CarouselItem` for an 8px gap.
+
+<ComponentPreview name="carousel/spacing" />
+
+### Vertical
+
+`orientation="vertical"` scrolls on the y axis and moves the buttons above and below. Give `CarouselContent` a fixed height, and use `-mt-*` / `pt-*` for spacing. The keyboard follows the axis: <kbd>↑</kbd> and <kbd>↓</kbd> move between slides in a vertical carousel.
+
+<ComponentPreview name="carousel/vertical" />
+
+### Loop
+
+`opts={{ loop: true }}` wraps from the last slide to the first. The previous and next buttons never disable.
+
+<ComponentPreview name="carousel/loop" />
+
+### Controls inside
+
+The buttons are absolutely positioned outside the carousel by default, which needs horizontal room. Override the position with `className` to place them over the slides; tailwind-merge replaces the default offsets.
+
+<ComponentPreview name="carousel/controls-inside" />
+
+### API and slide counter
+
+Pass `setApi` to receive the Embla API once it's ready. Subscribe to its `select` and `reInit` events to track the current slide, and unsubscribe in the effect cleanup. The carousel already announces slide changes, so a visible counter like this one is `aria-hidden` rather than a second live region.
+
+<ComponentPreview name="carousel/api" />
+
+### Dot indicators
+
+With the API, `scrollTo(index)` jumps to a slide and `selectedScrollSnap()` tells you which dot is active. Mark the active dot with `aria-current` and label each dot with its slide number.
+
+<ComponentPreview name="carousel/dots" />
+
+### Autoplay
+
+Call `api.scrollNext()` on an interval, with `loop` so it wraps. Pause while the pointer or focus is inside, provide a visible pause button, and start paused when the user prefers reduced motion. Pass `announce={!playing}` so the live region stays quiet while slides rotate on their own. Embla's [autoplay plugin](https://www.embla-carousel.com/plugins/autoplay/) (`embla-carousel-autoplay`, installed separately) can be passed through `plugins` instead.
+
+<ComponentPreview name="carousel/autoplay" />
+
+## Recipes
+
+### Testimonials
+
+Two cards per view on larger screens, one on mobile, with looping. Cards use `h-full` so every slide matches the tallest.
+
+<ComponentPreview name="carousel/recipe-testimonials" />
+
+### Product gallery with thumbnails
+
+Two synced carousels: selecting a slide in the main one scrolls the thumbnail strip, and pressing a thumbnail calls `scrollTo` on the main API. The strip uses `dragFree` and `containScroll: "keepSnaps"`, and `announce={false}` so only the main carousel speaks.
+
+<ComponentPreview name="carousel/recipe-gallery" />
+
+### Onboarding steps
+
+A step-by-step flow inside a [`Card`](/docs/components/card). `watchDrag: false` disables swiping so users move only with the buttons, and a custom footer reads `useCarousel()` to render Back, Continue and a step counter. The footer counter is the live region, so the carousel's own is turned off with `announce={false}`, and each slide keeps a custom `aria-label` ("Step 2 of 3").
+
+<ComponentPreview name="carousel/recipe-onboarding" />
+
+## Accessibility
+
+Follows the [WAI-ARIA carousel pattern](https://www.w3.org/WAI/ARIA/apg/patterns/carousel/) out of the box:
+
+- `Carousel` renders a `<section>` with `aria-roledescription="carousel"` and an accessible name. Pass `aria-label` (for example "Product photos") or `aria-labelledby`; otherwise the `label` prop is used, which defaults to "Carousel". Always give a descriptive name when a page has more than one carousel.
+- Each `CarouselItem` has `role="group"`, `aria-roledescription="slide"` and a position label such as "2 of 5", computed from Embla's slide list and updated on `reInit`. Pass `aria-label` or `aria-labelledby` on an item to replace it, or `formatSlideLabel` on `Carousel` to change the wording for every slide (for example to translate it).
+- A visually hidden `aria-live="polite"` region announces the selection when it changes: "Slide 3 of 5", or "Slides 4 to 6 of 9" when several slides share a snap. Nothing is announced on first render. Change the text with `formatAnnouncement`, and set `announce={false}` while auto-rotating or when you render your own live counter.
+- The previous and next buttons are labelled "Previous slide" and "Next slide", reference the slide track with `aria-controls`, and are disabled at the ends (unless `loop` is on). Pass `aria-label` to override the labels.
+- Arrow keys follow the orientation: <kbd>←</kbd> / <kbd>→</kbd> when horizontal (swapped when `opts.direction` is `"rtl"` or the carousel sits in a right-to-left context), <kbd>↑</kbd> / <kbd>↓</kbd> when vertical. They work whenever focus is inside the carousel, run in the capture phase and prevent the default, but are ignored while typing in an input, textarea, select or contenteditable element.
+- Slides outside the viewport stay in the DOM and in the tab order. Keep slide content focusable only when it's useful, and consider `inert` on off-screen slides for heavy interactive content.
+- Autoplay must have a visible pause control, pause on hover and focus, and respect `prefers-reduced-motion` (see [Autoplay](#autoplay)).
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the previous and next buttons and to focusable content in the slides |
+| <kbd>←</kbd> / <kbd>→</kbd> | Horizontal: previous / next slide while focus is inside the carousel (reversed in right-to-left) |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Vertical: previous / next slide while focus is inside the carousel |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Activates the focused previous or next button |
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-slot="carousel"` | `Carousel` | Always |
+| `data-orientation` | `Carousel` | Always, `"horizontal"` or `"vertical"` |
+| `data-slot="carousel-content"` | viewport div | Always |
+| `data-slot="carousel-item"` | `CarouselItem` | Always |
+| `data-slot="carousel-previous"` | `CarouselPrevious` | Always |
+| `data-slot="carousel-next"` | `CarouselNext` | Always |
+| `data-slot="carousel-announcer"` | live region | `announce` is on |
+| `data-disabled` | previous / next buttons | The carousel can't scroll that way |
+
+The buttons also carry the usual [`Button`](/docs/components/button#data-attributes) state attributes (`data-hovered`, `data-pressed`, `data-focus-visible`).
+
+### Customizing
+
+- Slide width: `basis-*` on `CarouselItem`.
+- Gap: `-ml-*` on `CarouselContent` and `pl-*` on `CarouselItem` (or `-mt-*` / `pt-*` vertically).
+- Buttons: `variant`, `size` and `className` on `CarouselPrevious` / `CarouselNext`. They're `outline` and `icon-sm` by default, rounded, with the arrow rotated 90° in vertical mode.
+- Height (vertical): a fixed `h-*` on `CarouselContent`.
+
+## API Reference
+
+### Carousel
+
+<TypeTable
+  type={{
+    opts: { type: "EmblaOptionsType", description: "Embla options (loop, align, slidesToScroll, dragFree, containScroll, startIndex, watchDrag, duration, …). axis is set from orientation." },
+    plugins: { type: "EmblaPluginType[]", description: "Embla plugins such as embla-carousel-autoplay." },
+    orientation: { type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Scroll axis and button placement." },
+    setApi: { type: "(api: CarouselApi) => void", description: "Receives the Embla API once it's initialized." },
+    label: { type: "string", default: '"Carousel"', description: "Accessible name used when neither aria-label nor aria-labelledby is passed." },
+    "aria-label": { type: "string", description: "Accessible name for the carousel region. Takes precedence over label." },
+    announce: { type: "boolean", default: "true", description: "Announce the selected slide in a polite live region when it changes. Turn off while auto-rotating." },
+    formatSlideLabel: { type: "(index: number, total: number) => string", default: '"2 of 5"', description: "Accessible name of each slide. index is 0-based. Ignored for items with their own aria-label." },
+    formatAnnouncement: { type: "(selection: { from: number; to: number; total: number }) => string", default: '"Slide 2 of 5"', description: "Live-region text. from and to are 0-based and differ when several slides share a snap." },
+    className: { type: "string", description: "Classes for the <section>." },
+  }}
+/>
+
+Also accepts every prop of `<section>` (typed as `<div>` props), such as `onMouseEnter` and `onFocus`.
+
+### CarouselContent / CarouselItem
+
+No extra props. `CarouselContent` passes `className` and all props to the inner track `<div>`, which gets a generated `id` (used by the buttons' `aria-controls`) unless you pass one. `CarouselItem` accepts every prop of `<div>`, including `ref`; its `aria-label` defaults to the slide position.
+
+### CarouselPrevious / CarouselNext
+
+A [`Button`](/docs/components/button). Accepts every button prop; `onPress`, `isDisabled` and `aria-label` are set for you but can be overridden.
+
+<TypeTable
+  type={{
+    variant: { type: "ButtonProps['variant']", default: '"outline"' },
+    size: { type: "ButtonProps['size']", default: '"icon-sm"' },
+    className: { type: "string", description: "Merged with the default absolute positioning." },
+  }}
+/>
+
+### useCarousel
+
+Call inside `Carousel` to build custom controls. Throws outside one.
+
+<TypeTable
+  type={{
+    api: { type: "CarouselApi", description: "The Embla API, or undefined before initialization." },
+    scrollPrev: { type: "() => void", description: "Scrolls to the previous snap." },
+    scrollNext: { type: "() => void", description: "Scrolls to the next snap." },
+    canScrollPrev: { type: "boolean", description: "Updated on select and reInit." },
+    canScrollNext: { type: "boolean", description: "Updated on select and reInit." },
+    orientation: { type: '"horizontal" | "vertical"' },
+    opts: { type: "EmblaOptionsType", description: "The options passed to Carousel." },
+    carouselRef: { type: "(node: HTMLElement | null) => void", description: "Embla's viewport ref, used by CarouselContent." },
+    contentId: { type: "string", description: "id of the slide track, for aria-controls on custom buttons." },
+    slideNodes: { type: "HTMLElement[]", description: "Embla's slide elements, updated on init and reInit." },
+    announce: { type: "boolean", description: "Whether the built-in live region is on." },
+  }}
+/>
+
+### CarouselApi
+
+The Embla instance type. Common methods: `scrollNext()`, `scrollPrev()`, `scrollTo(index)`, `selectedScrollSnap()`, `scrollSnapList()`, `canScrollNext()`, `canScrollPrev()`, `slidesInView()`, `on(event, fn)` and `off(event, fn)`. See the [Embla API](https://www.embla-carousel.com/api/methods/).
+
+## Related
+
+- [Tabs](/docs/components/tabs): named panels the user picks directly.
+- [Card](/docs/components/card): the usual slide surface.
+- [Button](/docs/components/button): the base of the previous and next controls.
+- [Pagination](/docs/components/pagination): paging through large result sets.

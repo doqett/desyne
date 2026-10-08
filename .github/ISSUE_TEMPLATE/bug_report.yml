@@ -1,0 +1,46 @@
+name: Bug report
+description: Something in a Desyne component or the docs isn't working.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Issues here are for the free library and docs; for Pro, use the support link on pro.desyne.dev.
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: Which component or docs page?
+      placeholder: e.g. combobox, /docs/theming
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: A minimal code snippet or a link to a reproduction (StackBlitz, CodeSandbox, repo).
+      placeholder: |
+        1. Install `@desyne/...`
+        2. Render ...
+        3. Press ...
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Framework and versions (React, Tailwind, Next.js/Vite), browser, OS, and assistive tech if relevant.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and this isn't a duplicate.
+          required: true

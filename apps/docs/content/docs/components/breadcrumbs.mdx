@@ -1,0 +1,238 @@
+---
+title: Breadcrumbs
+description: Show where the current page sits in a hierarchy, with a link back to each level. Chevron, slash or dot separators, two sizes, icons, dynamic items and onAction for in-app navigation. The last item is marked as the current page automatically.
+---
+
+<ComponentLinks aria="Breadcrumbs" source="breadcrumbs" />
+
+<ComponentPreview name="breadcrumbs/demo" />
+
+## Installation
+
+<InstallTabs name="breadcrumbs" />
+
+## Usage
+
+```tsx
+import { Breadcrumb, Breadcrumbs } from "@/components/ui/breadcrumbs";
+```
+
+```tsx
+<Breadcrumbs>
+  <Breadcrumb href="/">Home</Breadcrumb>
+  <Breadcrumb href="/projects">Projects</Breadcrumb>
+  <Breadcrumb>Settings</Breadcrumb>
+</Breadcrumbs>
+```
+
+The last `Breadcrumb` is the current page. It gets `aria-current="page"`, is rendered as non-interactive text even if it has an `href`, and has no separator after it.
+
+### When to use
+
+- Breadcrumbs — secondary navigation that shows the path to the current page in a hierarchy two or more levels deep: file systems, product catalogs, settings, docs.
+- [Tabs](/docs/components/tabs) — sibling views at the same level, not a path.
+- [Link](/docs/components/link) — a single "Back to…" link is often enough for shallow hierarchies and small screens.
+- [Sidebar](/docs/components/sidebar) — primary navigation. Breadcrumbs complement it; they don't replace it.
+
+## Anatomy
+
+```tsx
+<Breadcrumbs>                 {/* <ol> */}
+  <Breadcrumb href="…" icon>  {/* <li> › link + separator */}
+    Label
+  </Breadcrumb>
+  <Breadcrumb>                {/* current page: no link, no separator */}
+    Label
+  </Breadcrumb>
+</Breadcrumbs>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Breadcrumbs` | `<ol>` | Labelled "Breadcrumbs" by default (localized). Sets the separator style and text size for its items. Wraps onto multiple lines when needed. |
+| `Breadcrumb` | `<li>` | One level. Contains a React Aria `Link` with the optional `icon` and the label, or the children as-is with `link={false}`. |
+| Link | `<a>`, or `<span role="link">` | An `<a>` when `href` is set; a `<span>` for the current item, disabled items and items without `href`. |
+| Separator | `<svg>` or `<span>` | Chevron, slash or dot after every item except the current one. `aria-hidden`. |
+
+## Examples
+
+### Separators
+
+`chevron` (default) suits app UIs, `slash` suits repository and workspace paths, and `dot` is a quieter option for marketing pages and metadata.
+
+<ComponentPreview name="breadcrumbs/separators" />
+
+### Sizes
+
+`md` (14px, default) above page titles, `sm` (12px) in dense headers, toolbars and cards.
+
+<ComponentPreview name="breadcrumbs/sizes" />
+
+### With icons
+
+Pass `icon` to show an icon before the label. Icons inside the link are sized to 14px.
+
+<ComponentPreview name="breadcrumbs/icons" />
+
+### Icon-only home
+
+Keep the first level compact with an icon, and put the label in an `sr-only` span so the link still has an accessible name.
+
+<ComponentPreview name="breadcrumbs/icon-home" />
+
+### Long labels
+
+Wrap a label in a `<span>` with `max-w-*` and `truncate` to cap its width, and repeat the full text in `title` so it's available on hover. The full text stays in the accessibility tree.
+
+<ComponentPreview name="breadcrumbs/truncation" />
+
+### Dynamic items
+
+Pass `items` and a render function instead of static children. Each item needs a unique `id`.
+
+<ComponentPreview name="breadcrumbs/dynamic" />
+
+### Handling actions
+
+Without `href`, items render as link-role `<span>`s and pressing one calls `onAction` on `Breadcrumbs` with the item's `id`. Use this for in-app navigation that isn't URL based, like a folder picker.
+
+<ComponentPreview name="breadcrumbs/on-action" />
+
+### Disabled
+
+`isDisabled` on `Breadcrumbs` makes every item non-interactive. The links are dimmed to 50% opacity with a not-allowed cursor; the current item keeps its normal style.
+
+<ComponentPreview name="breadcrumbs/disabled" />
+
+### With a router
+
+Breadcrumb links are React Aria `Link`s, so they go through your router when the app is wrapped in React Aria's `RouterProvider`. With the Next.js App Router:
+
+```tsx title="app/providers.tsx"
+"use client";
+
+import { useRouter } from "next/navigation";
+import { RouterProvider } from "react-aria-components";
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  return <RouterProvider navigate={router.push}>{children}</RouterProvider>;
+}
+```
+
+```tsx
+<Breadcrumbs>
+  <Breadcrumb href="/settings">Settings</Breadcrumb>
+  <Breadcrumb href="/settings/team">Team</Breadcrumb>
+  <Breadcrumb>Roles</Breadcrumb>
+</Breadcrumbs>
+```
+
+## Recipes
+
+### Page header
+
+Small breadcrumbs above the page title, with a status [`Badge`](/docs/components/badge) and actions on the right.
+
+<ComponentPreview name="breadcrumbs/recipe-page-header" />
+
+### Collapsed path
+
+For deep hierarchies, keep the first and last levels and move the middle ones into a [`Menu`](/docs/components/menu). The collapsed level is a `Breadcrumb` with `link={false}`, which renders its children (here a menu trigger) as-is instead of wrapping them in a link, and still gets a separator.
+
+<ComponentPreview name="breadcrumbs/recipe-collapsed" />
+
+### App header
+
+A workspace path in an app's top bar: an [`Avatar`](/docs/components/avatar) as the first icon, a plan badge inside a crumb, and a slash separator. The breadcrumbs are wrapped in a `<nav>` landmark.
+
+<ComponentPreview name="breadcrumbs/recipe-app-header" />
+
+## Accessibility
+
+- Renders an ordered list (`<ol>`) labelled "Breadcrumbs" by default. Pass `aria-label` to change it, and wrap the list in a `<nav>` element when it's the page's breadcrumb trail so it's exposed as a navigation landmark.
+- The last item has `aria-current="page"` and isn't focusable or interactive.
+- Separators are `aria-hidden`, so screen readers announce only the labels.
+- Items with an `href` are native links: middle-click, "open in new tab" and the browser's link preview work.
+- Give icon-only items a text label with `sr-only`. `aria-label` on `Breadcrumb` is applied to the `<li>`, not the link.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves between breadcrumb links (the current item is skipped) |
+| <kbd>Enter</kbd> | Follows the focused link, or calls `onAction` |
+
+## Styling
+
+### Data attributes
+
+On each `Breadcrumb` (`<li>`) and its link:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-current` | It's the last item (the current page) |
+| `data-disabled` | It's the current item, or `isDisabled` is set on `Breadcrumbs` |
+
+On the link only:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-hovered` / `data-pressed` | Hovered / being pressed |
+| `data-focused` / `data-focus-visible` | Focused / focused with the keyboard |
+
+The current item's link is `font-medium text-foreground`; the others are `text-muted-foreground` and turn `text-foreground` on hover. Disabled links (other than the current item) get `opacity-50` and `cursor-not-allowed`.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `breadcrumbs` | `<ol>` root |
+| `breadcrumb` | Each `<li>` |
+
+### Customizing
+
+- `className` on `Breadcrumbs` styles the list (a wrapping flex row with `gap-1.5`). It must be a string.
+- `className` on `Breadcrumb` styles the `<li>`, and accepts a function of `{ isCurrent, isDisabled }`.
+- To restyle the links, target them from the list, e.g. `className="[&_a]:underline"`.
+- With `link={false}`, the children aren't wrapped or styled, and `isDisabled` on `Breadcrumbs` doesn't reach them. Disable a menu trigger inside yourself.
+
+## API Reference
+
+### Breadcrumbs
+
+<TypeTable
+  type={{
+    separator: { type: '"chevron" | "slash" | "dot"', default: '"chevron"', description: "Separator shown after every item except the current one." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Text size: 12px or 14px." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Breadcrumb elements, or a render function." },
+    onAction: { type: "(key: Key) => void", description: "Called with the item's id when a breadcrumb is pressed." },
+    isDisabled: { type: "boolean", default: "false", description: "Makes every breadcrumb link non-interactive and dims it. Doesn't affect link={false} content." },
+    dependencies: { type: "ReadonlyArray<any>", description: "Values that, when changed, re-render every item of a dynamic collection." },
+    "aria-label": { type: "string", default: '"Breadcrumbs"', description: "Accessible name of the list." },
+    className: { type: "string", description: "Classes for the <ol>." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Breadcrumbs`](https://react-aria.adobe.com/Breadcrumbs#api).
+
+### Breadcrumb
+
+<TypeTable
+  type={{
+    href: { type: "string", description: "Link target. Ignored for the current item." },
+    icon: { type: "ReactNode", description: "Icon or avatar shown before the label, inside the link." },
+    link: { type: "boolean", default: "true", description: "Wrap the children in a React Aria Link. false renders them as-is (e.g. a menu trigger), keeping the separator." },
+    id: { type: "Key", description: "Unique key. Passed to onAction, and required with dynamic items." },
+    children: { type: "ReactNode | ((state: BreadcrumbRenderProps) => ReactNode)", description: "The label, or a function of { isCurrent, isDisabled }." },
+    className: { type: "string | ((state: BreadcrumbRenderProps) => string)", description: "Classes for the <li>." },
+  }}
+/>
+
+## Related
+
+- [Link](/docs/components/link) — the link used inside each breadcrumb.
+- [Sidebar](/docs/components/sidebar) — primary navigation, often paired with breadcrumbs in the content header.
+- [Menu](/docs/components/menu) — for collapsed levels in deep paths.
+- [Tabs](/docs/components/tabs) — switching between sibling views.

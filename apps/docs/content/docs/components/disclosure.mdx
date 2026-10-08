@@ -1,0 +1,256 @@
+---
+title: Disclosure
+description: Collapsible sections of content, on their own or grouped as an accordion. Three group styles (line, card, separated), chevron or plus indicators, single or multiple expansion, controlled state, and a height animation that respects reduced motion. Collapsed content stays findable with the browser's find-in-page.
+---
+
+<ComponentLinks aria="Disclosure" source="disclosure" />
+
+<ComponentPreview name="disclosure/demo" />
+
+## Installation
+
+<InstallTabs name="disclosure" />
+
+## Usage
+
+```tsx
+import {
+  Disclosure,
+  DisclosureGroup,
+  DisclosurePanel,
+  DisclosureTrigger,
+} from "@/components/ui/disclosure";
+```
+
+```tsx
+<DisclosureGroup>
+  <Disclosure id="shipping">
+    <DisclosureTrigger>Shipping</DisclosureTrigger>
+    <DisclosurePanel>Free on orders over $50.</DisclosurePanel>
+  </Disclosure>
+  <Disclosure id="returns">
+    <DisclosureTrigger>Returns</DisclosureTrigger>
+    <DisclosurePanel>Return unworn items within 30 days.</DisclosurePanel>
+  </Disclosure>
+</DisclosureGroup>
+```
+
+A `DisclosureGroup` is an accordion: by default, opening one item closes the others. A `Disclosure` also works on its own, without a group.
+
+### When to use
+
+- Disclosure — optional or secondary content users can skip: FAQs, advanced settings, details on a product page, filter groups.
+- [Tabs](/docs/components/tabs) — switch between peer views where exactly one is visible and none should be hidden by default.
+- [Dialog](/docs/components/dialog) or [Popover](/docs/components/popover) — content that needs focus or shouldn't push the page down.
+- Don't hide content most users need; long pages with clear headings are often easier to scan than a stack of collapsed sections.
+
+## Anatomy
+
+```tsx
+<DisclosureGroup>             {/* optional: accordion, sets the variant */}
+  <Disclosure>                {/* one section */}
+    <DisclosureTrigger>       {/* <h3> › <button> with label and indicator */}
+      <Icon />
+      Label
+    </DisclosureTrigger>
+    <DisclosurePanel>         {/* collapsible content */}
+      …
+    </DisclosurePanel>
+  </Disclosure>
+</DisclosureGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `DisclosureGroup` | `<div>` | Manages which items are expanded and passes `variant` to its items. |
+| `Disclosure` | `<div>` | One section. Needs an `id` inside a group for `expandedKeys`. Has the `group/disclosure` class. |
+| `DisclosureTrigger` | `<h3>` › `<button slot="trigger">` | Full-width button with the children on the left and the indicator on the right. |
+| Indicator | `<svg>` | Chevron (rotates 180°) or plus (rotates 45° into a ×). `aria-hidden`. |
+| `DisclosurePanel` | `<div role="group">` › `<div>` | The collapsible region. The outer element animates its height; the inner one gets the variant's padding. |
+
+## Examples
+
+### Card
+
+`variant="card"` wraps the whole group in one bordered card with dividers, and tints the open item's trigger. Icons in the trigger are sized to 16px and muted.
+
+<ComponentPreview name="disclosure/card" />
+
+### Separated
+
+`variant="separated"` gives each item its own card with a gap between them. The open item gets a slightly stronger shadow. Suits FAQs and marketing pages.
+
+<ComponentPreview name="disclosure/separated" />
+
+### Indicators
+
+`indicator="chevron"` (default) rotates to point up when open. `indicator="plus"` turns into a × and reads well in FAQ lists.
+
+<ComponentPreview name="disclosure/indicators" />
+
+### Multiple expanded
+
+`allowsMultipleExpanded` lets users open several items at once. Use it when items are independent and users may compare them, like product details or filters.
+
+<ComponentPreview name="disclosure/multiple" />
+
+### Rich trigger
+
+The trigger's children are laid out in a row with `gap-2`, so icons, monospace labels and [`Badge`](/docs/components/badge)s line up. Keep interactive elements out of the trigger; it's already a button.
+
+<ComponentPreview name="disclosure/rich-trigger" />
+
+### Standalone
+
+A single `Disclosure` without a group uses the `line` styles. It draws a bottom border by default; remove it with `border-b-0` when it isn't part of a list.
+
+<ComponentPreview name="disclosure/single" />
+
+### Disabled
+
+`isDisabled` on a `Disclosure` stops it from toggling and dims its trigger. `isDisabled` on `DisclosureGroup` disables every item. Explain why in the trigger text or nearby.
+
+<ComponentPreview name="disclosure/disabled" />
+
+### Controlled
+
+Pass `expandedKeys` and `onExpandedChange` to `DisclosureGroup` to own the state, for example for Expand all and Collapse all buttons. For a single `Disclosure`, use `isExpanded` and `onExpandedChange`.
+
+<ComponentPreview name="disclosure/controlled" />
+
+### Custom trigger
+
+`DisclosureTrigger` always renders a heading and a full-width button. For a different layout, put any React Aria button with `slot="trigger"` inside the `Disclosure`, such as a link-style [`Button`](/docs/components/button) below a preview. It gets `aria-expanded` and `aria-controls` automatically, and `group-data-expanded/disclosure:` classes can react to the state.
+
+<ComponentPreview name="disclosure/custom-trigger" />
+
+## Recipes
+
+### FAQ section
+
+A two-column FAQ with a heading, a [`Link`](/docs/components/link) to contact support, and plus indicators.
+
+<ComponentPreview name="disclosure/recipe-faq" />
+
+### Filter panel
+
+Filter groups in a shop sidebar, each a disclosure containing a [`CheckboxGroup`](/docs/components/checkbox). Multiple groups can be open at once.
+
+<ComponentPreview name="disclosure/recipe-filters" />
+
+### Order summary
+
+A standalone disclosure for a checkout summary on mobile: the total stays visible in the trigger and the line items expand below.
+
+<ComponentPreview name="disclosure/recipe-order-summary" />
+
+## Accessibility
+
+- Each trigger is a `<button>` with `aria-expanded` and `aria-controls` pointing at its panel, inside an `<h3>` so sections appear in the heading outline.
+- The panel has `role="group"` by default and is labelled by its trigger. Pass `role="region"` to `DisclosurePanel` for important sections that should be landmarks; use it sparingly.
+- Collapsed panels use `hidden="until-found"` where the browser supports it, so find-in-page can reveal and expand them.
+- The height animation is disabled when the user prefers reduced motion.
+- Triggers use their text as the accessible name; icons and indicators are decorative.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves between triggers and focusable content in open panels |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Expands or collapses the focused section |
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-expanded` | `Disclosure` | The section is open |
+| `data-disabled` | `Disclosure`, `DisclosureGroup` | Disabled |
+| `data-focus-visible-within` | `Disclosure`, `DisclosurePanel` | Something inside has keyboard focus |
+| `data-hovered` / `data-pressed` | trigger button | Hovered / being pressed |
+| `data-focus-visible` | trigger button | Focused with the keyboard |
+
+Each `Disclosure` has the `group/disclosure` class, so any child can react to its state with `group-data-expanded/disclosure:…`, as the indicator does.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `disclosure-group` | Group root |
+| `disclosure` | Each item |
+| `disclosure-panel` | Each panel (outer element) |
+
+### Animation
+
+The panel animates `height` to the `--disclosure-panel-height` variable that React Aria sets when it opens and closes (`h-(--disclosure-panel-height) overflow-hidden transition-[height] duration-200`). Reuse the same classes on your own `DisclosurePanel` from React Aria to get the same motion.
+
+### Customizing
+
+- `className` on `DisclosureGroup`, `Disclosure` and `DisclosurePanel` accepts a string or a function of their render props.
+- `className` on `DisclosureTrigger` goes to the button, e.g. `className="py-2 text-xs"` for denser lists.
+- The panel's padding and text color come from the variant and are on its inner element. Override them with a child wrapper or `[&>div]:…` on `DisclosurePanel`.
+
+## API Reference
+
+### DisclosureGroup
+
+<TypeTable
+  type={{
+    variant: { type: '"line" | "card" | "separated"', default: '"line"', description: "Group style, shared with every item inside." },
+    allowsMultipleExpanded: { type: "boolean", default: "false", description: "Allow more than one item open at a time." },
+    expandedKeys: { type: "Iterable<Key>", description: "Open items (controlled)." },
+    defaultExpandedKeys: { type: "Iterable<Key>", description: "Initially open items (uncontrolled)." },
+    onExpandedChange: { type: "(keys: Set<Key>) => void", description: "Called when items open or close." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables every item." },
+    className: { type: "string | ((state: DisclosureGroupRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: DisclosureGroupRenderProps) => ReactNode)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`DisclosureGroup`](https://react-aria.adobe.com/Disclosure).
+
+### Disclosure
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Key used by the group's expandedKeys." },
+    isExpanded: { type: "boolean", description: "Open state (controlled). For standalone disclosures." },
+    defaultExpanded: { type: "boolean", description: "Initial open state (uncontrolled). For standalone disclosures." },
+    onExpandedChange: { type: "(isExpanded: boolean) => void", description: "Called when the item opens or closes." },
+    isDisabled: { type: "boolean", default: "false", description: "Stops the item from toggling." },
+    className: { type: "string | ((state: DisclosureRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: DisclosureRenderProps) => ReactNode)", description: "A trigger and a panel, or a function of { isExpanded, isDisabled, … }." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Disclosure`](https://react-aria.adobe.com/Disclosure#api).
+
+### DisclosureTrigger
+
+<TypeTable
+  type={{
+    indicator: { type: '"chevron" | "plus"', default: '"chevron"', description: "Icon on the right and how it animates when open." },
+    className: { type: "string", description: "Classes for the button." },
+    children: { type: "ReactNode", description: "Label, with optional icon and badge." },
+  }}
+/>
+
+`DisclosureTrigger` takes only these props. It renders an `<h3>`; for another heading level or other button props, use a custom trigger with `slot="trigger"`.
+
+### DisclosurePanel
+
+<TypeTable
+  type={{
+    role: { type: '"group" | "region"', default: '"group"', description: "Accessibility role of the panel." },
+    className: { type: "string | ((state: DisclosurePanelRenderProps) => string)", description: "Classes for the animated outer element." },
+    children: { type: "ReactNode", description: "Panel content." },
+  }}
+/>
+
+## Related
+
+- [Tabs](/docs/components/tabs) — switch between views, one at a time.
+- [Sidebar](/docs/components/sidebar) — uses a Disclosure for collapsible submenus.
+- [Checkbox](/docs/components/checkbox) — common content for filter panels.
+- [Card](/docs/components/card) — a container for a standalone disclosure.

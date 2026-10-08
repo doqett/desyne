@@ -1,0 +1,411 @@
+---
+title: Table
+description: An accessible data table with row selection and automatic checkbox column, sortable columns, row actions and links, dynamic columns, drag-to-reorder, empty states, and three densities with optional striping, grid lines and frame.
+---
+
+<ComponentLinks aria="Table" source="table" />
+
+<ComponentPreview name="table/demo" />
+
+## Installation
+
+<InstallTabs name="table" />
+
+## Usage
+
+```tsx
+import {
+  Cell,
+  Column,
+  Row,
+  Table,
+  TableBody,
+  TableHeader,
+} from "@/components/ui/table";
+```
+
+```tsx
+<Table aria-label="Users">
+  <TableHeader>
+    <Column isRowHeader>Name</Column>
+    <Column>Role</Column>
+  </TableHeader>
+  <TableBody items={users}>
+    {(user) => (
+      <Row>
+        <Cell>{user.name}</Cell>
+        <Cell>{user.role}</Cell>
+      </Row>
+    )}
+  </TableBody>
+</Table>
+```
+
+<Callout title="Mark a row header">
+  Set `isRowHeader` on the column that identifies each row (usually a name or
+  id). Screen readers read it when moving between rows, so users know which
+  row they're in. Every item in `items` also needs a unique `id`.
+</Callout>
+
+### When to use
+
+- Table — comparing records across several attributes, with sorting, selection or bulk actions.
+- [Grid List](/docs/components/grid-list) — a single column of rich rows, cards, or mobile-first lists.
+- [List Box](/docs/components/list-box) — picking values, not browsing data.
+- For simple, non-interactive tabular content in prose, a plain HTML `<table>` is fine.
+
+## Anatomy
+
+```tsx
+<Table>                     {/* scroll container + role="grid" */}
+  <TableHeader>             {/* adds a select-all column when selecting */}
+    <Column isRowHeader />
+    <Column allowsSorting />
+  </TableHeader>
+  <TableBody>
+    <Row>                   {/* adds a checkbox cell when selecting */}
+      <Cell />
+      <Cell />
+    </Row>
+  </TableBody>
+</Table>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Table` | `<div>` › `<table role="grid">` | The `div` scrolls horizontally and draws the card frame (`framed`). Provides `density`, `striped` and `bordered` to every cell. |
+| `TableHeader` | `<thead>` | Muted background. Adds a checkbox column (select all in `multiple` mode) when `selectionBehavior` is `toggle`. |
+| `Column` | `<th role="columnheader">` | Small, muted, non-wrapping. Shows a sort arrow when `allowsSorting`. |
+| `TableBody` | `<tbody>` | Rows, or `renderEmptyState` when there are none. |
+| `Row` | `<tr role="row">` | Hover and selected backgrounds. Adds a checkbox cell when selection uses checkboxes. |
+| `Cell` | `<td role="gridcell">` | Non-wrapping, padded by `density`. |
+
+## Examples
+
+### Density, striped and bordered
+
+`density` sets cell padding (`compact`, `default`, `comfortable`). `striped` shades every other row, and `bordered` adds vertical grid lines.
+
+<ComponentPreview name="table/density" align="start" />
+
+### Without a frame
+
+`framed={false}` drops the table's own border and shadow so it can sit inside a card or panel.
+
+<ComponentPreview name="table/framed" />
+
+### Single selection
+
+`selectionMode="single"` adds a checkbox column without a select-all box. Combine with `disallowEmptySelection` for a required choice.
+
+<ComponentPreview name="table/single-selection" align="start" />
+
+### Multiple selection and sorting
+
+`selectionMode="multiple"` adds a select-all checkbox to the header. Sorting is controlled: give sortable columns an `id` and `allowsSorting`, then sort your data in `onSortChange`.
+
+<ComponentPreview name="table/selection-sorting" align="start" />
+
+### Sorting
+
+Clicking a sortable header (or pressing <kbd>Enter</kbd> on it) toggles ascending and descending. The table only reports the new `SortDescriptor`; compare numbers numerically and strings with `localeCompare` (or `Intl.Collator`) yourself.
+
+<ComponentPreview name="table/sorting" align="start" />
+
+### Selection behavior
+
+`selectionBehavior="replace"` removes the checkbox column. A click selects one row, <kbd>⌘</kbd>/<kbd>Ctrl</kbd> and <kbd>Shift</kbd> add more, and arrow keys move the selection like a desktop mail client.
+
+<ComponentPreview name="table/selection-behavior" align="start" />
+
+### Disabled rows
+
+`disabledKeys` prevents selecting (and by default focusing) rows. Style them with `data-disabled:` on `Row`. `disabledBehavior="selection"` keeps them focusable.
+
+<ComponentPreview name="table/disabled" align="start" />
+
+### Row actions
+
+`onRowAction` makes rows actionable: clicking a row or pressing <kbd>Enter</kbd> calls it with the row's key. With checkbox selection as well, clicking a row performs the action while nothing is selected, and toggles selection once rows are selected; use `selectionBehavior="replace"` to select on click and act on double click or <kbd>Enter</kbd>.
+
+<ComponentPreview name="table/row-actions" align="start" />
+
+### Links
+
+Give a `Row` an `href` and the whole row navigates. Works with client-side routers through React Aria's `RouterProvider`.
+
+<ComponentPreview name="table/links" align="start" />
+
+### Dynamic columns
+
+Pass `columns` to `TableHeader` and each `Row`, and render both with functions. Here a multi-select [`Menu`](/docs/components/menu) toggles column visibility; `dependencies` on `TableBody` re-renders rows when the columns change.
+
+<ComponentPreview name="table/dynamic-columns" align="start" />
+
+### Rich cells
+
+Cells take any content: [avatars](/docs/components/avatar), [badges](/docs/components/badge), progress bars. Right-align numbers with `text-right tabular-nums` on both the column and its cells.
+
+<ComponentPreview name="table/rich-cells" align="start" />
+
+### Empty state
+
+`renderEmptyState` on `TableBody` fills the body when there are no rows.
+
+<ComponentPreview name="table/empty" />
+
+### Drag to reorder
+
+Pass `dragAndDropHooks` from `useDragAndDrop`, add a column for the handle, and render a React Aria `Button` with `slot="drag"` in its cell. Rows can then be reordered by mouse, touch or keyboard.
+
+<ComponentPreview name="table/reorder" align="start" />
+
+### Without grid lines
+
+`divided={false}` removes the lines between rows. Pair it with `striped` (or nothing at all) for light, list-like tables such as plan comparisons.
+
+<ComponentPreview name="table/gridless" />
+
+### Bleed
+
+`bleed` drops the frame and lets the table run into its parent's horizontal padding (`-mx-4`, `sm:-mx-6`), so row hovers and dividers reach the card's edges while the first and last columns stay aligned with the text around them. Use it inside cards and sheets that use `px-4 sm:px-6`.
+
+<ComponentPreview name="table/bleed" />
+
+### Expandable rows
+
+Keep a set of expanded ids, put a `TableExpandButton` in the first cell and render the detail as an extra `Row` right after the parent, with one `Cell` that spans every column (`colSpan`). The button sets `aria-expanded`, and the detail row stays in the grid, so keyboard users reach it with the arrow keys.
+
+<ComponentPreview name="table/expandable" />
+
+### Infinite scrolling
+
+Give the table a fixed-height scroll container with `containerClassName` (the header stays sticky) and add `TableLoadMore` as the last child of `TableBody`. It calls `onLoadMore` when it scrolls into view and shows a spinner row while `isLoading` is true. Remove it, or stop calling your loader, when there's nothing left to fetch.
+
+<ComponentPreview name="table/infinite" />
+
+### Resizable columns
+
+Set `allowsResizing` on `Table` to let people drag column edges. Each `Column` gets a resize handle; give columns a `defaultWidth` (pixels, `%` or `fr`) and a `minWidth`/`maxWidth` to shape the starting layout, and opt one out with `isResizable={false}`. Keyboard users focus a header, press Enter to enter resize mode and use the arrow keys. `onResizeEnd` receives every column's width, which is the place to persist a user's layout. Cells truncate with an ellipsis while the table is resizable.
+
+<ComponentPreview name="table/resizable" />
+
+## Recipes
+
+### Data table
+
+Search, a status filter, sortable columns, a bulk-action bar that replaces the toolbar while rows are selected, and client-side pagination with [`Paginator`](/docs/components/pagination).
+
+<ComponentPreview name="table/recipe-data-table" align="start" />
+
+### Member management
+
+An inline role [`Select`](/docs/components/select) and a per-row action [`Menu`](/docs/components/menu). Controls inside cells are reachable with the arrow keys and labelled with the member's name.
+
+<ComponentPreview name="table/recipe-row-actions" align="start" />
+
+### Permission matrix
+
+A [`Checkbox`](/docs/components/checkbox) in every cell, `bordered` grid lines and compact density. Each checkbox's `aria-label` names both the permission and the role.
+
+<ComponentPreview name="table/recipe-permissions" align="start" />
+
+## Accessibility
+
+- The table is a `role="grid"`: users move between cells with the arrow keys, and focus is a single tab stop.
+- Label the table with `aria-label` or `aria-labelledby`, and mark one column `isRowHeader`.
+- Sortable columns announce their sort direction with `aria-sort`.
+- The selection checkboxes are labelled automatically ("Select", "Select all") and linked to the row header.
+- Controls inside cells (buttons, selects, checkboxes) are reachable by arrowing into the cell. Give icon-only buttons an `aria-label` that names the row.
+- Visually hidden column labels (like "Actions") keep header cells meaningful for screen readers.
+- Drag and drop has keyboard and screen reader support built in.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into and out of the table |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Moves focus to the row or cell above / below |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves focus between cells in a row (and into a cell's controls) |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves focus to the first / last cell in the row |
+| <kbd>Ctrl</kbd>+<kbd>Home</kbd> / <kbd>Ctrl</kbd>+<kbd>End</kbd> | Moves focus to the first / last row |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Moves focus by a page |
+| <kbd>Space</kbd> | Toggles selection of the focused row |
+| <kbd>Enter</kbd> | Sorts by the focused column, or triggers the row action / link |
+| <kbd>Shift</kbd>+<kbd>↑</kbd> / <kbd>Shift</kbd>+<kbd>↓</kbd> | Extends the selection (multiple) |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> | Selects all rows (multiple) |
+| <kbd>Esc</kbd> | Clears the selection |
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-focused` / `data-focus-visible` | `Table`, `Column`, `Row`, `Cell` | Focused / keyboard focused |
+| `data-drop-target` | `Table`, `TableBody`, `Row` | A drag is over it |
+| `data-hovered` | `TableHeader`, `Column`, `Row`, `Cell` | Hovered with a mouse |
+| `data-pressed` | `Column`, `Row`, `Cell` | Being pressed |
+| `data-allows-sorting` | `Column` | `allowsSorting` is set |
+| `data-sort-direction` | `Column` | `ascending` or `descending` when sorted by this column |
+| `data-empty` | `TableBody` | There are no rows |
+| `data-selected` | `Row`, `Cell` | The row is selected |
+| `data-disabled` | `Row`, `Cell` | The row is disabled |
+| `data-selection-mode` | `Row` | `single` or `multiple` |
+| `data-focus-visible-within` | `Row` | A cell or control in the row has keyboard focus |
+| `data-dragging` / `data-allows-dragging` | `Row` | The row is being dragged / drag and drop is enabled |
+
+`Column` and `Row` are Tailwind groups (`group/column`, `group/row`), so children can use `group-data-selected/row:` or `group-data-hovered/column:`.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `table-container` | Scroll container and frame |
+| `table` | `<table>` |
+| `table-header` / `table-column` | Header row and header cells |
+| `table-body` / `table-row` / `table-cell` | Body, rows and cells |
+
+### Customizing
+
+- `className` on `Table` styles the `<table>` element (for example `min-w-[640px]` to force horizontal scroll). The container is always `w-full overflow-auto`.
+- Cells don't wrap by default. Add `whitespace-normal` to a `Cell` for long text, or `max-w-* truncate` to clip it.
+- Set column widths with `w-*` classes on `Column`.
+- Every part's `className` also accepts a function of its render props.
+- Column resizing and expandable tree rows aren't part of this component.
+
+## API Reference
+
+### Table
+
+<TypeTable
+  type={{
+    density: { type: '"compact" | "default" | "comfortable"', default: '"default"', description: "Cell padding." },
+    striped: { type: "boolean", default: "false", description: "Shades every other row." },
+    bordered: { type: "boolean", default: "false", description: "Vertical grid lines between cells." },
+    framed: { type: "boolean", default: "true", description: "Rounded, bordered card around the table." },
+    divided: { type: "boolean", default: "true", description: "Lines between rows. false gives a gridless table." },
+    bleed: { type: "boolean", default: "false", description: "No frame; extends into the parent's horizontal padding with edge cells aligned to the content." },
+    containerClassName: { type: "string", description: "Classes for the scroll container, e.g. max-h-80 for infinite scrolling." },
+    allowsResizing: { type: "boolean", default: "false", description: "Wraps the table in a ResizableTableContainer and adds a resize handle to every column." },
+    onResize: { type: "(widths: Map<Key, ColumnSize>) => void", description: "Called while a column is being resized." },
+    onResizeEnd: { type: "(widths: Map<Key, ColumnSize>) => void", description: "Called when a resize ends. Persist widths here." },
+    selectionMode: { type: '"none" | "single" | "multiple"', default: '"none"' },
+    selectionBehavior: { type: '"toggle" | "replace"', default: '"toggle"', description: "toggle adds a checkbox column; replace selects rows on click." },
+    selectedKeys: { type: '"all" | Iterable<Key>', description: "Controlled selection." },
+    defaultSelectedKeys: { type: '"all" | Iterable<Key>', description: "Uncontrolled initial selection." },
+    onSelectionChange: { type: "(keys: Selection) => void", description: "Called when the selection changes." },
+    disallowEmptySelection: { type: "boolean", default: "false" },
+    disabledKeys: { type: "Iterable<Key>", description: "Rows that are disabled." },
+    disabledBehavior: { type: '"all" | "selection"', default: '"all"', description: "Whether disabled rows block all interaction, or only selection." },
+    sortDescriptor: { type: "SortDescriptor", description: "Controlled sort: { column, direction }." },
+    onSortChange: { type: "(descriptor: SortDescriptor) => void", description: "Called when a sortable column header is pressed." },
+    onRowAction: { type: "(key: Key) => void", description: "Called when a row is actioned." },
+    dragAndDropHooks: { type: "DragAndDropHooks", description: "From useDragAndDrop." },
+    keyboardNavigationBehavior: { type: '"arrow" | "tab"', default: '"arrow"', description: "How focus moves to controls inside cells." },
+    escapeKeyBehavior: { type: '"clearSelection" | "none"', default: '"clearSelection"' },
+    shouldSelectOnPressUp: { type: "boolean", description: "Selects on pointer up instead of down." },
+    "aria-label": { type: "string", description: "Accessible name. Required unless you pass aria-labelledby." },
+    className: { type: "string | ((state: TableRenderProps) => string)", description: "Classes for the <table> element." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Table`](https://react-aria.adobe.com/Table#api).
+
+### TableHeader
+
+<TypeTable
+  type={{
+    columns: { type: "Iterable<T>", description: "Column objects for dynamic rendering." },
+    children: { type: "ReactNode | ((column: T) => ReactElement)", description: "Static Columns, or a render function." },
+    dependencies: { type: "ReadonlyArray<any>", description: "Values that invalidate cached columns." },
+    className: { type: "string | ((state: TableHeaderRenderProps) => string)" },
+  }}
+/>
+
+### Column
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Identifies the column in sortDescriptor and dynamic rows." },
+    isRowHeader: { type: "boolean", description: "Announces this column's cell when navigating rows." },
+    allowsSorting: { type: "boolean", description: "Makes the header sortable and shows the sort arrow." },
+    isResizable: { type: "boolean", default: "true", description: "Inside a table with allowsResizing, set false to hide this column's resize handle." },
+    defaultWidth: { type: "ColumnSize", description: "Starting width: pixels, a percentage or a fraction like \"2fr\"." },
+    width: { type: "ColumnSize", description: "Controlled width." },
+    minWidth: { type: "number | string", description: "Smallest width the column can be resized to." },
+    maxWidth: { type: "number | string", description: "Largest width the column can be resized to." },
+    textValue: { type: "string", description: "Accessible text when children aren't a string." },
+    focusMode: { type: '"child" | "cell"', description: "Focus the header, or its first focusable child." },
+    className: { type: "string | ((state: ColumnRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: ColumnRenderProps) => ReactNode)" },
+  }}
+/>
+
+### TableLoadMore
+
+<TypeTable
+  type={{
+    onLoadMore: { type: "() => void", description: "Called when the row scrolls into view." },
+    isLoading: { type: "boolean", description: "Shows the spinner row while true." },
+    scrollOffset: { type: "number", default: "1", description: "How many viewport heights early to trigger onLoadMore." },
+    children: { type: "ReactNode", description: "Replaces the default spinner and label." },
+  }}
+/>
+
+### TableExpandButton
+
+<TypeTable
+  type={{
+    isExpanded: { type: "boolean", description: "Rotates the chevron and sets aria-expanded." },
+    onPress: { type: "(e: PressEvent) => void", description: "Toggle your expanded state here." },
+    "aria-label": { type: "string", default: '"Expand row"', description: "Name the row it controls, e.g. \"Show items in ORD-4821\"." },
+  }}
+/>
+
+### TableBody
+
+<TypeTable
+  type={{
+    items: { type: "Iterable<T>", description: "Row objects for dynamic rendering." },
+    children: { type: "ReactNode | ((item: T) => ReactElement)", description: "Static Rows, or a render function." },
+    renderEmptyState: { type: "(props: TableBodyRenderProps) => ReactNode", description: "Content shown when there are no rows." },
+    dependencies: { type: "ReadonlyArray<any>", description: "Values that invalidate cached rows." },
+    className: { type: "string | ((state: TableBodyRenderProps) => string)" },
+  }}
+/>
+
+### Row
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique key. Set automatically from item.id with dynamic items." },
+    columns: { type: "Iterable<T>", description: "Columns for rendering cells with a function." },
+    children: { type: "ReactNode | ((column: T) => ReactElement)", description: "Cells, or a render function per column." },
+    textValue: { type: "string", description: "Text for typeahead." },
+    isDisabled: { type: "boolean", description: "Disables this row." },
+    href: { type: "string", description: "Makes the row a link." },
+    onAction: { type: "() => void", description: "Called when this row is actioned." },
+    dependencies: { type: "ReadonlyArray<any>", description: "Values that invalidate cached cells." },
+    className: { type: "string | ((state: RowRenderProps) => string)" },
+  }}
+/>
+
+### Cell
+
+<TypeTable
+  type={{
+    textValue: { type: "string", description: "Accessible text when children aren't a string." },
+    colSpan: { type: "number", description: "Number of columns the cell spans." },
+    focusMode: { type: '"child" | "cell"', description: "Focus the cell, or its first focusable child." },
+    className: { type: "string | ((state: CellRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: CellRenderProps) => ReactNode)" },
+  }}
+/>
+
+## Related
+
+- [Grid List](/docs/components/grid-list) — single-column interactive lists and cards.
+- [Pagination](/docs/components/pagination) — page controls for long tables.
+- [Menu](/docs/components/menu) — row action menus and column pickers.
+- [Checkbox](/docs/components/checkbox) — the selection control used in rows.

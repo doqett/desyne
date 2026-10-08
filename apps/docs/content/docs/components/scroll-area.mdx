@@ -1,0 +1,120 @@
+---
+title: Scroll Area
+description: A scroll container with thin, themed scrollbars and optional fading edges. Native scrolling (wheel, touch, keyboard and scroll snapping all work as usual), styled with CSS only, vertically, horizontally or both, with always-visible, hover-only or hidden scrollbars.
+---
+
+<ComponentLinks source="scroll-area" />
+
+<ComponentPreview name="scroll-area/demo" />
+
+## Installation
+
+<InstallTabs name="scroll-area" />
+
+## Usage
+
+```tsx
+import { ScrollArea } from "@/components/ui/scroll-area";
+```
+
+```tsx
+<ScrollArea className="h-64" aria-label="Changelog">
+  {/* long content */}
+</ScrollArea>
+```
+
+Give the scroll area a fixed height (or width for horizontal scrolling), or put it in a flex or grid parent that limits its size.
+
+### When to use
+
+- Scroll Area: a region inside a page that scrolls on its own, such as a list in a card, a row of cards, or a wide table, where the default scrollbar looks heavy.
+- Let the page scroll when the content is the main thing on the page. Nested scrolling regions are harder to use, especially on touch devices.
+- [Carousel](/docs/components/carousel): horizontally scrolling slides with previous and next buttons.
+
+## Anatomy
+
+```tsx
+<ScrollArea>   {/* the scroll container, tabIndex=0 */}
+  {children}
+</ScrollArea>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ScrollArea` | `<div>` | `overflow: auto` on the chosen axes, a thin scrollbar via `scrollbar-width` and `scrollbar-color` (with `::-webkit-scrollbar` styles for older WebKit), and `overscroll-behavior: contain`. Focusable, with a focus ring. |
+
+There's no custom scrollbar element: the browser draws the scrollbar, so platform behaviors like overlay scrollbars on macOS and momentum scrolling are kept.
+
+## Examples
+
+### Horizontal
+
+`orientation="horizontal"` scrolls sideways. Give the content `w-max` (or a fixed width) so it doesn't wrap.
+
+<ComponentPreview name="scroll-area/horizontal" />
+
+### Fade edges
+
+`fade` masks the edges that have more content beyond them, and updates as you scroll and when the content resizes. Pass a number for the fade size in px (default 24). The mask covers everything on the element, borders included, so put borders and backgrounds on a wrapper.
+
+<ComponentPreview name="scroll-area/fade" />
+
+### Both directions
+
+`orientation="both"` scrolls on both axes. Sticky headers and columns work as usual, since the scroll area is the scroll container.
+
+<ComponentPreview name="scroll-area/both" />
+
+### Scrollbar visibility
+
+`scrollbar="thin"` (default) is always visible, `hover` shows it only while the pointer is over the area or it has keyboard focus, and `hidden` removes it while keeping wheel, touch and keyboard scrolling.
+
+<ComponentPreview name="scroll-area/scrollbar" />
+
+## Accessibility
+
+- The scroll area has `tabIndex={0}` by default, so keyboard users can focus it and scroll with the arrow keys, Page Up/Down, Home and End. Pass `tabIndex={-1}` if the content is already fully reachable by tabbing through focusable children.
+- Because it's focusable, give it a name with `aria-label` or `aria-labelledby`, and consider `role="region"` for large, landmark-like areas.
+- With `scrollbar="hidden"`, nothing shows that the area scrolls. Use it only when the content makes it obvious (a cut-off row of chips, a fade edge).
+- Fades are visual only and respect the content beneath them; they don't block pointer events.
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Values |
+| --- | --- | --- |
+| `data-slot="scroll-area"` | Root | Always |
+| `data-orientation` | Root | `vertical` · `horizontal` · `both` |
+
+### Scrollbar color
+
+The thumb color is the `--scroll-thumb` variable (35% of `--muted-foreground`). Override it on the scroll area or any ancestor:
+
+```tsx
+<ScrollArea className="[--scroll-thumb:var(--brand)]">…</ScrollArea>
+```
+
+### `scrollAreaVariants`
+
+The `tailwind-variants` function behind `ScrollArea`. Apply it to any element to get the same scrollbars without the fade logic, for example a `<pre>` or a `<table>` wrapper.
+
+## API Reference
+
+<TypeTable
+  type={{
+    orientation: { type: '"vertical" | "horizontal" | "both"', default: '"vertical"', description: "Which axes scroll." },
+    scrollbar: { type: '"thin" | "hover" | "hidden"', default: '"thin"', description: "Scrollbar visibility." },
+    fade: { type: "boolean | number", default: "false", description: "Fades edges with more content beyond them. A number sets the size in px (true = 24)." },
+    tabIndex: { type: "number", default: "0", description: "Makes the area keyboard-focusable." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<div>`, including `ref` and `onScroll`.
+
+## Related
+
+- [Carousel](/docs/components/carousel): slides with navigation.
+- [Table](/docs/components/table): wide tables inside a scroll area.
+- [Card](/docs/components/card): a frame around a scrolling list.

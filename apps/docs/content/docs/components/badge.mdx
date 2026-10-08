@@ -1,0 +1,202 @@
+---
+title: Badge
+description: A small, non-interactive label for status, counts, versions and categories. Four styles including a status dot, seven tone colors, two sizes, a pill shape, and a `badgeVariants` helper for links and custom elements.
+---
+
+<ComponentLinks source="badge" />
+
+<ComponentPreview name="badge/demo" />
+
+## Installation
+
+<InstallTabs name="badge" />
+
+## Usage
+
+```tsx
+import { Badge } from "@/components/ui/badge";
+```
+
+```tsx
+<Badge color="success">Active</Badge>
+```
+
+A badge with no props is a neutral `soft` label. It renders a plain `<span>` with no client JavaScript, so it works in server components.
+
+### When to use
+
+- Badge: a short, read-only label that describes something next to it, such as a status, a count, a version or a category.
+- [Tag Group](/docs/components/tag-group): labels the user can select, remove or navigate with the keyboard.
+- [Button](/docs/components/button): anything that performs an action. If a badge needs to be clickable, render a link or button with [`badgeVariants`](#as-a-link) instead.
+- [Alert](/docs/components/alert): a message that needs a sentence of explanation.
+- Keep badge text to one or two words. Rely on the text, not the color alone, to carry the meaning.
+
+## Anatomy
+
+```tsx
+<Badge>
+  <Icon />   {/* optional, auto-sized to 12px */}
+  Label
+</Badge>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Badge` | `<span>` | Root. Inline flex, no wrapping, `tabular-nums` for counts. Carries `data-slot="badge"`. |
+| Icon | `<svg>` | Any direct svg child is sized to 12px and ignores pointer events. |
+| Dot | `::before` | Drawn by the `dot` variant in the tone color. Not a separate element. |
+
+## Examples
+
+### Variants and colors
+
+`soft` (the default) suits most labels, `solid` draws the eye for "New" or unread counts, `outline` is the quietest, and `dot` pairs a colored dot with neutral text. Every variant works with every color; `neutral` is the default color.
+
+<ComponentPreview name="badge/variants" />
+
+### Sizes
+
+`md` (24px) is the default. Use `sm` (20px) inside table cells, list rows, buttons and next to small text.
+
+<ComponentPreview name="badge/sizes" />
+
+### Shapes
+
+`shape="pill"` fully rounds the badge. For a round count, combine `pill` with `min-w-5 px-1` so single digits stay circular.
+
+<ComponentPreview name="badge/shapes" />
+
+### With icon
+
+Put a lucide icon before the label. It's sized and spaced automatically, and adds recognition without relying on color.
+
+<ComponentPreview name="badge/with-icon" />
+
+### Status dot
+
+`variant="dot"` keeps the text neutral and puts the meaning in a small dot. It reads calmly in dense status columns where a column of colored backgrounds would be noisy.
+
+<ComponentPreview name="badge/dot" />
+
+### Counts
+
+Position a badge over an icon button for unread counts, or place it inline inside a button. When the badge overlays an icon button, include the count in the button's `aria-label` and hide the badge with `aria-hidden` so it isn't announced twice.
+
+<ComponentPreview name="badge/count" />
+
+### As a link
+
+`Badge` renders a `<span>` and isn't interactive. For clickable labels, apply `badgeVariants` to a React Aria `Link` (or a Next.js `Link`) and add hover and focus styles.
+
+<ComponentPreview name="badge/as-link" />
+
+### Custom colors
+
+Colors are applied through the `--tone` and `--tone-fg` variables, so any color works as a one-off. Pass a non-neutral `color` (neutral `soft` and `outline` use fixed surface colors) and override `--tone`; for `solid`, also set `--tone-fg` for the text.
+
+<ComponentPreview name="badge/custom-color" />
+
+## Recipes
+
+### Deployment list
+
+An environment badge and a fixed-width status `dot` badge per row, so the status column lines up.
+
+<ComponentPreview name="badge/recipe-deployments" />
+
+### Navigation counts
+
+Pill counts at the end of navigation links. Unread counts use `solid` to stand out; totals stay `soft`.
+
+<ComponentPreview name="badge/recipe-nav-counts" />
+
+### Profile header
+
+A verified badge next to a name, and small `outline` badges for skills with one `solid` role badge.
+
+<ComponentPreview name="badge/recipe-profile" />
+
+## Accessibility
+
+- A badge is a plain `<span>`; screen readers read its text inline with the surrounding content. It has no role and isn't focusable.
+- Don't rely on color alone. The text (or an icon plus text) must carry the meaning; the `dot` variant's dot is decorative.
+- For bare numbers, give context: "3" next to a bell icon means nothing when read out. Put the full phrase in the parent control's `aria-label` (for example "Notifications, 3 unread") and mark the badge `aria-hidden`, or add visually hidden text.
+- `warning` `soft` and `outline` badges darken the text in light mode so it keeps enough contrast on light backgrounds.
+- Clickable badges must be real links or buttons. See [As a link](#as-a-link).
+
+## Styling
+
+### Data attributes
+
+| Attribute | Present when |
+| --- | --- |
+| `data-slot="badge"` | Always. Target badges from a parent with `*:data-[slot=badge]:…`. |
+
+### Tone variables
+
+| Variable | Used for |
+| --- | --- |
+| `--tone` | Background (`solid`), text, border and tint (`soft`, `outline`), dot (`dot`) |
+| `--tone-fg` | Text on `solid` badges |
+
+```tsx
+<Badge color="primary" className="[--tone:var(--color-violet-600)]">
+  Design
+</Badge>
+```
+
+The shared `tones` map in `@/lib/primitive` holds the classes for each named color if you want to reuse them on your own elements.
+
+### `badgeVariants`
+
+The `tailwind-variants` function behind the component. Use it to style links, buttons or table cells as badges.
+
+```tsx
+import { badgeVariants } from "@/components/ui/badge";
+
+badgeVariants({ variant: "outline", color: "info", size: "sm", shape: "pill" });
+```
+
+## API Reference
+
+### Badge
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"solid" | "soft" | "outline" | "dot"',
+      default: '"soft"',
+      description: 'Visual style. The shadcn names "default" (solid primary), "secondary" (soft neutral) and "destructive" (solid danger) are accepted as aliases.',
+    },
+    color: {
+      type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"',
+      default: '"neutral"',
+      description: "Tone color. When a shadcn alias is used as variant, its color applies unless you pass one.",
+    },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Height 20px or 24px." },
+    shape: { type: '"default" | "pill"', default: '"default"', description: "pill makes the badge fully rounded." },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+    children: { type: "ReactNode", description: "Label text and an optional leading icon." },
+  }}
+/>
+
+Also accepts every prop of `<span>` except `color`.
+
+### badgeVariants
+
+<TypeTable
+  type={{
+    variant: { type: '"solid" | "soft" | "outline" | "dot"', default: '"soft"', description: "Aliases are not mapped here; use the four real variants." },
+    color: { type: "Tone", default: '"neutral"' },
+    size: { type: '"sm" | "md"', default: '"md"' },
+    shape: { type: '"default" | "pill"', default: '"default"' },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Tag Group](/docs/components/tag-group): interactive, removable labels.
+- [Avatar](/docs/components/avatar): user images with a presence dot.
+- [Table](/docs/components/table): status columns are a common home for `dot` badges.
+- [Button](/docs/components/button): for anything clickable.

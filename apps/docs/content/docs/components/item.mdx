@@ -1,0 +1,239 @@
+---
+title: Item
+description: A flexible list row with media, a title, a quiet second line and trailing actions. Three surface variants, three sizes and four media styles; stack rows in an ItemGroup, divide them with ItemSeparator, or apply itemVariants to a link. API-compatible with shadcn's Item.
+---
+
+<ComponentLinks source="item" />
+
+<ComponentPreview name="item/demo" />
+
+## Installation
+
+<InstallTabs name="item" />
+
+## Usage
+
+```tsx
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemMedia,
+  ItemSeparator,
+  ItemTitle,
+  itemVariants,
+} from "@/components/ui/item";
+```
+
+```tsx
+<ItemGroup>
+  <Item>
+    <ItemMedia variant="icon">
+      <GlobeIcon />
+    </ItemMedia>
+    <ItemContent>
+      <ItemTitle>Web SDK</ItemTitle>
+      <ItemDescription>2.4M events/day</ItemDescription>
+    </ItemContent>
+    <ItemActions>
+      <Button variant="outline" size="xs">Configure</Button>
+    </ItemActions>
+  </Item>
+</ItemGroup>
+```
+
+<Callout title="Layout only, no collection behavior">
+  `Item` is a styled `<div>` with no keyboard navigation or selection. It's
+  ideal for static rows, settings lists and rows with their own buttons. For
+  rows the user selects or navigates with arrow keys, use a
+  [List Box](/docs/components/list-box) or [Grid List](/docs/components/grid-list).
+</Callout>
+
+### When to use
+
+- Item: a row that shows an entity (a file, an integration, a person, a payment method) with optional actions. Works in cards, sidebars, popovers and pages.
+- [Grid List](/docs/components/grid-list): an interactive list with selection, keyboard navigation or drag and drop.
+- [List Box](/docs/components/list-box): a list of selectable options.
+- [Table](/docs/components/table): when rows share several columns that users compare or sort.
+- [Card](/docs/components/card): a larger, self-contained block with its own header and footer.
+
+## Anatomy
+
+```tsx
+<ItemGroup>              {/* vertical stack of rows */}
+  <Item>                 {/* row: variant, size */}
+    <ItemMedia />        {/* icon tile, round mark, image or avatar */}
+    <ItemContent>        {/* grows, truncates */}
+      <ItemTitle />      {/* medium weight, can hold a badge */}
+      <ItemDescription />{/* quiet second line */}
+    </ItemContent>
+    <ItemActions />      {/* trailing buttons, switches, badges */}
+  </Item>
+  <ItemSeparator />      {/* inset hairline between rows */}
+</ItemGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ItemGroup` | `<div>` | Flex column with a 2px gap. Carries `data-slot="item-group"`. |
+| `Item` | `<div>` | Row. Flex, centered, 12px gap, rounded. Sets the `group/item` Tailwind group. |
+| `ItemMedia` | `<div>` | Leading visual. `icon`, `round` and `image` variants set the size and surface. |
+| `ItemContent` | `<div>` | Takes the remaining width (`flex-1 min-w-0`) so long text truncates instead of pushing actions out. |
+| `ItemTitle` | `<div>` | Single line, truncated. Flex with a gap, so an inline badge or icon sits next to the text. |
+| `ItemDescription` | `<p>` | Muted, single line, truncated. |
+| `ItemActions` | `<div>` | Trailing flex row that never shrinks. |
+| `ItemSeparator` | `<div>` | 1px line inset 12px from each side. Decorative. |
+
+## Examples
+
+### Variants
+
+`default` is transparent, for rows inside a list, card or popover. `muted` fills the row to highlight it, for example the selected, unread or featured one. `outline` gives the row a bordered card surface so it can stand on its own.
+
+<ComponentPreview name="item/variants" />
+
+### Sizes
+
+`size` sets the row padding: `sm` for dense lists and sidebars, `md` (default) for most lists, `lg` for spacious settings pages.
+
+<ComponentPreview name="item/sizes" />
+
+### Media
+
+`icon` is a bordered 36px tile for icons and logo marks, `round` a 36px circle you color yourself, and `image` a 40px cover-fit thumbnail for an `<img>`. The `default` variant adds no size or surface, so any element fits, such as an [`Avatar`](/docs/components/avatar), or your own tinted tile.
+
+<ComponentPreview name="item/media" />
+
+### Actions and inline badges
+
+`ItemActions` holds buttons, a menu trigger or a [`Switch`](/docs/components/switch). `ItemTitle` lays out its children in a row, so a [`Badge`](/docs/components/badge) sits next to the title. Label switches with the row's title via `aria-labelledby`, and give icon buttons an `aria-label` that names the row.
+
+<ComponentPreview name="item/actions" />
+
+### As a link
+
+For rows that navigate, apply `itemVariants` to an `<a>` (or a Next.js or React Aria `Link`). The styles add a hover background and a keyboard focus ring when the element is a link or button. Use the `group-hover/item:` variant to animate the chevron.
+
+<ComponentPreview name="item/as-link" />
+
+### Group with separators
+
+`ItemGroup` stacks rows with a 2px gap. Put it in a bordered container with `gap-0`, and place `ItemSeparator`s between rows for a divided list.
+
+<ComponentPreview name="item/group" />
+
+## Recipes
+
+### Integrations
+
+A connected-apps list: icon tiles, a "Not connected" badge in the title, and either a switch or a connect button per row.
+
+<ComponentPreview name="item/recipe-integrations" />
+
+### File list
+
+Standalone `outline` rows with image thumbnails, a download button and a per-row [`Menu`](/docs/components/menu).
+
+<ComponentPreview name="item/recipe-files" />
+
+### Notifications
+
+Unread rows use `variant="muted"` plus visually hidden "Unread" text, so the state isn't conveyed by color alone. Marking a row read switches it back to `default`.
+
+<ComponentPreview name="item/recipe-notifications" />
+
+## Accessibility
+
+- `Item` and its parts are plain elements with no role. Wrap a list of rows in `<ul>`/`<li>`, or add `role="list"` / `role="listitem"`, when the list structure matters to screen reader users.
+- `ItemTitle` is a `<div>`. If rows are sections with their own headings, put a heading element inside it.
+- Don't attach `onClick` to an `Item` `<div>`. For navigation, render the row as a link with `itemVariants`; for selection, use a [Grid List](/docs/components/grid-list).
+- Don't nest interactive elements inside a link row. If a row both navigates and has actions, use a stretched link in the title instead (see the [interactive cards](/docs/components/card#interactive-cards) pattern).
+- Title and description truncate with an ellipsis. Truncated text is still read in full by screen readers; add a `title` attribute or a tooltip if sighted users need the full text too.
+- Give controls in `ItemActions` names that identify the row, e.g. `aria-label="Download report.pdf"` rather than just "Download".
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-slot="item-group"` | `ItemGroup` | Always |
+| `data-slot="item"` | `Item` | Always |
+| `data-slot="item-media"` | `ItemMedia` | Always |
+| `data-slot="item-content"` | `ItemContent` | Always |
+| `data-slot="item-title"` | `ItemTitle` | Always |
+| `data-slot="item-description"` | `ItemDescription` | Always |
+| `data-slot="item-actions"` | `ItemActions` | Always |
+| `data-slot="item-separator"` | `ItemSeparator` | Always |
+
+`Item` sets the `group/item` group, so children can react to row hover with `group-hover/item:…`. When `itemVariants` is applied to an `<a>` or `<button>`, it adds `hover:bg-muted/70`, a pointer (links) or default (buttons) cursor, left-aligned text for buttons and `focus-visible` ring styles.
+
+### `itemVariants`
+
+The `tailwind-variants` function behind `Item`. Use it to turn links, buttons or React Aria collection items into rows.
+
+```tsx
+import { itemVariants } from "@/components/ui/item";
+
+<a href="/settings/profile" className={itemVariants({ size: "sm" })}>…</a>;
+```
+
+## API Reference
+
+### Item
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"default" | "muted" | "outline"',
+      default: '"default"',
+      description: "Surface: transparent, muted fill, or bordered card.",
+    },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Row padding." },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### ItemMedia
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"default" | "icon" | "round" | "image"',
+      default: '"default"',
+      description: "icon: bordered 36px tile (svg 16px). round: 36px circle (svg 16px). image: 40px rounded tile, child img fills and covers. default: no size or surface.",
+    },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### ItemGroup / ItemContent / ItemTitle / ItemActions / ItemSeparator
+
+No extra props. Each accepts every prop of `<div>`.
+
+### ItemDescription
+
+No extra props. Accepts every prop of `<p>`.
+
+### itemVariants
+
+<TypeTable
+  type={{
+    variant: { type: "ItemProps['variant']", default: '"default"' },
+    size: { type: "ItemProps['size']", default: '"md"' },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Grid List](/docs/components/grid-list): interactive rows with selection and keyboard navigation.
+- [Card](/docs/components/card): a container for a group of items.
+- [Avatar](/docs/components/avatar): media for rows about people.
+- [Table](/docs/components/table): multi-column data.

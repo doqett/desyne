@@ -1,0 +1,242 @@
+---
+title: Alert
+description: An inline callout for messages that belong to the page — status, warnings, errors and announcements. Four styles, seven colors, default or custom icons, trailing actions and an optional dismiss button.
+---
+
+<ComponentLinks source="alert" />
+
+<ComponentPreview name="alert/demo" />
+
+## Installation
+
+<InstallTabs name="alert" />
+
+## Usage
+
+```tsx
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+```
+
+```tsx
+<Alert color="warning" showIcon>
+  <AlertTitle>Heads up</AlertTitle>
+  <AlertDescription>Your trial ends in 3 days.</AlertDescription>
+</Alert>
+```
+
+<Callout title="Alerts are live regions">
+  The default role follows the color. `danger` and `warning` alerts render
+  with `role="alert"` (assertive — announced immediately, interrupting the
+  user); every other color renders with `role="status"` (polite — announced
+  when the user is idle). For static notices that are on the page from the
+  start, pass `role="note"` so they aren't announced at all.
+</Callout>
+
+### When to use
+
+- Alert — a message tied to a page or section that stays until the situation changes: a failed deploy, a form error, a plan limit, a maintenance notice.
+- [Toast](/docs/components/toast) — brief, non-blocking feedback after an action ("Saved", "Invite sent") that disappears on its own.
+- [Dialog](/docs/components/dialog) with `role="alertdialog"` — when the user must make a decision before continuing.
+- [Badge](/docs/components/badge) — a compact status label on an item, not a message.
+
+## Anatomy
+
+```tsx
+<Alert icon={<Icon />} action={<Button />} onDismiss={…}>
+  {/* leading icon: `icon`, or the tone's default with `showIcon` */}
+  <AlertTitle />         {/* short summary */}
+  <AlertDescription />   {/* details, lists, links */}
+  {/* trailing `action` slot, then the dismiss button */}
+</Alert>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Alert` | `<div role="alert">` or `<div role="status">` | Root flex row. `alert` for `danger`/`warning`, `status` otherwise. Sets the tone variables and `data-slot="alert"`. |
+| Icon | `<svg>` | From `icon`, or the tone's default when `showIcon` is set. Sized to 16px and tinted with the tone. |
+| Content | `<div>` | Column that wraps `children` (title, description and anything else). |
+| `AlertTitle` | `<div>` | Medium-weight summary line. |
+| `AlertDescription` | `<div>` | Muted supporting text. Can hold paragraphs, lists and links. |
+| Action | `<div>` | Rendered when `action` is set. Vertically centered on the trailing side. |
+| Dismiss | `<button>` | React Aria `Button` with `aria-label="Dismiss"`, rendered when `onDismiss` is set. |
+
+## Examples
+
+### Variants
+
+`soft` (default) tints the whole surface. `outline` is a plain card with a colored icon, `accent` adds a colored leading bar for dense layouts, and `solid` fills with the tone for banners that must not be missed.
+
+<ComponentPreview name="alert/variants" />
+
+### Colors
+
+Match the color to the message: `info` (default) for neutral information, `success` for completed actions, `warning` for something that needs attention soon, `danger` for errors and failures, and `neutral` for low-emphasis notes. `primary` and `brand` are also available for product announcements.
+
+<ComponentPreview name="alert/colors" />
+
+### Title and description
+
+Both parts are optional. Use a title alone for one-line confirmations, a description alone for explanatory notes, and both when the summary needs context.
+
+<ComponentPreview name="alert/content" />
+
+### Custom icon
+
+`showIcon` adds the tone's default icon (info, check, triangle or circle; `neutral` has none). Pass `icon` to use any other icon; it gets the same size and tint.
+
+<ComponentPreview name="alert/custom-icon" />
+
+### Rich content
+
+`AlertDescription` accepts any content. Lists work well for validation summaries, and a [`Link`](/docs/components/link) can point to more detail.
+
+<ComponentPreview name="alert/rich-content" />
+
+### Actions
+
+`action` renders buttons on the trailing side, vertically centered. Keep it to one or two small buttons, and make sure the action is reachable elsewhere if the alert can be dismissed.
+
+<ComponentPreview name="alert/actions" />
+
+### Dismissible
+
+`onDismiss` adds a close button. The alert doesn't hide itself — remove it from your state in the callback, and persist the choice if it shouldn't come back on reload.
+
+<ComponentPreview name="alert/dismissible" />
+
+### Showing results of an action
+
+Render the alert conditionally after an async action. A `danger` alert has `role="alert"`, so screen readers announce it as soon as it appears, without moving focus. A `success` or `info` result gets `role="status"` and is announced politely instead.
+
+<ComponentPreview name="alert/live" />
+
+### shadcn compatibility
+
+The shadcn variant names still work: `default` maps to `outline` + `neutral`, and `destructive` maps to `outline` + `danger`. An explicit `color` wins over the alias.
+
+<ComponentPreview name="alert/shadcn" />
+
+## Recipes
+
+### Billing banner
+
+A full-bleed `solid` alert at the top of the app shell, with an action and a dismiss button. `rounded-none` makes it sit flush with the frame.
+
+<ComponentPreview name="alert/recipe-billing-banner" />
+
+### Server error in a form
+
+Field errors belong next to their fields; errors that come back from the server go in an alert above the form. Clear it when the user resubmits.
+
+<ComponentPreview name="alert/recipe-form-error" />
+
+### Plan limit
+
+An `accent` warning with a [`Meter`](/docs/components/meter) inside the content column and an upgrade action.
+
+<ComponentPreview name="alert/recipe-plan-limit" />
+
+## Accessibility
+
+- The root is a live region whose urgency follows `color`: `danger` and `warning` get `role="alert"` (assertive — announced immediately when inserted or changed); every other color gets `role="status"` (polite — announced when the user is idle). Legacy `variant="destructive"` resolves to `danger`, so it stays assertive.
+- An explicit `role` always wins. Use `role="note"` for static content that's on the page from the start and shouldn't be announced, or `role="alert"` to make a non-danger tone urgent.
+- Live regions announce content that changes after they're in the DOM. For an alert that appears in response to an action, render it conditionally (as above) rather than toggling its text inside an always-present element.
+- Alerts never move focus. If the user must act, put the action in the alert and consider a [Dialog](/docs/components/dialog) instead.
+- Icons are decorative. The title (or description) must carry the meaning on its own; don't rely on color alone.
+- The dismiss button is a React Aria `Button` labelled "Dismiss", with a keyboard-only focus ring.
+- Avoid auto-dismissing alerts; users of assistive tech may not have finished reading them.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the action buttons and the dismiss button |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Activates the focused button |
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="alert"` | Root |
+| `data-slot="alert-title"` | `AlertTitle` |
+| `data-slot="alert-description"` | `AlertDescription` (text becomes `--tone-fg` at 85% on `solid`) |
+
+### Tone variables
+
+The `color` prop sets `--tone` and `--tone-fg` on the root; every variant styles itself from those. Set them yourself for a one-off color:
+
+```tsx
+<Alert
+  variant="accent"
+  icon={<SparklesIcon />}
+  className="[--tone:var(--color-violet-600)] [--tone-fg:white]"
+>
+  <AlertTitle>New in 2.4</AlertTitle>
+</Alert>
+```
+
+| Variable | Used for |
+| --- | --- |
+| `--tone` | Icon color, border and tint (`soft`), leading bar (`accent`), background (`solid`) |
+| `--tone-fg` | Text and icon on `solid` |
+
+### `alertVariants`
+
+The `tailwind-variants` function behind the root. Use it to style your own element as an alert.
+
+```tsx
+import { alertVariants } from "@/components/ui/alert";
+
+<section className={alertVariants({ variant: "accent", color: "success" })}>…</section>;
+```
+
+## API Reference
+
+### Alert
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"soft" | "outline" | "accent" | "solid" | "default" | "destructive"',
+      default: '"soft"',
+      description: 'Visual style. "default" and "destructive" are shadcn aliases that render as "outline".',
+    },
+    color: {
+      type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"',
+      default: '"info"',
+      description: 'Color tone. Defaults to "neutral" for variant="default" and "danger" for variant="destructive".',
+    },
+    showIcon: { type: "boolean", default: "false", description: "Shows the tone's default icon. The neutral tone has no default icon." },
+    icon: { type: "ReactNode", description: "Custom leading icon. Takes precedence over showIcon." },
+    action: { type: "ReactNode", description: "Buttons or links rendered on the trailing side." },
+    onDismiss: { type: "() => void", description: "Renders a dismiss button and is called when it's pressed." },
+    role: { type: "AriaRole", default: '"alert" for danger/warning, "status" otherwise', description: 'Live-region role. Pass "note" for static content that should not be announced; an explicit value always wins.' },
+    className: { type: "string", description: "Classes merged into alertVariants." },
+    children: { type: "ReactNode", description: "Content, usually AlertTitle and AlertDescription." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### AlertTitle / AlertDescription
+
+Accept every prop of `<div>`.
+
+### alertVariants
+
+<TypeTable
+  type={{
+    variant: { type: '"soft" | "outline" | "accent" | "solid"', default: '"soft"' },
+    color: { type: "Tone", default: '"info"' },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Toast](/docs/components/toast) — temporary, non-blocking feedback.
+- [Dialog](/docs/components/dialog) — for messages that need a decision.
+- [Badge](/docs/components/badge) — compact status labels.
+- [Meter](/docs/components/meter) — show the level behind a quota warning.

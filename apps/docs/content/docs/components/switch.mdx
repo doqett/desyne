@@ -1,0 +1,226 @@
+---
+title: Switch
+description: Turns a single setting on or off, taking effect immediately. Three sizes, an optional description, start or end label placement for settings lists, and native form submission.
+---
+
+<ComponentLinks aria="Switch" source="switch" />
+
+<ComponentPreview name="switch/demo" />
+
+## Installation
+
+<InstallTabs name="switch" />
+
+## Usage
+
+```tsx
+import { Switch } from "@/components/ui/switch";
+```
+
+```tsx
+<Switch isSelected={wifi} onChange={setWifi}>
+  Wi-Fi
+</Switch>
+```
+
+<Callout title="Switches apply immediately">
+  Users expect a switch to take effect the moment it's flipped, like a light
+  switch. If the change only applies after pressing Save or Submit, use a
+  [Checkbox](/docs/components/checkbox) instead.
+</Callout>
+
+### When to use
+
+- Switch — a single on/off setting that applies right away: notifications, dark mode, a feature flag.
+- [Checkbox](/docs/components/checkbox) — options confirmed by a submit button, required consent, or many options in a group.
+- [Toggle Button](/docs/components/toggle-button) — an on/off state inside a toolbar, like bold or mute.
+- [Radio Group](/docs/components/radio-group) — more than two states, or two states whose labels aren't simply "on" and "off".
+
+## Anatomy
+
+```tsx
+<Switch>      {/* <label> wrapping a hidden <input type="checkbox" role="switch"> */}
+  Label       {/* children */}
+</Switch>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Switch` | `<label>` + hidden `<input role="switch">` | Root. Carries `data-slot="switch"` and every state attribute. |
+| Track | `<span>` | The pill. Uses `--brand` when on. Sized by `size`. |
+| Thumb | `<span>` | The white knob; slides to the end when on. |
+| Label | children | Next to the track. With `description`, becomes a bold title with secondary text under it. |
+
+## Examples
+
+### Sizes
+
+`md` is the default. Use `sm` in dense lists and tables, and `lg` for a prominent master switch or touch-first layouts.
+
+<ComponentPreview name="switch/sizes" />
+
+### With description
+
+`description` adds secondary text under the label and aligns the track to the first line. Use it to explain what the setting does.
+
+<ComponentPreview name="switch/description" />
+
+### Label placement
+
+`labelPlacement="start"` puts the label first and pushes the switch to the far end of its container, which is the usual layout for settings rows.
+
+<ComponentPreview name="switch/label-placement" />
+
+### States
+
+`isDisabled` dims the switch and removes it from the tab order. `isReadOnly` keeps it focusable and announced, but ignores presses, which is useful while a change is saving.
+
+<ComponentPreview name="switch/states" />
+
+### Controlled
+
+Use `isSelected` and `onChange` to own the value. Use `defaultSelected` when you only need the initial state.
+
+<ComponentPreview name="switch/controlled" />
+
+### Without a visible label
+
+When the label lives elsewhere in the layout, point to it with `aria-labelledby` (and to helper text with `aria-describedby`). A switch with no label at all needs an `aria-label`.
+
+<ComponentPreview name="switch/standalone" />
+
+### Settings list
+
+`labelPlacement="start"` plus `description` and some padding turns each switch into a full-width, fully clickable settings row.
+
+<ComponentPreview name="switch/settings" />
+
+### Revealing options
+
+Control the switch to show dependent fields only when the setting is on.
+
+<ComponentPreview name="switch/reveal" />
+
+### Saving asynchronously
+
+Because switches apply immediately, persist the change right away. Update optimistically, set `isReadOnly` while the request is in flight, and roll back with a message if it fails. The status text is in an `aria-live` region so screen-reader users hear the outcome.
+
+<ComponentPreview name="switch/async" />
+
+### Form submission
+
+Give the switch a `name` and its `value` (`"on"` by default) is submitted when it's on. Like a native checkbox, nothing is submitted when it's off, so treat a missing key as false on the server.
+
+<ComponentPreview name="switch/form" align="start" />
+
+`Switch` doesn't support `isRequired` or validation. For a required "I agree" control, use a [Checkbox](/docs/components/checkbox#required-and-validation).
+
+## Recipes
+
+### Notification settings
+
+A large master switch that disables and clears the category switches under it.
+
+<ComponentPreview name="switch/recipe-notifications" />
+
+### Feature flags
+
+Small switches aligned to the end of each row, labelled by the flag name via `aria-labelledby`, with a [`Badge`](/docs/components/badge) for the release stage.
+
+<ComponentPreview name="switch/recipe-feature-flags" />
+
+### Billing period toggle
+
+A switch that flips pricing cards between monthly and yearly billing.
+
+<ComponentPreview name="switch/recipe-billing-toggle" />
+
+## Accessibility
+
+- Renders a native `<input type="checkbox" role="switch">`, visually hidden inside a `<label>`, so screen readers announce it as a switch that is on or off, and clicking the label toggles it.
+- Keep the label constant (e.g. "Wi-Fi"), not "Turn on Wi-Fi" / "Turn off Wi-Fi": the on/off state is announced separately.
+- A switch without children needs `aria-label` or `aria-labelledby`.
+- `description` is rendered inside the `<label>`, so it's read as part of the name. For long help text, render it outside and link it with `aria-describedby`.
+- If a change can fail or takes time, announce the outcome in an `aria-live` region.
+- The focus ring only appears for keyboard focus (`data-focus-visible`).
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the switch |
+| <kbd>Space</kbd> | Toggles the switch |
+
+## Styling
+
+### Data attributes
+
+On the `Switch` root (target the track or thumb with `group-data-*/switch:`):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | On |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-pressed` | Being pressed |
+| `data-focused` / `data-focus-visible` | Focused / focused with the keyboard |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `switch` | The `<label>` root. Target switches from a parent with `*:data-[slot=switch]:…` |
+
+### Color
+
+The track uses the `--brand` theme variable when on. Override it for a one-off color:
+
+```tsx
+<Switch className="[--brand:var(--color-emerald-600)]">Online</Switch>
+```
+
+### Render props
+
+`className` and `children` accept a function of the switch state:
+
+```tsx
+<Switch>{({ isSelected }) => (isSelected ? "Visible to everyone" : "Hidden")}</Switch>
+```
+
+## API Reference
+
+### Switch
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode | ((state: SwitchRenderProps) => ReactNode)", description: "The label." },
+    description: { type: "ReactNode", description: "Secondary text under the label. Makes the label bold and aligns the track to the first line." },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Track and thumb size." },
+    labelPlacement: { type: '"end" | "start"', default: '"end"', description: "start puts the label first and spreads the row (justify-between)." },
+    isSelected: { type: "boolean", description: "Controlled on state." },
+    defaultSelected: { type: "boolean", description: "Uncontrolled initial on state." },
+    onChange: { type: "(isSelected: boolean) => void", description: "Called when the state changes." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the switch and removes it from the tab order." },
+    isReadOnly: { type: "boolean", default: "false", description: "Focusable but can't be changed." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    value: { type: "string", description: "Value submitted when on. Defaults to \"on\" natively." },
+    form: { type: "string", description: "Id of the form the input belongs to." },
+    autoFocus: { type: "boolean" },
+    inputRef: { type: "Ref<HTMLInputElement>", description: "Ref to the hidden input." },
+    onPress: { type: "(e: PressEvent) => void", description: "onPressStart, onPressEnd, onPressChange and onPressUp are also supported." },
+    onHoverChange: { type: "(isHovered: boolean) => void" },
+    onFocus: { type: "(e: FocusEvent) => void", description: "onBlur and onFocusChange are also supported." },
+    className: { type: "string | ((state: SwitchRenderProps) => string)", description: "Classes for the <label> root." },
+    "aria-label": { type: "string", description: "Accessible name when there are no children." },
+    "aria-controls": { type: "string", description: "Id of the element the switch controls." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Switch`](https://react-aria.adobe.com/Switch#api).
+
+## Related
+
+- [Checkbox](/docs/components/checkbox) — for options confirmed with a submit button.
+- [Toggle Button](/docs/components/toggle-button) — an on/off button for toolbars.
+- [Radio Group](/docs/components/radio-group) — for more than two states.

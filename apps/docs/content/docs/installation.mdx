@@ -1,0 +1,314 @@
+---
+title: Installation
+description: Set up Desyne in a Next.js, Vite or existing shadcn project, in a monorepo, or by copying files by hand.
+---
+
+Desyne installs through the [shadcn CLI](https://ui.shadcn.com/docs/cli). The CLI
+reads the registry, copies component source into your project, installs npm
+dependencies and adds any CSS variables a component needs.
+
+<Callout title="Requirements">
+  React 19, Tailwind CSS v4 and a `@/*` import alias. Components import
+  `@/lib/utils`, `@/lib/primitive` and `@/components/ui/*`, the same paths a
+  shadcn project already uses.
+</Callout>
+
+## Pick your setup
+
+<Tabs items={["Next.js", "Vite", "Existing shadcn project"]}>
+<Tab value="Next.js">
+
+<Steps>
+<Step>
+### Create the app
+
+```bash
+npx create-next-app@latest my-app --typescript --tailwind --app
+cd my-app
+```
+</Step>
+<Step>
+### Initialise shadcn
+
+```bash
+npx shadcn@latest init
+```
+
+This writes `components.json`, `lib/utils.ts` and the base tokens in `app/globals.css`.
+</Step>
+<Step>
+### Register the namespace
+
+Add the Desyne registry to `components.json`:
+
+```json title="components.json"
+{
+  "registries": {
+    "@desyne": "https://desyne.dev/r/{name}.json"
+  }
+}
+```
+</Step>
+<Step>
+### Add a component
+
+```bash
+npx shadcn@latest add @desyne/button
+```
+
+```tsx title="app/page.tsx"
+import { Button } from "@/components/ui/button";
+
+export default function Page() {
+  return <Button onPress={() => alert("Hello")}>Click me</Button>;
+}
+```
+
+Components that use hooks or React Aria are marked `"use client"`, so they work in
+App Router pages without extra wrappers. See [Server components](/docs/server-components).
+</Step>
+</Steps>
+
+</Tab>
+<Tab value="Vite">
+
+<Steps>
+<Step>
+### Create the app
+
+```bash
+npm create vite@latest my-app -- --template react-ts
+cd my-app
+npm install tailwindcss @tailwindcss/vite
+```
+
+Replace `src/index.css` with:
+
+```css title="src/index.css"
+@import "tailwindcss";
+```
+</Step>
+<Step>
+### Add the `@` alias
+
+shadcn needs a path alias in both TypeScript and Vite.
+
+```json title="tsconfig.json"
+{
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@/*": ["./src/*"] }
+  }
+}
+```
+
+Add the same `baseUrl` and `paths` to `tsconfig.app.json`, then:
+
+```ts title="vite.config.ts"
+import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: { "@": path.resolve(__dirname, "./src") },
+  },
+});
+```
+</Step>
+<Step>
+### Initialise shadcn and register the namespace
+
+```bash
+npx shadcn@latest init
+```
+
+```json title="components.json"
+{
+  "registries": {
+    "@desyne": "https://desyne.dev/r/{name}.json"
+  }
+}
+```
+</Step>
+<Step>
+### Add components
+
+```bash
+npx shadcn@latest add @desyne/button @desyne/text-field
+```
+</Step>
+</Steps>
+
+</Tab>
+<Tab value="Existing shadcn project">
+
+Desyne components use the same token names and import paths as shadcn/ui, so they
+drop into an existing project.
+
+1. Add the namespace to `components.json`:
+
+   ```json title="components.json"
+   {
+     "registries": {
+       "@desyne": "https://desyne.dev/r/{name}.json"
+     }
+   }
+   ```
+
+2. Add components by their namespaced name:
+
+   ```bash
+   npx shadcn@latest add @desyne/select
+   ```
+
+3. Your existing theme applies immediately. The first component that needs it also
+   installs `lib/primitive.ts` and adds the extra tokens (`--brand`, `--success`,
+   `--warning`, `--info`, `--destructive-foreground`) to your CSS.
+
+<Callout type="warn" title="Name clashes">
+  Desyne and shadcn/ui both write to `components/ui/<name>.tsx`. Adding
+  `@desyne/button` over an existing shadcn `button.tsx` asks before
+  overwriting. Desyne's Button accepts shadcn's variant names (`default`,
+  `destructive`, `secondary`, `outline`, `ghost`, `link`), but it is a React Aria
+  button: handlers take `onPress`, and `disabled` is `isDisabled`. Check call sites
+  before you replace a component.
+</Callout>
+
+</Tab>
+</Tabs>
+
+## Monorepos
+
+In a Turborepo or pnpm/Bun workspace, keep components in a shared package and point
+each app at it.
+
+1. Run `npx shadcn@latest init` in the shared UI package and in each app, so every
+   workspace has its own `components.json` with the `@desyne` registry entry.
+2. Install into the shared package with `--cwd` (`-c`):
+
+   ```bash
+   npx shadcn@latest add @desyne/dialog -c packages/ui
+   ```
+
+3. In each app, map the aliases the components import to the shared package:
+
+   ```json title="apps/web/tsconfig.json"
+   {
+     "compilerOptions": {
+       "paths": {
+         "@/components/ui/*": ["../../packages/ui/src/components/ui/*"],
+         "@/lib/utils": ["../../packages/ui/src/lib/utils"],
+         "@/lib/primitive": ["../../packages/ui/src/lib/primitive"],
+         "@/*": ["./*"]
+       }
+     }
+   }
+   ```
+
+4. Tell Tailwind to scan the package and, in Next.js, transpile it:
+
+   ```css title="apps/web/app/globals.css"
+   @import "tailwindcss";
+   @source "../../../packages/ui/src";
+   ```
+
+   ```js title="apps/web/next.config.mjs"
+   export default { transpilePackages: ["@acme/ui"] };
+   ```
+
+This is exactly how this documentation site consumes the library.
+
+## Manual installation
+
+You can skip the CLI and copy files yourself. Every component page has a **Manual** tab
+with its source, its npm dependencies and the other components it imports.
+
+<Steps>
+<Step>
+### Install the shared dependencies
+
+```bash
+npm install react-aria-components tailwind-variants clsx tailwind-merge lucide-react tw-animate-css
+```
+
+Some components need more (`sonner` for Toast, `recharts` for Chart,
+`embla-carousel-react` for Carousel, `input-otp` for Input OTP). Their pages list them.
+</Step>
+<Step>
+### Add the helpers
+
+```ts title="lib/utils.ts"
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+```
+
+Then copy `lib/primitive.ts` from the [registry](/r/primitive.json) (the `files[0].content`
+field) or from any component's Manual tab.
+</Step>
+<Step>
+### Add the tokens
+
+Your global CSS needs Tailwind, the animation utilities and the tokens:
+
+```css title="app/globals.css"
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.984 0.002 286);
+  --foreground: oklch(0.205 0.006 286);
+  /* …the rest of the tokens */
+}
+```
+
+The full set, with dark values and the `@theme inline` mapping, is on
+[Colors & tokens](/docs/colors).
+</Step>
+<Step>
+### Copy components
+
+Copy each component into `components/ui/` and fix the imports if your aliases differ.
+</Step>
+</Steps>
+
+## Check it works
+
+```tsx
+"use client";
+
+import { Form } from "react-aria-components";
+import { Button } from "@/components/ui/button";
+import { TextField } from "@/components/ui/text-field";
+
+export function Smoke() {
+  return (
+    <Form className="flex max-w-xs flex-col gap-4">
+      <TextField label="Email" name="email" type="email" isRequired />
+      <Button type="submit">Subscribe</Button>
+    </Form>
+  );
+}
+```
+
+Tab to the field: you should see the soft colored focus ring. Submit it empty: focus
+moves to the field and the required-field message appears under it.
+
+## Next steps
+
+<Cards>
+  <Card title="CLI & registry" href="/docs/cli" description="Namespaces, updates and the private Pro registry." />
+  <Card title="Project structure" href="/docs/project-structure" description="Where files land and what each one does." />
+  <Card title="Theming" href="/docs/theming" description="Make it look like your product." />
+</Cards>

@@ -1,0 +1,131 @@
+---
+title: Contributing
+description: Run the repo locally, add a component with examples and docs, and the conventions a pull request should follow.
+---
+
+Desyne is open source under the MIT license. The source lives at
+[github.com/doqett/desyne](https://github.com/doqett/desyne): a Bun and Turborepo
+monorepo with two workspaces.
+
+| Path | What it is |
+| --- | --- |
+| `packages/ui` | The components (`src/components/ui`), `lib/utils.ts`, `lib/primitive.ts`, `lib/design.ts`, `theme.css`, `base.css`, free blocks (`src/blocks`) and the registry metadata (`src/registry.ts`) |
+| `apps/docs` | This site (Next.js + Fumadocs). Also serves the public registry at `/r/*.json` |
+| `scripts/build-registry.ts` | Turns `src/registry.ts` into `registry.json` |
+| `registry.json` | Generated shadcn registry manifest |
+
+## Run it
+
+You need [Bun](https://bun.sh) 1.4 or later.
+
+```bash
+git clone https://github.com/doqett/desyne.git
+cd desyne
+bun install
+bun run registry:build   # registry.json → apps/docs/public/r
+bun dev                  # docs on http://localhost:3000
+```
+
+Other scripts:
+
+```bash
+bun run typecheck
+bun run lint             # Biome
+bun run format           # Biome, writing fixes
+bun run design:check     # sanity checks for lib/design.ts
+```
+
+## Add a component
+
+<Steps>
+<Step>
+### Write it
+
+Create `packages/ui/src/components/ui/<name>.tsx`. Import from `@/lib/utils`,
+`@/lib/primitive` and `@/components/ui/*`, the same paths it will have in a user's
+project. Build on a React Aria primitive, style states with `data-*` variants and use
+`tailwind-variants` for variants and sizes.
+</Step>
+<Step>
+### Register it
+
+Add an entry to `components` in `packages/ui/src/registry.ts` with `title`,
+`description` and `category`. Dependencies are inferred from the imports when the
+registry builds. Run `bun run registry:build` and check the generated
+`apps/docs/public/r/<name>.json`.
+</Step>
+<Step>
+### Add examples
+
+Create `apps/docs/examples/<name>/demo.tsx` plus one file per example. Each file
+default-exports a component and becomes a Preview/Code block. Recipes (`recipe-*.tsx`)
+combine several components into a realistic pattern.
+</Step>
+<Step>
+### Document it
+
+Add `apps/docs/content/docs/components/<name>.mdx` and list it in
+`components/meta.json`. Use the standard structure: `<ComponentLinks>`,
+`<ComponentPreview name="<name>/demo" />`, `<InstallTabs name="<name>" />`, Usage,
+Examples, Accessibility and API Reference (`<TypeTable>`). The gallery picks it up
+automatically.
+</Step>
+</Steps>
+
+### Checklist
+
+- [ ] Component in `packages/ui/src/components/ui/<name>.tsx`
+- [ ] Entry in `packages/ui/src/registry.ts`
+- [ ] `bun run registry:build` succeeds
+- [ ] `demo.tsx` and examples in `apps/docs/examples/<name>/`
+- [ ] Docs page in `apps/docs/content/docs/components/<name>.mdx`, listed in `meta.json`
+- [ ] Keyboard and screen reader tested, light and dark mode checked
+- [ ] `bun run lint` and `bun run typecheck` pass
+
+## Conventions
+
+- **Design tokens only:** style with the shadcn token names (`bg-primary`,
+  `text-muted-foreground`, `border-border`, …), never hard-coded colors such as
+  `bg-blue-500` or hex values. New tokens need a light and a dark value and a `cssVars`
+  entry so the CLI can add them.
+- **Sizes:** controls use the 28 / 32 / 40px scale (`sm`, `md`, `lg`).
+- **Colors:** components with a color take `color` and use `tones` from
+  `lib/primitive.ts`.
+- **Fields:** text-like controls use `fieldVariants` from `field.tsx`.
+- **Accessibility:** keyboard and screen reader behaviour must match the React Aria
+  pattern. Test with the keyboard and one screen reader before opening a PR.
+- **Reduced motion:** continuous animation needs a `motion-reduce:` fallback.
+- **Server safety:** only add `"use client"` when the component needs it.
+- **No real brands in examples:** use made-up names (Acme, Northwind, …) and
+  placeholder people, not real companies, logos or customers.
+- **Formatting:** [Biome](https://biomejs.dev) handles formatting and linting. Run
+  `bun run format` before committing.
+
+## Pull requests
+
+- Keep each PR focused on one component or one change, and describe what changed and why.
+- Include screenshots or a short recording for visual changes, in light and dark mode.
+- Don't commit generated files (see below).
+- Breaking changes to a component's props need a note in the PR description so the
+  changelog can call them out.
+- CI runs `biome check`, `registry:build` and a docs typecheck on every PR.
+
+## Generated files
+
+Don't edit these by hand; their scripts overwrite them:
+
+- `registry.json` (from `scripts/build-registry.ts`)
+- `apps/docs/public/r/*` (from `bun run registry:build`, not committed)
+- `apps/docs/examples/__index__.tsx` (from `apps/docs/scripts/build-examples.ts`, run on dev and build)
+
+## Docs pages
+
+Guides live in `apps/docs/content/docs/*.mdx` and are ordered in `meta.json`. MDX
+pages can use `Callout`, `Cards`, `Tabs`, `Steps`, `TypeTable` and `ComponentPreview`.
+Keep paragraphs short, show code that compiles against the real components, and link
+to related pages.
+
+## Pro
+
+Desyne Pro blocks and templates are commercial and are not part of this repository.
+Issues and pull requests here are for the free library and the docs site.

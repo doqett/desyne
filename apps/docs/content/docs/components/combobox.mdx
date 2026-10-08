@@ -1,0 +1,315 @@
+---
+title: Combo Box
+description: A text input with a filterable list of options. Filters as you type, supports rich items, sections, custom values, async loading, custom filters, controlled input and selection, validation and form submission.
+---
+
+<ComponentLinks aria="ComboBox" source="combobox" />
+
+<ComponentPreview name="combobox/demo" />
+
+## Installation
+
+<InstallTabs name="combobox" />
+
+## Usage
+
+```tsx
+import {
+  ComboBox,
+  ComboBoxItem,
+  ComboBoxItemDescription,
+  ComboBoxItemLabel,
+  ComboBoxSection,
+} from "@/components/ui/combobox";
+```
+
+```tsx
+<ComboBox label="Country" placeholder="Search countries…" defaultItems={countries}>
+  {(country) => <ComboBoxItem>{country.name}</ComboBoxItem>}
+</ComboBox>
+```
+
+A combo box has two values: the selected option (`value`, a `Key` or `null`) and the text in the input (`inputValue`). Choosing an option sets both; typing only changes the text until an option is committed.
+
+<Callout title="defaultItems filters for you, items doesn't">
+  Pass `defaultItems` (or static children) and the list filters as the user
+  types, using a case- and accent-insensitive "contains" match. Pass `items`
+  when you filter yourself, for example against a server, and update them from
+  `onInputChange`.
+</Callout>
+
+### When to use
+
+- Combo Box — long lists (roughly 15+) users will search, or when free-form input is allowed.
+- [Select](/docs/components/select) — a short list where browsing is faster than typing, and only listed values are valid.
+- [Search Field](/docs/components/search-field) — a query that filters content elsewhere, not a value to pick.
+- [Command Palette](/docs/components/command-palette) — a global launcher for actions and navigation.
+- [Tag Group](/docs/components/tag-group) with a combo box — picking several values; see the [tag picker recipe](#tag-picker).
+
+## Anatomy
+
+```tsx
+<ComboBox>                         {/* root: label, input, description, error */}
+  <ComboBoxSection title="…">      {/* optional group with a heading */}
+    <ComboBoxItem id="…">          {/* option */}
+      <Icon />
+      <ComboBoxItemLabel />        {/* primary text */}
+      <ComboBoxItemDescription />  {/* secondary text */}
+    </ComboBoxItem>
+  </ComboBoxSection>
+</ComboBox>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ComboBox` | `<div>` + popover | Root. Carries `data-slot="combobox"` and the `group/field` class. Wraps the label, the input group, description, error message and the list popover. |
+| Input group | `FieldGroup` | The visible box: `prefix`, the `<input role="combobox">`, and a chevron button that toggles the list. |
+| Chevron button | `<button>` | Opens the full list. Skipped in the tab order. It's the combo box's React Aria button, so don't put other React Aria buttons in `prefix`. |
+| Popover | `Popover` + `ListBox` | At least as wide as the input group. Shows `emptyMessage` when nothing matches (unless `allowsEmptyCollection={false}`). |
+| `ComboBoxItem` | `role="option"` | An option. Needs a unique `id` (or an `id` on the item object), and `textValue` when its children aren't a plain string. Shows a check when selected. |
+| `ComboBoxItemLabel` | `<span slot="label">` | Primary text of a rich item. |
+| `ComboBoxItemDescription` | `<span slot="description">` | Secondary text of a rich item. |
+| `ComboBoxSection` | `role="group"` | Groups options under an optional `title`. |
+| Hidden `<input>` | `<input type="hidden">` | Rendered when `name` is set. Submits the selected key (or the text, see [form submission](#form-submission)). |
+
+The input shows the selected option's `textValue`, so rich items still display as plain text once chosen.
+
+## Examples
+
+### Variants
+
+`outline` (default), `filled` for dense or tinted surfaces, and `underlined` for minimal forms. The same variants apply to every field component.
+
+<ComponentPreview name="combobox/variants" />
+
+### Sizes
+
+`sm` (28px), `md` (32px, default) and `lg` (40px), matching the buttons and other fields.
+
+<ComponentPreview name="combobox/sizes" />
+
+### Rich items and prefix
+
+Compose icons or avatars with `ComboBoxItemLabel` and `ComboBoxItemDescription`, and set `textValue` so filtering and the input text use the name. `prefix` adds an icon to the input.
+
+<ComponentPreview name="combobox/rich-items" />
+
+### Sections
+
+Pass sections as `defaultItems` and render each with `ComboBoxSection`, giving it `items` and a render function. Filtering applies to the options inside every section.
+
+<ComponentPreview name="combobox/sections" />
+
+### Empty state
+
+When nothing matches, the list stays open and shows `emptyMessage` (default "No results"), so users know the search worked. Type something that isn't in the list below to see it. Pass `allowsEmptyCollection={false}` to close the list instead.
+
+<ComponentPreview name="combobox/empty-state" />
+
+### Menu trigger
+
+`menuTrigger` controls when the list opens: `input` (default) when the user types, `focus` as soon as the input is focused, which suits short lists of suggestions, and `manual` only from the chevron button or the arrow keys.
+
+<ComponentPreview name="combobox/menu-trigger" />
+
+### Custom values
+
+`allowsCustomValue` accepts text that isn't in the list. The value stays `null` for custom text, so read `inputValue` (or the submitted form value) instead.
+
+<ComponentPreview name="combobox/custom-value" />
+
+### Controlled
+
+Control the selection with `value` / `onChange` and the text with `inputValue` / `onInputChange`. When you control both, update the input text yourself when the selection changes, and reset both to clear the field.
+
+<ComponentPreview name="combobox/controlled" />
+
+### Async loading
+
+React Aria's `useAsyncList` loads items as the user types and aborts stale requests. Wire its `filterText` to `inputValue` and pass the results as `items`. Swapping the `prefix` for a [`Spinner`](/docs/components/spinner) shows progress in place.
+
+<ComponentPreview name="combobox/async" />
+
+### Custom filter
+
+`defaultFilter` replaces the built-in "contains" match. React Aria's `useFilter` gives you locale-aware `startsWith`, `contains` and `endsWith`.
+
+<ComponentPreview name="combobox/custom-filter" />
+
+### Disabled
+
+`isDisabled` disables the input and the button; `disabledKeys` keeps specific options visible but unselectable. Use `description` to explain why.
+
+<ComponentPreview name="combobox/disabled" />
+
+### Required and validation
+
+`isRequired` blocks form submission until an option is selected and shows the browser's message. Unless `allowsCustomValue` is set, the input reverts to the selected option's text on blur, so the value is always a listed option.
+
+<ComponentPreview name="combobox/validation" />
+
+### Custom validation
+
+`validate` receives `{ value, inputValue }` and returns an error string or `null`. With `validationBehavior="aria"` on the `Form`, errors show live as the selection changes.
+
+<ComponentPreview name="combobox/custom-validation" />
+
+### Form submission
+
+With a `name`, the selected key is submitted through a hidden input. Set `formValue="text"` to submit the input text instead; with `allowsCustomValue`, the text is always submitted.
+
+<ComponentPreview name="combobox/form" />
+
+## Recipes
+
+### Tag picker
+
+Multiple selection built from a combo box and a [`TagGroup`](/docs/components/tag-group). The combo box stays empty (`value={null}`), each choice is added as a removable tag, and chosen options drop out of the list.
+
+<ComponentPreview name="combobox/recipe-tag-picker" />
+
+### Dependent address fields
+
+A country combo box drives the options, label and reset of the region combo box, alongside [text fields](/docs/components/text-field) with `autoComplete` hints.
+
+<ComponentPreview name="combobox/recipe-shipping" />
+
+## Accessibility
+
+- The input has `role="combobox"` with `aria-expanded`, `aria-controls` and `aria-activedescendant`, so focus stays in the input while options are highlighted.
+- Always provide a label: `label`, `aria-label`, or `aria-labelledby`.
+- Screen readers announce the number of available options as the list changes, and the selected option when it's committed.
+- `description` and `errorMessage` are linked to the input with `aria-describedby`.
+- The chevron button is skipped in the tab order because the arrow keys open the list from the input.
+- Items that aren't plain strings need `textValue` so they can be filtered, announced and shown in the input.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| Typing | Filters the list and opens it (with `menuTrigger="input"`) |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Opens the list, focusing the first / last option; then moves between options |
+| <kbd>Enter</kbd> | Selects the focused option and closes the list |
+| <kbd>Tab</kbd> | Selects the focused option (if the list is open) and moves focus on |
+| <kbd>Esc</kbd> | Closes the list and reverts the input to the selected option's text |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves the text cursor, leaving the list |
+
+## Styling
+
+### Data attributes
+
+On the `ComboBox` root (use `group-data-*/field:` to style children):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-open` | The list is open |
+| `data-focused` | The input has focus |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+| `data-invalid` | Validation failed |
+| `data-required` | `isRequired` is true |
+
+On each `ComboBoxItem`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-focused` / `data-hovered` | The option is highlighted / hovered |
+| `data-selected` | The option is the current value |
+| `data-disabled` | The option is in `disabledKeys` |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `combobox` | Root |
+| `label`, `description`, `field-error` | Field text |
+| `field-group`, `field-input` | Input box and `<input>` |
+| `popover`, `list-box` | Overlay and list |
+| `list-box-item`, `list-box-section` | Options and groups |
+
+The popover is at least as wide as the input group (`min-w-(--trigger-width)`). Pass a `className` on `ComboBox` to size the whole field; it also accepts a function of the render state (`isOpen`, `isDisabled`, `isInvalid`, `isReadOnly`, `isRequired`). Option styles come from `listBoxItemStyles` in `list-box.tsx`.
+
+## API Reference
+
+### ComboBox
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text shown under the input." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message while invalid." },
+    placeholder: { type: "string", description: "Shown while the input is empty." },
+    prefix: { type: "ReactNode", description: "Icon or element shown before the input." },
+    emptyMessage: { type: "ReactNode", default: '"No results"', description: "Shown in the list when nothing matches." },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Static ComboBoxItems / ComboBoxSections, or a render function for items." },
+    defaultItems: { type: "Iterable<T>", description: "Items filtered automatically as the user types." },
+    items: { type: "Iterable<T>", description: "Items you filter yourself (e.g. async results)." },
+    value: { type: "Key | null", description: "Controlled selected key." },
+    defaultValue: { type: "Key | null", description: "Uncontrolled initial selected key." },
+    onChange: { type: "(value: Key | null) => void", description: "Called when the selection changes." },
+    inputValue: { type: "string", description: "Controlled input text." },
+    defaultInputValue: { type: "string", description: "Uncontrolled initial input text." },
+    onInputChange: { type: "(value: string) => void", description: "Called when the input text changes." },
+    allowsCustomValue: { type: "boolean", default: "false", description: "Accepts text that doesn't match an option." },
+    allowsEmptyCollection: { type: "boolean", default: "true", description: "Keeps the list open (showing emptyMessage) when nothing matches. Set false to close the list instead." },
+    defaultFilter: { type: "(textValue: string, inputValue: string) => boolean", description: 'Replaces the default locale-aware "contains" filter.' },
+    menuTrigger: { type: '"input" | "focus" | "manual"', default: '"input"', description: "What opens the list." },
+    disabledKeys: { type: "Iterable<Key>", description: "Options that can't be selected." },
+    onOpenChange: { type: "(isOpen: boolean, menuTrigger?: MenuTriggerAction) => void", description: "Called when the list opens or closes." },
+    isDisabled: { type: "boolean", default: "false" },
+    isReadOnly: { type: "boolean", default: "false" },
+    isRequired: { type: "boolean", default: "false", description: "Requires a selection before the form can submit." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state, e.g. for server errors." },
+    validate: { type: "(v: { value: Key | null, inputValue: string }) => ValidationError | true | null | undefined", description: "Custom validation. Return an error message to mark the field invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live. Inherits from a parent Form." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    formValue: { type: '"key" | "text"', default: '"key"', description: "Whether the key or the input text is submitted. Always text with allowsCustomValue." },
+    form: { type: "string", description: "Id of the form this field belongs to." },
+    autoFocus: { type: "boolean" },
+    selectedKey: { type: "Key | null", description: "Deprecated alias of value." },
+    defaultSelectedKey: { type: "Key | null", description: "Deprecated alias of defaultValue." },
+    onSelectionChange: { type: "(key: Key | null) => void", description: "Deprecated alias of onChange." },
+    className: { type: "string | ((state: ComboBoxRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ComboBox`](https://react-aria.adobe.com/ComboBox#api). This wrapper is single-selection only.
+
+### ComboBoxItem
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique key. Becomes the value of the combo box." },
+    textValue: { type: "string", description: "Plain text for filtering, announcements and the input. Required when children aren't a string." },
+    isDisabled: { type: "boolean", description: "Disables this option (same as adding it to disabledKeys)." },
+    value: { type: "T", description: "The item object, when using dynamic collections." },
+    href: { type: "string", description: "Turns the option into a link; Enter opens it instead of selecting." },
+    onAction: { type: "() => void", description: "Called when the option is activated. Action options aren't selected." },
+    className: { type: "string | ((state: ListBoxItemRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: ListBoxItemRenderProps) => ReactNode)" },
+  }}
+/>
+
+### ComboBoxSection
+
+<TypeTable
+  type={{
+    title: { type: "string", description: "Heading shown above the group." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)" },
+    id: { type: "Key", description: "Required for dynamic sections." },
+  }}
+/>
+
+### ComboBoxItemLabel / ComboBoxItemDescription
+
+Accept every prop of React Aria's [`Text`](https://react-aria.adobe.com/ListBox#text-slots). They set `slot="label"` and `slot="description"` so each option's accessible name and description are wired up automatically.
+
+## Related
+
+- [Select](/docs/components/select) — the same list without typing.
+- [List Box](/docs/components/list-box) — the list on its own, always visible, with multiple selection.
+- [Tag Group](/docs/components/tag-group) — for showing several chosen values.
+- [Search Field](/docs/components/search-field) — for queries rather than values.

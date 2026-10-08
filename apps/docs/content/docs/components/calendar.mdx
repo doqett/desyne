@@ -1,0 +1,313 @@
+---
+title: Calendar
+description: An inline month grid for picking a single date, several dates or a date range. Supports min/max bounds, unavailable dates, multiple visible months, any locale and calendar system, and full keyboard navigation.
+---
+
+<ComponentLinks aria="Calendar" source="calendar" />
+
+<ComponentPreview name="calendar/demo" />
+
+## Installation
+
+<InstallTabs name="calendar" />
+
+## Usage
+
+```tsx
+import { Calendar, RangeCalendar } from "@/components/ui/calendar";
+import { getLocalTimeZone, today } from "@internationalized/date";
+```
+
+```tsx
+<Calendar aria-label="Due date" defaultValue={today(getLocalTimeZone())} />
+```
+
+<Callout title="Dates are @internationalized/date objects">
+  Values are `CalendarDate` (or `CalendarDateTime` / `ZonedDateTime`) objects
+  from [`@internationalized/date`](https://react-spectrum.adobe.com/internationalized/date/),
+  not JavaScript `Date`s. Create them with `today(getLocalTimeZone())` or
+  `parseDate("2027-03-15")`, compare them with `a.compare(b)`, and convert with
+  `date.toDate(timeZone)` when you need a `Date`. The calendar follows the
+  user's locale, calendar system and first day of the week automatically.
+</Callout>
+
+### When to use
+
+- Calendar — an always-visible grid, for scheduling screens, booking flows and sidebars where the month context matters.
+- [Date Picker](/docs/components/date-picker) — a compact field that opens this calendar in a popover. The right default inside forms.
+- [Date Field](/docs/components/date-field) — typed entry only, for dates users already know (birthdays, document dates) where a grid adds nothing.
+- `RangeCalendar` — a start and end date. Use [Date Range Picker](/docs/components/date-picker#range) inside forms.
+
+## Anatomy
+
+```tsx
+<Calendar>                 {/* or <RangeCalendar> */}
+  <header>
+    <Button slot="previous" />
+    <Heading />            {/* "March 2027"; visually hidden with dropdowns */}
+    {/* captionLayout="dropdown": month <Select> + year <Select> */}
+    <Button slot="next" />
+  </header>
+  <CalendarGrid>           {/* one per visible month */}
+    <CalendarGridHeader>   {/* weekday names */}
+    <CalendarGridBody>
+      <CalendarCell />     {/* one per day */}
+    </CalendarGridBody>
+  </CalendarGrid>
+  <Text slot="errorMessage" />   {/* when errorMessage is set */}
+</Calendar>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Calendar` | `<div>` | Single date, or several dates with `selectionMode="multiple"`. `data-slot="calendar"`. |
+| `RangeCalendar` | `<div>` | A contiguous start/end range. `data-slot="range-calendar"`. |
+| Previous / next | `<button>` | Ghost icon [`Button`](/docs/components/button)s. Disabled automatically at `minValue` / `maxValue`. |
+| Heading | `<h2 aria-hidden>` | The visible month (or range of months), formatted for the locale. Screen readers get the month from the grid label instead. |
+| Caption selects | `Select` › `<button>` + listbox popover | With `captionLayout` set to a dropdown layout. Labelled with the localized words for month and year. `data-slot="calendar-caption"` on the wrapper. |
+| Grid | `<table role="grid">` | Rendered once per month in `visibleDuration`. Weekdays use the `short` style. |
+| Cell | `<td>` › `<div role="button">` | Each date. All states are exposed as data attributes. |
+| Error message | `<span slot="errorMessage">` | Shown below the grid whenever `errorMessage` is set. |
+
+The header, grid and cells are built in, so the only thing you pass is props. For a custom layout, compose React Aria's [`Calendar`](https://react-aria.adobe.com/Calendar) parts directly and reuse the cell styles from the source.
+
+## Examples
+
+### Controlled
+
+Use `value` and `onChange` to own the selected date. Format it for display with `DateFormatter` and the current locale from `useLocale()`.
+
+<ComponentPreview name="calendar/controlled" />
+
+### Range
+
+`RangeCalendar` selects a start and end date. Click (or press <kbd>Enter</kbd>) once to set the start, and again to set the end. The value is `{ start, end }`.
+
+<ComponentPreview name="calendar/range" />
+
+### Min and max dates
+
+`minValue` and `maxValue` disable dates outside the bounds. Disabled dates can't be focused, and the previous and next buttons disable themselves at the edges.
+
+<ComponentPreview name="calendar/min-max" />
+
+### Month and year dropdowns
+
+`captionLayout="dropdown"` replaces the heading with a month select and a year select, so users can jump years at a time. That's the right choice for dates far from today, such as a birth date. The arrows still page one month at a time.
+
+The year list runs from `fromYear` to `toYear`. Without them it uses the years of `minValue` and `maxValue`, then falls back to 100 years ago through 10 years ahead. Months outside `minValue` / `maxValue` are disabled in the month list.
+
+<ComponentPreview name="calendar/caption-dropdown" />
+
+### Caption layouts
+
+`captionLayout` takes four values: `label` (the default heading), `dropdown` (both selects), `dropdown-months` (a month select and the year as text) and `dropdown-years` (the month as text and a year select). Month names and years follow the locale and calendar system.
+
+<ComponentPreview name="calendar/caption-layouts" />
+
+### Dropdowns in a range calendar
+
+`RangeCalendar` takes the same props. With several visible months, the selects follow the focused month, and picking a month scrolls it into view. Here the window is limited to 11 months, so `dropdown-months` is enough.
+
+<ComponentPreview name="calendar/caption-range" />
+
+### Unavailable dates
+
+`isDateUnavailable` marks individual dates (holidays, booked days, weekends) as unavailable. Unlike disabled dates, they stay focusable so keyboard and screen reader users can still reach them, and they're struck through.
+
+<ComponentPreview name="calendar/unavailable" />
+
+### Ranges across unavailable dates
+
+By default a range can't include an unavailable date. Set `allowsNonContiguousRanges` to let the range span them, for example a leave request across a weekend. For `RangeCalendar`, `isDateUnavailable` also receives the anchor date (the first date clicked), so you can make availability depend on the start date.
+
+<ComponentPreview name="calendar/range-unavailable" />
+
+### Multiple months
+
+`visibleDuration={{ months: 2 }}` shows consecutive months side by side (stacked on narrow screens). `pageBehavior="single"` pages one month at a time instead of a whole visible page.
+
+<ComponentPreview name="calendar/multiple-months" />
+
+### Multiple dates
+
+`selectionMode="multiple"` lets users toggle any number of separate dates. The value is a read-only array.
+
+<ComponentPreview name="calendar/multiple-selection" />
+
+### First day of the week
+
+The first weekday comes from the locale (Sunday in `en-US`, Monday in most of Europe). Override it with `firstDayOfWeek`.
+
+<ComponentPreview name="calendar/first-day" />
+
+### Locales and calendar systems
+
+Wrap the calendar in `I18nProvider` to set a locale. Month and weekday names, digits, text direction and the calendar system all follow it. Add a `-u-ca-` extension for non-Gregorian calendars (`ja-JP-u-ca-japanese`, `th-TH-u-ca-buddhist`). The value you receive is still a `CalendarDate` in that calendar; convert with `toCalendar(date, new GregorianCalendar())` before storing it.
+
+<ComponentPreview name="calendar/locales" />
+
+### Controlling the visible month
+
+`focusedValue` and `onFocusChange` control which date has focus, and therefore which month is visible. Use them for "Today" or "Jump to" buttons. `defaultFocusedValue` sets only the initial month.
+
+<ComponentPreview name="calendar/focused-value" />
+
+### Validation
+
+Set `isInvalid` from your own logic and pass `errorMessage` to explain it. The selected date turns red, and the message is shown below the grid and linked to it for screen readers.
+
+<ComponentPreview name="calendar/validation" />
+
+### Disabled and read-only
+
+`isDisabled` makes the whole calendar non-interactive. `isReadOnly` keeps it focusable and navigable, but the value can't change.
+
+<ComponentPreview name="calendar/disabled" />
+
+## Recipes
+
+### Booking with a minimum stay
+
+A `RangeCalendar` with already-booked nights marked unavailable, a minimum-stay rule shown through `isInvalid` and `errorMessage`, and a live price summary.
+
+<ComponentPreview name="calendar/recipe-booking" />
+
+### Appointment scheduler
+
+Pick a weekday within the next six weeks, then a time slot from a [`ToggleButtonGroup`](/docs/components/toggle-button-group). Changing the date resets the slot.
+
+<ComponentPreview name="calendar/recipe-appointment" />
+
+### Range presets
+
+Preset buttons set both `value` and `focusedValue`, so the calendar jumps to the chosen period. `maxValue` blocks future dates in a reporting context.
+
+<ComponentPreview name="calendar/recipe-presets" />
+
+## Accessibility
+
+- The calendar is a `role="application"` group containing one `role="grid"` table per visible month, labelled by the visible month range.
+- Give the calendar an accessible name with `aria-label` or `aria-labelledby`. It's combined with the visible month when announced.
+- When the visible month changes, the new month is announced through a live region. Selecting a date or completing a range announces the selection.
+- Each cell's label includes the full date (weekday, day, month and year), plus "Today" and "selected" where relevant.
+- Unavailable dates stay focusable and are announced as unavailable. Disabled dates (outside `minValue` / `maxValue`) are skipped.
+- Today is marked with a dot, not just color, and unavailable dates use a strikethrough.
+- With `errorMessage`, the message is linked to the calendar with `aria-describedby`.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves between the previous button, next button and the grid |
+| <kbd>←</kbd> / <kbd>→</kbd> | Previous / next day (reversed in RTL locales) |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Same day in the previous / next week |
+| <kbd>Home</kbd> / <kbd>End</kbd> | First / last day of the month |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Previous / next month |
+| <kbd>Shift</kbd>+<kbd>Page Up</kbd> / <kbd>Shift</kbd>+<kbd>Page Down</kbd> | Previous / next year |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Selects the focused date (in a range: sets the start, then the end) |
+| <kbd>Esc</kbd> | Cancels a range selection in progress |
+
+With a dropdown `captionLayout`, the month and year selects sit between the previous and next buttons in the tab order. <kbd>Enter</kbd>, <kbd>Space</kbd> or <kbd>↓</kbd> opens a select, typing jumps to a matching month or year, and the grid moves to the chosen month.
+
+## Styling
+
+### Data attributes
+
+On the `Calendar` / `RangeCalendar` root:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-disabled` | `isDisabled` is true |
+| `data-invalid` | `isInvalid` is true |
+
+On each date cell:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | The date is selected (or inside the selected range) |
+| `data-selection-start` / `data-selection-end` | First / last date of a range |
+| `data-today` | The date is today |
+| `data-focused` / `data-focus-visible` | The cell has focus / keyboard focus |
+| `data-hovered` / `data-pressed` | Hovered with a mouse / being pressed |
+| `data-disabled` | Outside `minValue` / `maxValue`, or the calendar is disabled |
+| `data-unavailable` | `isDateUnavailable` returned true |
+| `data-outside-month` | The date belongs to the previous or next month |
+| `data-outside-visible-range` | The date is outside the visible range |
+| `data-invalid` | The date is part of an invalid selection |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `calendar` | `Calendar` root |
+| `range-calendar` | `RangeCalendar` root |
+| `calendar-caption` | Wrapper around the month / year selects |
+
+### Customizing
+
+- `className` styles the root (default `w-fit p-3`). It accepts a function of `{ isDisabled, isInvalid, state }`.
+- Frame the calendar with classes like `rounded-lg border bg-card`, as in the examples, or leave it bare inside a card or popover.
+- Selected dates use the `brand` color; range middles use `accent`. Change the theme tokens to restyle every calendar at once.
+- Cells are `size-8`. For a different density, copy the component and adjust `cellBase`.
+
+## API Reference
+
+### Calendar
+
+<TypeTable
+  type={{
+    value: { type: "DateValue | null", description: "Controlled value. An array when selectionMode is multiple." },
+    defaultValue: { type: "DateValue | null", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: DateValue) => void", description: "Called when the user selects a date. Receives an array when selectionMode is multiple." },
+    selectionMode: { type: '"single" | "multiple"', default: '"single"', description: "Select one date, or toggle any number of dates." },
+    minValue: { type: "DateValue | null", description: "Earliest selectable date. Earlier dates are disabled." },
+    maxValue: { type: "DateValue | null", description: "Latest selectable date. Later dates are disabled." },
+    isDateUnavailable: { type: "(date: DateValue) => boolean", description: "Marks dates as unavailable. They stay focusable but can't be selected." },
+    visibleDuration: { type: "DateDuration", default: "{ months: 1 }", description: "How much is visible at once. One grid is rendered per month." },
+    pageBehavior: { type: '"visible" | "single"', default: '"visible"', description: "Page by the whole visible duration, or by one unit of it." },
+    firstDayOfWeek: { type: '"sun" | "mon" | "tue" | "wed" | "thu" | "fri" | "sat"', description: "Overrides the locale's first day of the week." },
+    focusedValue: { type: "DateValue | null", description: "Controlled focused date (controls the visible month)." },
+    defaultFocusedValue: { type: "DateValue | null", description: "Initial focused date." },
+    onFocusChange: { type: "(date: CalendarDate) => void", description: "Called when the focused date changes." },
+    selectionAlignment: { type: '"start" | "center" | "end"', default: '"center"', description: "Where the selection sits among visible months on first render." },
+    weeksInMonth: { type: "number", description: "Overrides the number of week rows set by the locale." },
+    captionLayout: { type: '"label" | "dropdown" | "dropdown-months" | "dropdown-years"', default: '"label"', description: "How the month and year are shown in the header: a heading, or month and/or year selects." },
+    fromYear: { type: "number", description: "First year in the year select. Defaults to minValue's year, or 100 years ago." },
+    toYear: { type: "number", description: "Last year in the year select. Defaults to maxValue's year, or 10 years ahead." },
+    isInvalid: { type: "boolean", description: "Marks the selection as invalid." },
+    errorMessage: { type: "string", description: "Text shown below the grid. Pair it with isInvalid." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the whole calendar." },
+    isReadOnly: { type: "boolean", default: "false", description: "Keeps the calendar navigable but prevents changes." },
+    autoFocus: { type: "boolean", default: "false", description: "Focuses the calendar on mount." },
+    createCalendar: { type: "(identifier: CalendarIdentifier) => Calendar", description: "Limits which calendar systems are bundled. Defaults to all." },
+    "aria-label": { type: "string", description: "Accessible name. Required when there's no aria-labelledby." },
+    className: { type: "string | ((state: CalendarRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Calendar`](https://react-aria.adobe.com/Calendar#api), except `children`.
+
+### RangeCalendar
+
+Accepts every `Calendar` prop above except `selectionMode`, with these differences:
+
+<TypeTable
+  type={{
+    value: { type: "RangeValue<DateValue> | null", description: "Controlled range: { start, end }." },
+    defaultValue: { type: "RangeValue<DateValue> | null", description: "Uncontrolled initial range." },
+    onChange: { type: "(range: RangeValue<DateValue>) => void", description: "Called when a range is completed." },
+    isDateUnavailable: { type: "(date: DateValue, anchorDate: CalendarDate | null) => boolean", description: "Also receives the first date the user picked, if any." },
+    allowsNonContiguousRanges: { type: "boolean", default: "false", description: "Allows a range to include unavailable dates." },
+    commitBehavior: { type: '"select" | "clear" | "reset"', default: '"select"', description: "What happens when a pointer is released outside, or focus leaves, mid-selection." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`RangeCalendar`](https://react-aria.adobe.com/RangeCalendar#api), except `children`.
+
+## Related
+
+- [Date Picker](/docs/components/date-picker) — this calendar in a popover, attached to a date field.
+- [Date Field](/docs/components/date-field) — typed, segmented date and time entry.
+- [Toggle Button Group](/docs/components/toggle-button-group) — for time slots next to a calendar.
+- [`@internationalized/date`](https://react-spectrum.adobe.com/internationalized/date/) — creating, comparing and converting date values.

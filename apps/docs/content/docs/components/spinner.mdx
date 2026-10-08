@@ -1,0 +1,144 @@
+---
+title: Spinner
+description: A compact, indeterminate loading indicator for short waits. Four sizes, inherits the current text color or takes a tone, and exposes an accessible status label. Server-component safe.
+---
+
+<ComponentLinks source="spinner" />
+
+<ComponentPreview name="spinner/demo" />
+
+## Installation
+
+<InstallTabs name="spinner" />
+
+## Usage
+
+```tsx
+import { Spinner } from "@/components/ui/spinner";
+```
+
+```tsx
+<Spinner label="Loading invoices" />
+```
+
+<Callout title="Buttons have their own spinner">
+  For a button that is working, use [`Button`](/docs/components/button)'s
+  `isPending` prop instead of placing a `Spinner` inside it. It shows a spinner,
+  blocks presses and announces the busy state for you.
+</Callout>
+
+### When to use
+
+- Spinner — a short wait (roughly under a few seconds) with no measurable progress, in a small space: inline text, badges, list footers, a refreshing panel.
+- [Skeleton](/docs/components/skeleton) — when you know the shape of the content that's loading; it avoids layout shift.
+- [Progress Bar](/docs/components/progress-bar) — when you can measure progress, or the wait is long enough that users need to know how far along it is.
+- [Toast](/docs/components/toast) with `toast.promise` — for background work the user shouldn't wait on.
+
+## Anatomy
+
+A spinner is a single element: a bordered circle with one transparent side, rotating.
+
+```tsx
+<Spinner />   {/* <span role="status" aria-label="Loading"> */}
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Spinner` | `<span role="status">` | Root. `border-current` with a transparent right edge, `animate-spin` (`animate-pulse` under reduced motion). Carries `data-slot="spinner"`. |
+
+## Examples
+
+### Sizes
+
+`sm` (16px) is the default and matches body text. `xs` (12px) fits badges and small buttons, `md` (20px) suits headings and toolbars, and `lg` (32px) is for panels and page-level loading.
+
+<ComponentPreview name="spinner/sizes" />
+
+### Colors
+
+Without `color`, the spinner uses the current text color, so it blends into whatever it's placed in. Pass a tone to give it its own color.
+
+<ComponentPreview name="spinner/colors" />
+
+### Custom size
+
+For sizes outside the scale, set `size-*` and a matching border width with `className`. Tailwind's arbitrary properties can also slow the rotation.
+
+<ComponentPreview name="spinner/custom-size" />
+
+### Label
+
+`label` ("Loading" by default) becomes the accessible name. Make it specific when the spinner stands alone. When visible text next to it already says what's happening, pass `aria-hidden` so screen readers don't hear it twice.
+
+<ComponentPreview name="spinner/label" />
+
+### In context
+
+Spinners inherit the text color and don't shrink in flex rows, so they drop into [badges](/docs/components/badge) and inline status text without extra styling.
+
+<ComponentPreview name="spinner/in-context" />
+
+### Loading overlay
+
+Cover stale content with a translucent layer and a centered spinner while it refreshes. Keep the old content visible underneath so the layout doesn't jump.
+
+<ComponentPreview name="spinner/overlay" />
+
+## Recipes
+
+### Deploy steps
+
+A step list where the running step shows a spinner and finished steps show a check. A visually hidden live region announces each step, since the spinners are hidden from screen readers.
+
+<ComponentPreview name="spinner/recipe-deploy-steps" />
+
+### Load more
+
+A list footer that swaps its button for a spinner and text while the next page loads.
+
+<ComponentPreview name="spinner/recipe-load-more" />
+
+## Accessibility
+
+- Renders `role="status"` with `aria-label` set from `label`, so it's exposed as a named status element.
+- Give standalone spinners a specific `label` ("Loading invoices"). Next to visible text, pass `aria-hidden` instead.
+- A spinner that appears doesn't reliably announce itself. If completion matters, announce it with a live region or a [toast](/docs/components/toast), and set `aria-busy` on the region that is loading.
+- Respects `prefers-reduced-motion`: the ring stops rotating and fades gently in and out instead (`motion-reduce:animate-pulse`), so it still reads as "working" without movement. The `role="status"` label is announced either way. Add `motion-reduce:animate-none` to a spinner's `className` for a fully static ring.
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="spinner"` | Root |
+
+### Customizing
+
+- Color comes from `currentColor`, so `text-*` classes on the spinner or any parent recolor it. `color` sets the `--tone` variable and applies `text-(--tone)`.
+- Size comes from `size-*` and the ring thickness from `border-*` (2px by default, 1.5px at `xs`, 3px at `lg`).
+- The spinner is a plain `<span>` with no client-side JavaScript, so it can render in server components.
+
+## API Reference
+
+### Spinner
+
+<TypeTable
+  type={{
+    size: { type: '"xs" | "sm" | "md" | "lg"', default: '"sm"', description: "12px, 16px, 20px or 32px." },
+    color: {
+      type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"',
+      description: "Tone of the ring. Defaults to the current text color.",
+    },
+    label: { type: "string", default: '"Loading"', description: "Accessible name (aria-label)." },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+Also accepts every prop of `<span>`, such as `aria-hidden`.
+
+## Related
+
+- [Button](/docs/components/button) — `isPending` for buttons that are working.
+- [Skeleton](/docs/components/skeleton) — placeholders that match the incoming layout.
+- [Progress Bar](/docs/components/progress-bar) — measurable or long-running progress, including `ProgressCircle`.

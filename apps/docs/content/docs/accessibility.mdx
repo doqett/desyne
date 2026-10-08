@@ -1,0 +1,169 @@
+---
+title: Accessibility
+description: What React Aria gives every component, the keyboard model, focus and screen reader behaviour, what you still own, and how to test it.
+---
+
+Every interactive component is built on [React Aria Components](https://react-aria.adobe.com/),
+Adobe's library of accessible primitives. Desyne adds styling; the behaviour (roles,
+keyboard interaction, focus management, announcements) comes from React Aria, which is
+tested across browsers, screen readers and input methods.
+
+## What you get for free
+
+| Area | What React Aria handles |
+| --- | --- |
+| Semantics | Correct roles and ARIA attributes for each pattern: `listbox`, `menu`, `grid`, `dialog`, `tablist`, `slider` and so on |
+| Labelling | `label`, `description` and `errorMessage` props are wired to the control with `aria-labelledby` and `aria-describedby` |
+| Keyboard | Arrow keys, Home/End, Page Up/Down, typeahead and Escape, following the WAI-ARIA patterns |
+| Focus | Focus trapping in modals, focus restore on close, roving focus in collections, focus-visible detection |
+| Interactions | `onPress` normalises mouse, touch, pen and keyboard; hover styles don't stick on touch devices |
+| Announcements | Live-region messages for things like combobox results and drag and drop |
+| Validation | Native and custom errors exposed to assistive tech and linked to the field |
+| Internationalisation | Right-to-left keyboard behaviour, localised date and number parts. See [Internationalisation](/docs/internationalization) |
+
+## Focus
+
+The focus ring only appears for keyboard users. React Aria sets `data-focus-visible`
+when focus arrives from the keyboard, and components style that state:
+
+```ts title="lib/primitive.ts"
+export const focusRing =
+  "outline-none data-focus-visible:ring-[3px] data-focus-visible:ring-ring/25";
+```
+
+Fields show focus on the group (`data-focus-within`) with a brand-colored border and
+glow, so the ring wraps prefixes and suffixes too.
+
+<Callout type="warn" title="Don't remove the ring">
+  If you restyle a component, keep a visible `data-focus-visible` style with at least
+  3:1 contrast against the background. Change its color with `--ring`.
+</Callout>
+
+**Overlays manage focus for you.** A Dialog or Sheet moves focus inside when it opens,
+keeps Tab inside while open, closes on Escape and returns focus to the trigger. Use
+`autoFocus` on a field to choose where focus starts:
+
+```tsx
+<DialogContent>
+  <DialogHeader>
+    <DialogTitle>Rename project</DialogTitle>
+  </DialogHeader>
+  <TextField label="Name" defaultValue="Atlas" autoFocus />
+</DialogContent>
+```
+
+## Keyboard reference
+
+| Component | Keys |
+| --- | --- |
+| Button, Toggle Button, Link | <kbd>Enter</kbd> / <kbd>Space</kbd> activate |
+| Checkbox, Switch | <kbd>Space</kbd> toggles |
+| Radio Group, Toggle Button Group | <kbd>Arrow</kbd> keys move and select; <kbd>Tab</kbd> leaves the group |
+| Tabs | <kbd>Arrow</kbd> keys move between tabs; <kbd>Home</kbd> / <kbd>End</kbd> jump |
+| Menu | <kbd>Enter</kbd> / <kbd>Space</kbd> / <kbd>↓</kbd> open; arrows move; type to jump; <kbd>Esc</kbd> closes; <kbd>→</kbd> opens a submenu |
+| Select | <kbd>Space</kbd> / <kbd>Enter</kbd> / arrows open; type to jump to an option |
+| Combobox | Type to filter; <kbd>↓</kbd> opens; <kbd>Enter</kbd> selects; <kbd>Esc</kbd> closes, then clears |
+| Slider | Arrows step; <kbd>Page Up</kbd> / <kbd>Page Down</kbd> take bigger steps; <kbd>Home</kbd> / <kbd>End</kbd> go to min / max |
+| Number Field | <kbd>↑</kbd> / <kbd>↓</kbd> step; <kbd>Page Up</kbd> / <kbd>Page Down</kbd> step by 10× |
+| Date Field, Time Field | <kbd>←</kbd> / <kbd>→</kbd> move between segments; <kbd>↑</kbd> / <kbd>↓</kbd> change a segment; digits type into it |
+| Calendar | Arrows move by day and week; <kbd>Page Up</kbd> / <kbd>Page Down</kbd> by month; with <kbd>Shift</kbd> by year |
+| Table, Grid List, List Box | Arrows move; <kbd>Space</kbd> selects; <kbd>Shift</kbd> + arrows extend a selection; <kbd>Ctrl/⌘</kbd> + <kbd>A</kbd> selects all |
+| Tag Group | Arrows move; <kbd>Delete</kbd> / <kbd>Backspace</kbd> remove a removable tag |
+| Disclosure | <kbd>Enter</kbd> / <kbd>Space</kbd> expand and collapse |
+| Dialog, Sheet, Popover | <kbd>Esc</kbd> closes (not for `role="alertdialog"`); <kbd>Tab</kbd> stays inside |
+| Toast | <kbd>Alt</kbd> + <kbd>T</kbd> moves focus to the toast region |
+
+## Screen readers
+
+Components announce the right thing as long as each control has a name.
+
+- **Prefer visible labels.** Pass `label` to fields. It renders a real `<label>`
+  linked to the input.
+- **Name controls without a visible label** with `aria-label`: icon-only buttons,
+  search fields in toolbars, sliders in compact layouts.
+- **Name collections and groups.** Tables, list boxes, tag groups, radio groups and
+  toggle groups need `aria-label` (or a `label`) so users know what they're in.
+- **Write good descriptions.** `description` is read after the label; keep it to one
+  short sentence.
+- **Announce async results.** Use `toast()` for confirmations and background results;
+  the toast region is a live region.
+
+```tsx
+<SearchField aria-label="Search invoices" size="sm" />
+
+<Table aria-label="Invoices" selectionMode="multiple">…</Table>
+
+<ToggleButtonGroup aria-label="Text alignment">…</ToggleButtonGroup>
+```
+
+## What you still own
+
+React Aria makes each component accessible. A page also needs:
+
+- **Structure.** One `<h1>`, headings in order, and landmarks (`<header>`, `<nav>`,
+  `<main>`, `<footer>`).
+- **Contrast.** The default tokens meet WCAG AA for text. If you change `--primary`,
+  `--brand` or `--muted-foreground`, re-check text at 4.5:1 and UI parts at 3:1.
+- **Text alternatives.** `alt` on meaningful images, `alt=""` on decorative ones.
+- **Link and button text** that makes sense out of context ("Download invoice", not
+  "Click here").
+- **Target size.** The smallest controls (`xs`, 24px) meet WCAG 2.2's 24×24px minimum.
+  Use `md` or `lg` sizes for primary actions on touch screens.
+- **Errors you can find.** For long forms, move focus to the first invalid field on
+  submit (React Aria's `Form` does this for native validation) or show a summary.
+- **No nested interactive elements.** Don't put a button inside a clickable card; use
+  the card's own `href` or a single link that covers it.
+
+## Testing
+
+### By hand (5 minutes per screen)
+
+1. Unplug the mouse. Tab through the page: is the order logical, is focus always
+   visible, can you reach and operate everything?
+2. Open and close every overlay with the keyboard. Does focus return to where it was?
+3. Zoom to 200% and check nothing overlaps or is cut off.
+4. Turn on a screen reader (VoiceOver: <kbd>⌘</kbd> + <kbd>F5</kbd>; NVDA on Windows) and
+   move through the main flow. Does every control announce a name, role and state?
+
+### Automated
+
+[axe-core](https://github.com/dequelabs/axe-core) catches missing names, contrast issues
+and invalid ARIA. Run it in end-to-end tests:
+
+```ts title="e2e/a11y.spec.ts"
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "@playwright/test";
+
+test("settings page has no detectable a11y violations", async ({ page }) => {
+  await page.goto("/settings");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+});
+```
+
+Test behaviour the way users reach it, by role and name, with
+[Testing Library](https://testing-library.com):
+
+```tsx title="plan-select.test.tsx"
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { Select, SelectItem } from "@/components/ui/select";
+
+test("picks a plan with the keyboard", async () => {
+  const user = userEvent.setup();
+  render(
+    <Select label="Plan" placeholder="Choose a plan">
+      <SelectItem id="free">Free</SelectItem>
+      <SelectItem id="pro">Pro</SelectItem>
+    </Select>,
+  );
+
+  await user.tab();
+  await user.keyboard("{ArrowDown}");
+  await user.click(screen.getByRole("option", { name: "Pro" }));
+
+  expect(screen.getByRole("button", { name: /Plan/ })).toHaveTextContent("Pro");
+});
+```
+
+Automated tools find roughly a third of issues. Keep the manual pass.

@@ -1,0 +1,33 @@
+{
+  "pages": [
+    "---Get started---",
+    "index",
+    "installation",
+    "cli",
+    "project-structure",
+    "---Foundations---",
+    "theming",
+    "colors",
+    "typography",
+    "dark-mode",
+    "icons",
+    "motion",
+    "accessibility",
+    "internationalization",
+    "---Patterns---",
+    "forms",
+    "data-tables",
+    "overlays",
+    "routing",
+    "server-components",
+    "---Pro---",
+    "...pro",
+    "---Resources---",
+    "ai",
+    "contributing",
+    "license",
+    "[Changelog](/changelog)",
+    "[llms.txt](/llms.txt)",
+    "components"
+  ]
+}

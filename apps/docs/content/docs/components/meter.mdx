@@ -1,0 +1,181 @@
+---
+title: Meter
+description: Shows a measurement within a known range, like storage used, a quota or password strength. The color follows configurable thresholds from success to warning to danger, with a segmented style, custom value text and locale-aware formatting.
+---
+
+<ComponentLinks aria="Meter" source="meter" />
+
+<ComponentPreview name="meter/demo" />
+
+## Installation
+
+<InstallTabs name="meter" />
+
+## Usage
+
+```tsx
+import { Meter } from "@/components/ui/meter";
+```
+
+```tsx
+<Meter label="Storage" value={72} />
+```
+
+Without a `color`, the bar is `success` below 75%, `warning` from 75% and `danger` from 90%. Change the cut-offs with `thresholds`, or set `color` to use one fixed tone.
+
+### When to use
+
+- Meter — a level within a known range that can go up or down: disk usage, seats, budget spent, signal or password strength.
+- [Progress Bar](/docs/components/progress-bar) — the completion of a task that is running and will finish.
+- [Spinner](/docs/components/spinner) and [Skeleton](/docs/components/skeleton) — waiting for something to load, where there's no value to show.
+
+## Anatomy
+
+```tsx
+<Meter label="…">          {/* role="meter progressbar" */}
+  {/* header: Label + value text */}
+  {/* track + fill, or a row of segments */}
+</Meter>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Meter` | `<div role="meter progressbar">` | React Aria `Meter`. Sets `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext`. |
+| Label | `Label` (`<span>`) | Rendered when `label` is set and used as the accessible name. |
+| Value text | `<span>` | The formatted value, or `valueLabel`. Hidden with `showValue={false}`. |
+| Track + fill | `<div>` › `<div>` | Muted track with a fill whose width follows the percentage (500ms transition). |
+| Segments | `<div>` × `segments` | Replaces the track when `segments` is set. A segment fills once the value reaches its share of the range. |
+
+## Examples
+
+### Thresholds
+
+`thresholds` takes two percentages: where the bar turns `warning` and where it turns `danger`. They're measured against the percentage of the range, not the raw value.
+
+<ComponentPreview name="meter/thresholds" />
+
+### Fixed color
+
+Set `color` when the value isn't "good" or "bad", such as a score or a completeness level. `color` always wins over `thresholds`.
+
+<ComponentPreview name="meter/colors" />
+
+### When low is bad
+
+Thresholds assume higher is worse. For values like battery or health scores, compute the color yourself and pass it in.
+
+<ComponentPreview name="meter/low-is-bad" />
+
+### Sizes
+
+`md` (8px) is the default; `sm` (6px) suits cards, tables and dense dashboards.
+
+<ComponentPreview name="meter/sizes" />
+
+### Segments
+
+`segments` splits the bar into equal pieces, for battery, signal or rating-style displays. Segments fill in whole steps, so pick a count that divides your range cleanly.
+
+<ComponentPreview name="meter/segments" />
+
+### Custom value text
+
+`valueLabel` replaces the percentage with your own text. It's also used as `aria-valuetext`, so pass a string that reads well on its own.
+
+<ComponentPreview name="meter/value-label" />
+
+### Formatting and ranges
+
+Set `minValue` and `maxValue` to work in real units, and `formatOptions` to format the value in the user's locale. With the default `percent` style the percentage is shown; any other style formats the raw value.
+
+<ComponentPreview name="meter/format" />
+
+### Without a visible label
+
+In tables and lists, pass `aria-label` and hide the value with `showValue={false}` if you show it elsewhere.
+
+<ComponentPreview name="meter/no-label" />
+
+## Recipes
+
+### Usage quotas
+
+Plan limits in a billing card. Each meter uses `maxValue` and a `valueLabel` in real units, and turns amber and red as it approaches the limit.
+
+<ComponentPreview name="meter/recipe-usage-quotas" />
+
+### Password strength
+
+A segmented meter under a [`TextField`](/docs/components/text-field), with a color and label computed from a simple score.
+
+<ComponentPreview name="meter/recipe-password-strength" />
+
+### Server health
+
+Compact meters in cards, with a [`Badge`](/docs/components/badge) summarizing the worst reading.
+
+<ComponentPreview name="meter/recipe-server-health" />
+
+## Accessibility
+
+- Renders `role="meter progressbar"`: browsers that support the `meter` role use it, others fall back to `progressbar`.
+- `aria-valuenow`, `aria-valuemin`, `aria-valuemax` and `aria-valuetext` are set for you. `aria-valuetext` is your `valueLabel`, or the value formatted with `formatOptions`.
+- Every meter needs an accessible name: `label`, `aria-label` or `aria-labelledby`.
+- Color reinforces the value but never replaces it; keep the value text visible or describe the state in `valueLabel` ("Fair", "Critical").
+- Meters aren't live regions. Changes aren't announced until the user reaches the meter.
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="meter"` | Root |
+| `data-slot="label"` | The visible label |
+
+### Render props
+
+`className` accepts a function of the render state (`percentage`, `valueText`):
+
+```tsx
+<Meter
+  label="Disk"
+  value={value}
+  className={({ percentage }) => (percentage >= 90 ? "font-medium" : "")}
+/>
+```
+
+### Tone variables
+
+The resolved tone sets `--tone` on the track (or the segment row), and the fill uses `bg-(--tone)`. The track itself is `bg-muted`.
+
+## API Reference
+
+### Meter
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label, used as the accessible name." },
+    value: { type: "number", default: "0", description: "Current value, clamped to the range." },
+    minValue: { type: "number", default: "0", description: "Start of the range." },
+    maxValue: { type: "number", default: "100", description: "End of the range." },
+    showValue: { type: "boolean", default: "true", description: "Shows the value text next to the label." },
+    valueLabel: { type: "ReactNode", description: 'Replaces the formatted value, e.g. "7.2 of 10 GB". Also used as aria-valuetext, so prefer a string.' },
+    formatOptions: { type: "Intl.NumberFormatOptions", default: "{ style: 'percent' }", description: "How the value is formatted." },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', description: "Fixed tone. When omitted, the tone follows thresholds." },
+    thresholds: { type: "[number, number]", default: "[75, 90]", description: "Percentages where the bar turns warning and danger." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Bar height: 6px or 8px." },
+    segments: { type: "number", description: "Splits the bar into this many segments." },
+    "aria-label": { type: "string", description: "Accessible name when there is no visible label." },
+    "aria-labelledby": { type: "string", description: "Id of an element that labels the meter." },
+    className: { type: "string | ((state: MeterRenderProps) => string)", description: "Classes, or a function of the render state." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Meter`](https://react-aria.adobe.com/Meter#api), such as `id`, `style` and `aria-describedby`.
+
+## Related
+
+- [Progress Bar](/docs/components/progress-bar) — the progress of a running task.
+- [Alert](/docs/components/alert) — pair a meter with a warning when a limit is close.
+- [Badge](/docs/components/badge) — a compact status next to a reading.

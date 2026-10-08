@@ -1,0 +1,289 @@
+---
+title: Grid List
+description: An interactive list whose rows can hold buttons, menus and links. Supports single and multiple selection with checkboxes, row actions, links, drag-to-reorder and drag between lists, card grid layouts, infinite loading and empty states.
+---
+
+<ComponentLinks aria="GridList" source="grid-list" />
+
+<ComponentPreview name="grid-list/demo" />
+
+## Installation
+
+<InstallTabs name="grid-list" />
+
+## Usage
+
+```tsx
+import {
+  GridList,
+  GridListItem,
+  GridListItemDescription,
+  GridListItemLabel,
+} from "@/components/ui/grid-list";
+```
+
+```tsx
+<GridList aria-label="Files" selectionMode="multiple">
+  <GridListItem id="report">Q3 report.pdf</GridListItem>
+  <GridListItem id="budget">Budget 2027.xlsx</GridListItem>
+</GridList>
+```
+
+<Callout title="Rows can contain controls">
+  Unlike [List Box](/docs/components/list-box), grid list rows are `role="row"`
+  and may contain buttons, menus, switches and links. Arrow keys move between
+  rows, and <kbd>←</kbd> / <kbd>→</kbd> move into a row's controls. Selection
+  checkboxes and drag handles are added for you.
+</Callout>
+
+### When to use
+
+- Grid List — a list of objects users act on: files, members, notifications, tasks, cards.
+- [List Box](/docs/components/list-box) — choosing values from plain options, with no controls inside rows.
+- [Table](/docs/components/table) — multiple columns of comparable data, sorting and column headers.
+- [Menu](/docs/components/menu) — a transient list of commands.
+
+## Anatomy
+
+```tsx
+<GridList>                         {/* role="grid" */}
+  <GridListItem>                   {/* role="row" */}
+    {/* drag handle, when dragAndDropHooks is set */}
+    {/* selection checkbox, when selectionMode is set */}
+    <Icon />
+    <GridListItemLabel />
+    <GridListItemDescription />
+    <Button />                     {/* any interactive content */}
+  </GridListItem>
+</GridList>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `GridList` | `<div role="grid">` | Scrollable list. `variant` sets the frame. Shows `renderEmptyState` when empty. |
+| `GridListItem` | `<div role="row">` › `<div role="gridcell">` | A row. Plain-string children become its `textValue`. |
+| Drag handle | `<button slot="drag">` | Grip icon, rendered automatically when the list has `dragAndDropHooks`. |
+| Selection checkbox | [`Checkbox`](/docs/components/checkbox) | Rendered automatically when `selectionMode` is set and `selectionBehavior` is `toggle`. |
+| `GridListItemLabel` | `<span>` | Bold, truncated primary text. |
+| `GridListItemDescription` | `<span slot="description">` | Muted secondary text, linked as the row's description. |
+
+## Examples
+
+### Variants
+
+`bordered` (default) frames the list as a card, `separated` draws a divider between rows, and `plain` has no frame for embedding in your own container.
+
+<ComponentPreview name="grid-list/variants" />
+
+### Single selection
+
+`selectionMode="single"` adds a checkbox that behaves like a radio. `disallowEmptySelection` keeps one row selected.
+
+<ComponentPreview name="grid-list/single-selection" />
+
+### Controlled selection
+
+`selectedKeys` and `onSelectionChange` own the selection. Handle both a `Set` of keys and `"all"` (after <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> or the select-all shortcut).
+
+<ComponentPreview name="grid-list/controlled" />
+
+### Selection behavior
+
+`selectionBehavior="replace"` hides the checkboxes and selects like a file browser: a click selects one row, <kbd>⌘</kbd>/<kbd>Ctrl</kbd> or <kbd>Shift</kbd> add more.
+
+<ComponentPreview name="grid-list/selection-behavior" />
+
+### Disabled rows
+
+`disabledKeys` disables rows. With `disabledBehavior="selection"` they can't be selected but stay focusable, so keyboard and screen reader users can still reach them and their contents. The default `all` disables every interaction.
+
+<ComponentPreview name="grid-list/disabled" />
+
+### Row actions and controls
+
+`onAction` fires when a row is clicked or <kbd>Enter</kbd> is pressed. Buttons and [menus](/docs/components/menu) inside the row handle their own presses without triggering the row action.
+
+<ComponentPreview name="grid-list/actions" />
+
+### Links
+
+Give rows an `href` to make the whole row a link. They work with client-side routers through React Aria's `RouterProvider`.
+
+<ComponentPreview name="grid-list/links" />
+
+### Empty state
+
+`renderEmptyState` renders when there are no items. The list gets `data-empty` and centered, muted text.
+
+<ComponentPreview name="grid-list/empty" />
+
+### Drag to reorder
+
+Pass `dragAndDropHooks` from `useDragAndDrop` and each row gets a drag handle. Update your data in `onReorder`, and use `renderDropIndicator` with React Aria's `DropIndicator` to show where items will land. Keyboard users focus the handle and press <kbd>Enter</kbd> to start dragging.
+
+<ComponentPreview name="grid-list/reorder" />
+
+### Grid layout
+
+`layout="grid"` enables two-dimensional arrow key navigation. Combine it with `variant="plain"` and CSS grid classes to build a card picker; restyle rows with `className`.
+
+<ComponentPreview name="grid-list/grid-layout" />
+
+### Infinite loading
+
+Render the items in a `Collection` followed by `GridListLoadMoreItem`, which calls `onLoadMore` as it scrolls into view. `useAsyncList` handles cursors and loading state. Give the list a fixed height.
+
+<ComponentPreview name="grid-list/async" />
+
+## Recipes
+
+### File manager with bulk actions
+
+A plain grid list inside a card, with a toolbar that switches to bulk actions while rows are selected.
+
+<ComponentPreview name="grid-list/recipe-file-manager" />
+
+### Kanban board
+
+Three lists that share a custom drag type. `onInsert` and `onRootDrop` accept items from other columns, `onReorder` moves within a column, and `onDragEnd` removes moved items from the source.
+
+<ComponentPreview name="grid-list/recipe-kanban" />
+
+### Notification inbox
+
+A `separated` list where `onAction` marks a notification as read. The unread dot has visually hidden text so it's announced.
+
+<ComponentPreview name="grid-list/recipe-notifications" />
+
+## Accessibility
+
+- The list is `role="grid"` and each item is a `role="row"` with a single `gridcell`, so screen readers announce row position and selection.
+- Always provide `aria-label` or `aria-labelledby`.
+- Focus is a single tab stop with arrow key navigation between rows. Interactive children are reached with <kbd>←</kbd> / <kbd>→</kbd> (or <kbd>Tab</kbd> with `keyboardNavigationBehavior="tab"`).
+- Give icon-only buttons inside rows an `aria-label`, and make sure row text is available as `textValue` for typeahead and announcements.
+- Selection checkboxes are labelled from the row automatically.
+- Drag and drop has built-in keyboard and screen reader support, with live announcements for each step.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into and out of the list |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Moves focus to the previous / next row (all four arrows in grid layout) |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves focus between the row and its interactive children |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves focus to the first / last row |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Moves focus by a page |
+| <kbd>Space</kbd> | Toggles selection of the focused row |
+| <kbd>Enter</kbd> | Triggers `onAction`, follows a link, or starts a drag from the handle |
+| <kbd>Shift</kbd>+<kbd>↑</kbd> / <kbd>Shift</kbd>+<kbd>↓</kbd> | Extends the selection (multiple) |
+| <kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>A</kbd> | Selects all (multiple) |
+| <kbd>Esc</kbd> | Clears the selection, or cancels a drag |
+| Any character | Typeahead (unless `disallowTypeAhead`) |
+
+## Styling
+
+### Data attributes
+
+On the `GridList` (use `group-data-*/list:` inside it):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-variant` | Always: `bordered`, `separated` or `plain` |
+| `data-empty` | There are no items |
+| `data-focused` / `data-focus-visible` | The list itself has focus / keyboard focus |
+| `data-drop-target` | Something is being dragged over the list |
+| `data-layout` | Always: `stack` or `grid` |
+| `data-orientation` | Always: `vertical` or `horizontal` |
+
+On each `GridListItem` (use `group-data-*/item:` inside it):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | The row is selected |
+| `data-focused` / `data-focus-visible` | The row has focus / keyboard focus |
+| `data-focus-visible-within` | A control inside the row has keyboard focus |
+| `data-hovered` / `data-pressed` | Hovered with a mouse / being pressed |
+| `data-disabled` | The row is disabled |
+| `data-selection-mode` | `single` or `multiple` |
+| `data-allows-dragging` / `data-dragging` | Drag and drop is enabled / the row is being dragged |
+| `data-drop-target` | The row is the current drop target |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `grid-list` | Root |
+| `grid-list-item` | Each row |
+| `grid-list-item-label` | `GridListItemLabel` |
+
+- The list has `max-h-[inherit]` and `overflow-auto`; give it a `max-h-*` or `h-*` to scroll.
+- Rows are `flex items-center gap-3`, so icons, text and trailing controls line up without extra wrappers. Give the text block `flex-1` to push controls to the end.
+- `className` on `GridList` and `GridListItem` also accepts a function of the render props, e.g. `({ isSelected }) => …`.
+
+## API Reference
+
+### GridList
+
+<TypeTable
+  type={{
+    variant: { type: '"bordered" | "separated" | "plain"', default: '"bordered"', description: "Frame around the list." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Static rows, or a render function." },
+    selectionMode: { type: '"none" | "single" | "multiple"', default: '"none"' },
+    selectionBehavior: { type: '"toggle" | "replace"', default: '"toggle"', description: "toggle shows checkboxes; replace selects like a file browser." },
+    selectedKeys: { type: '"all" | Iterable<Key>', description: "Controlled selection." },
+    defaultSelectedKeys: { type: '"all" | Iterable<Key>', description: "Uncontrolled initial selection." },
+    onSelectionChange: { type: "(keys: Selection) => void", description: "Called when the selection changes." },
+    disallowEmptySelection: { type: "boolean", default: "false", description: "Prevents deselecting the last row." },
+    disabledKeys: { type: "Iterable<Key>", description: "Rows that are disabled." },
+    disabledBehavior: { type: '"all" | "selection"', default: '"all"', description: "Whether disabled rows block all interaction, or only selection." },
+    onAction: { type: "(key: Key) => void", description: "Called when a row is actioned (click or Enter)." },
+    renderEmptyState: { type: "(props: GridListRenderProps) => ReactNode", description: "Content shown when there are no items." },
+    dragAndDropHooks: { type: "DragAndDropHooks", description: "From useDragAndDrop. Adds drag handles to rows." },
+    layout: { type: '"stack" | "grid"', default: '"stack"', description: "grid enables two-dimensional keyboard navigation." },
+    orientation: { type: '"vertical" | "horizontal"', default: '"vertical"' },
+    keyboardNavigationBehavior: { type: '"arrow" | "tab"', default: '"arrow"', description: "How focus moves to controls inside rows." },
+    disallowTypeAhead: { type: "boolean", default: "false" },
+    escapeKeyBehavior: { type: '"clearSelection" | "none"', default: '"clearSelection"' },
+    shouldSelectOnPressUp: { type: "boolean", description: "Selects on pointer up instead of down." },
+    autoFocus: { type: 'boolean | "first" | "last"', description: "Focuses the list, or its first / last row, on mount." },
+    dependencies: { type: "ReadonlyArray<any>", description: "Values that invalidate cached row rendering." },
+    "aria-label": { type: "string", description: "Accessible name. Required unless you pass aria-labelledby." },
+    className: { type: "string | ((state: GridListRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`GridList`](https://react-aria.adobe.com/GridList#api).
+
+### GridListItem
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique key. Set automatically from item.id with dynamic items." },
+    textValue: { type: "string", description: "Plain text for typeahead and announcements. Defaults to children when they're a string." },
+    isDisabled: { type: "boolean", description: "Disables this row." },
+    value: { type: "T", description: "The item object, when using dynamic collections." },
+    href: { type: "string", description: "Makes the row a link." },
+    target: { type: "string", description: "Link target, e.g. _blank." },
+    onAction: { type: "() => void", description: "Called when this row is actioned." },
+    focusMode: { type: '"row" | "child"', default: '"row"', description: "Focus the row, or its first focusable child, when navigating." },
+    allowsArrowNavigation: { type: "boolean", description: "Keep arrow key navigation between rows when a child control has focus (tab mode)." },
+    className: { type: "string | ((state: GridListItemRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: GridListItemRenderProps) => ReactNode)" },
+  }}
+/>
+
+### GridListItemLabel
+
+Accepts every prop of `<span>`.
+
+### GridListItemDescription
+
+Accepts every prop of React Aria's `Text`. It sets `slot="description"`.
+
+## Related
+
+- [List Box](/docs/components/list-box) — selectable options without interactive content.
+- [Table](/docs/components/table) — rows and columns with sorting.
+- [Menu](/docs/components/menu) — for per-row action menus.
+- [Checkbox](/docs/components/checkbox) — the selection control used in rows.

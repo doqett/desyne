@@ -1,0 +1,260 @@
+---
+title: Dialog
+description: A modal window that interrupts the page for a focused task, form or confirmation. Traps focus, locks scroll, restores focus on close, and supports alert, full-screen and controlled modes.
+---
+
+<ComponentLinks aria="Modal" source="dialog" />
+
+<ComponentPreview name="dialog/demo" />
+
+## Installation
+
+<InstallTabs name="dialog" />
+
+## Usage
+
+```tsx
+import {
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+```
+
+```tsx
+<DialogTrigger>
+  <Button>Open</Button>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Title</DialogTitle>
+      <DialogDescription>Description</DialogDescription>
+    </DialogHeader>
+    {/* content */}
+    <DialogFooter>
+      <DialogClose>Cancel</DialogClose>
+      <Button>Confirm</Button>
+    </DialogFooter>
+  </DialogContent>
+</DialogTrigger>
+```
+
+`DialogTrigger` connects the first child (any pressable, usually a [`Button`](/docs/components/button)) to the `DialogContent` after it. No state or refs needed.
+
+### When to use
+
+- Dialog — a short, self-contained task that needs the user's full attention: a form, a confirmation, a detail view.
+- [Sheet](/docs/components/sheet) — longer or secondary content that slides in from an edge and can stay open while users reference the page.
+- [Popover](/docs/components/popover) — lightweight, non-modal content anchored to a trigger.
+- [Toast](/docs/components/toast) — feedback that doesn't need a response.
+
+Avoid dialogs that open other dialogs; prefer a multi-step flow inside one dialog.
+
+## Anatomy
+
+```tsx
+<DialogTrigger>
+  <Button />                       {/* trigger */}
+  <DialogContent>                  {/* overlay + modal + dialog */}
+    <DialogIcon />                 {/* optional status icon (alert dialogs) */}
+    <DialogHeader>
+      <DialogTitle />              {/* accessible name */}
+      <DialogDescription />
+    </DialogHeader>
+    <DialogBody />                 {/* optional scrollable region */}
+    <DialogFooter>
+      <DialogClose />              {/* button that closes the dialog */}
+    </DialogFooter>
+  </DialogContent>
+</DialogTrigger>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `DialogTrigger` | — | Manages open state and wires the trigger to the dialog. |
+| `DialogContent` | `ModalOverlay` › `Modal` › `Dialog` | Backdrop, centered panel and the `role="dialog"` element. Adds a close icon by default. |
+| `DialogHeader` | `<div>` | Stacks title and description; leaves room for the close icon. |
+| `DialogTitle` | `Heading` (`slot="title"`) | Becomes the dialog's accessible name. |
+| `DialogDescription` | `<p>` | Supporting text. |
+| `DialogIcon` | `<div>` | Tinted circular icon for alert dialogs. |
+| `DialogBody` | `<div>` | Optional. Takes the remaining height and scrolls when content overflows. |
+| `DialogFooter` | `<div>` | Actions. Stacked (primary on top) on mobile, right-aligned on larger screens. |
+| `DialogClose` | `Button slot="close"` | Any button with `slot="close"` closes the dialog. Defaults to `outline`. |
+| `DialogCloseIcon` | `<button>` | The top-right ✕. Rendered automatically unless `showCloseButton={false}`. |
+
+## Examples
+
+### Alert dialog
+
+`role="alertdialog"` is for confirmations that need an explicit decision. It can't be dismissed by clicking outside and hides the close icon. `DialogIcon` adds a tinted status icon.
+
+<ComponentPreview name="dialog/alert-dialog" />
+
+### Sizes
+
+`sm` (384px), `md` (512px, default), `lg` (672px), `xl` (896px) set the maximum width. The dialog shrinks to fit smaller viewports.
+
+<ComponentPreview name="dialog/sizes" />
+
+### Full screen
+
+`size="full"` fills the viewport with a 1rem margin — useful for editors, previews and complex forms on small screens. Give the main element `flex-1` to fill the space between header and footer.
+
+<ComponentPreview name="dialog/fullscreen" />
+
+### Scrollable content
+
+Dialogs never grow taller than the viewport. Wrap long content in `DialogBody` and it scrolls while the header and footer stay put. Pass a `max-h-*` class to `DialogContent` for a shorter cap.
+
+<ComponentPreview name="dialog/scrollable" />
+
+### Forms
+
+Wrap the content in a React Aria `Form` and use the render-function child, `({ close }) => …`, to close the dialog after a successful submit.
+
+<ComponentPreview name="dialog/demo" />
+
+### Validation and async submit
+
+Field validation runs before `onSubmit`. Show `isPending` on the submit button while the request runs, then close and confirm with a [toast](/docs/components/toast).
+
+<ComponentPreview name="dialog/form-validation" />
+
+### Controlled
+
+Render `DialogContent` without a trigger and control it with `isOpen` and `onOpenChange`. Use this to open a dialog from a [menu](/docs/components/menu) item, a keyboard shortcut or after an async event. Focus returns to the element that was focused before opening.
+
+<ComponentPreview name="dialog/controlled" />
+
+### Non-dismissable
+
+`isDismissable={false}` ignores outside clicks, `isKeyboardDismissDisabled` ignores <kbd>Esc</kbd>, and `showCloseButton={false}` hides the ✕. Use sparingly — users should always have a visible way out.
+
+<ComponentPreview name="dialog/non-dismissable" />
+
+## Recipes
+
+### Type to confirm
+
+For irreversible, high-impact actions, require the user to type the resource name before the destructive button is enabled.
+
+<ComponentPreview name="dialog/recipe-type-to-confirm" />
+
+### Invite members
+
+A small form that builds a list, with per-row role [`Select`](/docs/components/select)s inside the dialog.
+
+<ComponentPreview name="dialog/recipe-invite" />
+
+### Multi-step wizard
+
+Keep one dialog open and swap its body. A [`ProgressBar`](/docs/components/progress-bar) and "Step x of y" give orientation; Back and Continue replace a stack of nested dialogs.
+
+<ComponentPreview name="dialog/recipe-wizard" />
+
+## Accessibility
+
+- Focus moves into the dialog on open (to the first focusable element, or one with `autoFocus`), stays trapped inside, and returns to the trigger on close.
+- Page scroll is locked while open, and content outside the dialog is hidden from screen readers with `aria-hidden`.
+- `DialogTitle` provides the accessible name. Without a visible title, pass `aria-label` to `DialogContent`.
+- `role="alertdialog"` tells screen readers the dialog needs an immediate response.
+- Put `autoFocus` on the least destructive action in alert dialogs, or on the first field in forms.
+- Nested overlays (selects, menus, popovers) inside a dialog work as expected; <kbd>Esc</kbd> closes the innermost one first.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Cycles focus within the dialog |
+| <kbd>Esc</kbd> | Closes the dialog (unless `isKeyboardDismissDisabled` or `role="alertdialog"`) |
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-entering` | overlay, content | Opening animation is running |
+| `data-exiting` | overlay, content | Closing animation is running |
+| `data-slot="dialog-overlay"` | backdrop | Always |
+| `data-slot="dialog-content"` | panel | Always |
+| `data-slot="dialog-body"` | body | When `DialogBody` is used |
+
+Enter and exit animations use `tw-animate-css` classes keyed off `data-entering` and `data-exiting`, so React Aria waits for them to finish before unmounting.
+
+### Customizing
+
+- `className` on `DialogContent` styles the panel (width, height, padding, radius).
+- The backdrop uses the exported `overlayStyles` string; reuse it for your own modal surfaces.
+- The panel is a flex column capped at the viewport height; the inner `Dialog` is `flex flex-col gap-4 p-6` and scrolls as a fallback if you don't use `DialogBody`.
+- The inner `Dialog` padding is `p-6`. Override with `[&>[role=dialog]]:p-0` on `DialogContent` for edge-to-edge content like images.
+
+## API Reference
+
+### DialogTrigger
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode", description: "A pressable trigger followed by DialogContent." },
+    isOpen: { type: "boolean", description: "Controlled open state." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the dialog opens or closes." },
+  }}
+/>
+
+### DialogContent
+
+<TypeTable
+  type={{
+    size: { type: '"sm" | "md" | "lg" | "xl" | "full"', default: '"md"', description: "Maximum width (full fills the viewport)." },
+    role: { type: '"dialog" | "alertdialog"', default: '"dialog"', description: "alertdialog also disables outside-click dismissal and the close icon." },
+    showCloseButton: { type: "boolean", default: "true", description: "Shows the ✕ button (never shown for alert dialogs)." },
+    isDismissable: { type: "boolean", default: "true", description: "Close when clicking outside." },
+    isKeyboardDismissDisabled: { type: "boolean", default: "false", description: "Ignore the Esc key." },
+    isOpen: { type: "boolean", description: "Controlled open state, when used without a DialogTrigger." },
+    defaultOpen: { type: "boolean" },
+    onOpenChange: { type: "(isOpen: boolean) => void" },
+    shouldCloseOnInteractOutside: { type: "(element: Element) => boolean", description: "Fine-grained control over which outside clicks close the dialog." },
+    "aria-label": { type: "string", description: "Accessible name when there is no DialogTitle." },
+    children: { type: "ReactNode | ((opts: { close: () => void }) => ReactNode)", description: "Content, or a function that receives close()." },
+    className: { type: "string", description: "Classes for the modal panel." },
+  }}
+/>
+
+### DialogIcon
+
+<TypeTable
+  type={{
+    tone: { type: '"primary" | "danger" | "warning" | "success" | "info"', default: '"primary"' },
+    children: { type: "ReactNode", description: "An icon, sized to 20px." },
+  }}
+/>
+
+### DialogClose
+
+A [`Button`](/docs/components/button) with `slot="close"`. Accepts every button prop.
+
+<TypeTable
+  type={{
+    variant: { type: "ButtonProps['variant']", default: '"outline"' },
+  }}
+/>
+
+### DialogTitle
+
+Accepts every prop of React Aria's [`Heading`](https://react-aria.adobe.com/Dialog#heading), including `level` to change the heading element.
+
+### DialogHeader / DialogBody / DialogFooter / DialogDescription
+
+Accept every prop of `<div>` / `<div>` / `<div>` / `<p>`.
+
+## Related
+
+- [Sheet](/docs/components/sheet) — a dialog that slides in from the edge.
+- [Popover](/docs/components/popover) — non-modal content anchored to a trigger.
+- [Command Palette](/docs/components/command-palette) — a searchable dialog of actions.
+- [Toast](/docs/components/toast) — non-blocking feedback after the dialog closes.

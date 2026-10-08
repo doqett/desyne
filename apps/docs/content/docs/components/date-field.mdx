@@ -1,0 +1,329 @@
+---
+title: Date Field
+description: Segmented date and time inputs that users type into or step with the arrow keys. DateField and TimeField format every segment for the user's locale, support time zones and any granularity down to seconds, and validate against min/max, required and custom rules.
+---
+
+<ComponentLinks aria="DateField" source="date-field" />
+
+<ComponentPreview name="date-field/demo" />
+
+## Installation
+
+<InstallTabs name="date-field" />
+
+## Usage
+
+```tsx
+import { DateField, TimeField } from "@/components/ui/date-field";
+import { parseDate, Time } from "@internationalized/date";
+```
+
+```tsx
+<DateField label="Invoice date" defaultValue={parseDate("2027-01-15")} />
+<TimeField label="Standup" defaultValue={new Time(9, 30)} />
+```
+
+<Callout title="Values are @internationalized/date objects">
+  `DateField` takes a `CalendarDate`, `CalendarDateTime` or `ZonedDateTime`, and
+  `TimeField` takes a `Time` (or either date-time type). Create them with
+  `parseDate`, `parseDateTime`, `parseZonedDateTime`, `today()` or `new Time()`
+  from [`@internationalized/date`](https://react-spectrum.adobe.com/internationalized/date/).
+  `onChange` gives you the same type back, so time zones and calendar systems
+  are never lost in a round trip.
+</Callout>
+
+### When to use
+
+- Date Field — dates users already know and type faster than they click: birthdays, document and expiry dates.
+- Time Field — a time of day without a date: opening hours, reminders, recurring schedules.
+- [Date Picker](/docs/components/date-picker) — the same field plus a calendar popover, for dates users need to see in context ("next Tuesday").
+- [Calendar](/docs/components/calendar) — an always-visible grid, when there's room and browsing the month matters.
+
+Prefer these over `<input type="date">`: the segments are consistent across browsers, follow the user's locale and calendar, and are fully accessible.
+
+## Anatomy
+
+```tsx
+<DateField>              {/* or <TimeField> */}
+  <Label />              {/* from label */}
+  <DateInput>            {/* the field chrome */}
+    <DateSegment />      {/* month */}
+    <DateSegment />      {/* literal "/" */}
+    <DateSegment />      {/* day, year, hour, … */}
+  </DateInput>
+  <Description />        {/* from description */}
+  <FieldError />         {/* from errorMessage / validation */}
+  <input type="hidden" /> {/* for form submission */}
+</DateField>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `DateField` | `<div>` | Root. Labels, validation and the hidden form input. `data-slot="date-field"`. |
+| `TimeField` | `<div>` | Same structure for times. `data-slot="time-field"`. |
+| `DateInput` | `<div role="group">` | Draws the field chrome with the shared `variant` and `size` styles. `data-slot="date-input"`. |
+| Segment | `<span role="spinbutton">` | One per editable part. Literals (`/`, `:`, spaces) are plain spans with `data-type="literal"`. |
+| Label | `<span>` | Rendered when `label` is set. Adds a red `*` when `isRequired`. |
+| Description | `<span slot="description">` | Rendered when `description` is set. |
+| FieldError | `<span>` | Shown when the field is invalid. Uses `errorMessage`, or the browser's message. |
+
+`DateInput` is exported on its own, so you can build a custom layout inside React Aria's `DateField` or `TimeField` and still get the library's field styles.
+
+## Examples
+
+### Controlled
+
+`value` and `onChange` own the value. Set it to `null` to clear every segment. `date.toString()` gives an ISO 8601 string for storage or APIs.
+
+<ComponentPreview name="date-field/controlled" />
+
+### Granularity
+
+`granularity` sets the smallest segment shown: `day` (default for dates), `hour`, `minute` or `second`. Time granularities need a value that has a time, such as `CalendarDateTime` or `ZonedDateTime`; without a value, the field picks the right type for you.
+
+<ComponentPreview name="date-field/granularity" />
+
+### Time field
+
+`TimeField` shows hours, minutes and the day period. Its value is a `Time`.
+
+<ComponentPreview name="date-field/time-field" />
+
+### Time options
+
+`granularity` works on `TimeField` too (`hour`, `minute` by default, or `second`). `hourCycle={24}` forces a 24-hour clock regardless of locale.
+
+<ComponentPreview name="date-field/time-options" />
+
+### Time zones
+
+With a `ZonedDateTime` value the field shows the time zone abbreviation and handles daylight saving transitions correctly. Convert between zones with `toTimeZone`. `hideTimeZone` hides the abbreviation when the zone is shown elsewhere.
+
+<ComponentPreview name="date-field/time-zones" />
+
+### Placeholder value
+
+When the field is empty, arrow keys start from today (or midnight). `placeholderValue` changes that starting point, which saves a lot of key presses for birthdays, and also sets the value type when there's no `value`.
+
+<ComponentPreview name="date-field/placeholder-value" />
+
+### Min and max
+
+`minValue` and `maxValue` mark out-of-range values as invalid and show a localized error. With the default `validationBehavior="native"` the error appears after the user changes the value or submits the form; this example uses `"aria"` so it shows immediately.
+
+<ComponentPreview name="date-field/min-max" />
+
+### Validation
+
+`isRequired`, `minValue` / `maxValue` and a custom `validate` function run together. Pass a function to `errorMessage` to tailor the text per failure using `validationDetails`. With `validationBehavior="aria"` on the form, errors appear as the user types instead of on submit.
+
+<ComponentPreview name="date-field/validation" />
+
+### Form submission
+
+Set `name` and the value is submitted as an ISO 8601 string (`2027-03-15`, `09:30:00`), ready to parse on the server with `parseDate` or `parseTime`.
+
+<ComponentPreview name="date-field/form" />
+
+### Variants
+
+The same `outline`, `filled` and `underlined` variants as every other field.
+
+<ComponentPreview name="date-field/variants" />
+
+### Sizes
+
+<ComponentPreview name="date-field/sizes" />
+
+### Disabled and read-only
+
+`isDisabled` removes the field from the tab order. `isReadOnly` keeps it focusable and readable by screen readers, but the value can't change.
+
+<ComponentPreview name="date-field/disabled" />
+
+### Locales and calendars
+
+Segment order, separators, the day period and digits follow the locale. Wrap fields in `I18nProvider` to set one explicitly, and add a `-u-ca-` extension (`fa-IR-u-ca-persian`) for other calendar systems.
+
+<ComponentPreview name="date-field/locales" />
+
+### Leading zeros
+
+Whether months, days and hours are zero-padded comes from the locale. `shouldForceLeadingZeros` always pads them.
+
+<ComponentPreview name="date-field/leading-zeros" />
+
+## Recipes
+
+### Date of birth
+
+`placeholderValue` starts the year segment in 1990, `autoComplete="bday"` enables autofill, and `validate` enforces a minimum age. The computed age is shown in the description.
+
+<ComponentPreview name="date-field/recipe-date-of-birth" />
+
+### Business hours
+
+One row per day with a [`Switch`](/docs/components/switch) and a pair of small `TimeField`s. Each time field is labelled with `aria-label`, and the closing time is flagged with `isInvalid` when it isn't after the opening time.
+
+<ComponentPreview name="date-field/recipe-business-hours" />
+
+### Event in another time zone
+
+A date, start and end `TimeField`s and a time zone [`Select`](/docs/components/select). `toCalendarDateTime` and `toZoned` combine them into one instant, shown back in the viewer's own time zone.
+
+<ComponentPreview name="date-field/recipe-event" />
+
+## Accessibility
+
+- The input is a `role="group"` labelled by `label` (or `aria-label`), and each segment is a `role="spinbutton"` announced with its name ("month", "hour") and current value.
+- Segments are ordered and labelled for the locale, including right-to-left layouts.
+- Typing digits fills a segment and moves to the next one automatically. Typing a letter in the day period segment switches AM/PM.
+- `description` and the error message are linked with `aria-describedby`. Invalid fields set `aria-invalid`.
+- When `name` is set, a hidden input carries the value for native form submission and validation.
+- Use `autoComplete` (for example `bday`) so browsers can autofill.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves to the next segment, then out of the field |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves between segments |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Increments / decrements the focused segment (wraps around) |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Increments / decrements by a larger step |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Sets the segment to its minimum / maximum |
+| <kbd>0</kbd>–<kbd>9</kbd> | Types a value; moves on when the segment is complete |
+| <kbd>Backspace</kbd> / <kbd>Delete</kbd> | Clears the last digit, then the segment |
+
+## Styling
+
+### Data attributes
+
+On the `DateField` / `TimeField` root (use `group-data-*/field:` for children):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-invalid` | Validation failed or `isInvalid` is set |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+| `data-required` | `isRequired` is true |
+
+On `DateInput`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-focus-within` / `data-focus-visible` | A segment has focus / keyboard focus |
+| `data-hovered` | Hovered with a mouse |
+| `data-invalid` / `data-disabled` | Mirrors the field |
+
+On each segment:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-type` | Always: `month`, `day`, `year`, `hour`, `minute`, `second`, `dayPeriod`, `era`, `timeZoneName` or `literal` |
+| `data-placeholder` | The segment is empty and showing its placeholder |
+| `data-focused` / `data-focus-visible` | The segment has focus / keyboard focus |
+| `data-hovered` | Hovered with a mouse |
+| `data-readonly` | Not editable (literals, time zone, read-only fields) |
+| `data-invalid` / `data-disabled` | Mirrors the field |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `date-field` / `time-field` | Root |
+| `date-input` | The segmented input |
+| `label`, `description`, `field-error` | Field text |
+
+### Style helpers
+
+`dateSegmentStyles` is the class string applied to every segment. `DatePicker` reuses it, and you can too when composing your own inputs:
+
+```tsx
+import { dateSegmentStyles } from "@/components/ui/date-field";
+
+<DateSegment segment={segment} className={dateSegmentStyles} />
+```
+
+The chrome comes from the shared `fieldVariants` in `field.tsx`, so `variant` and `size` match [Text Field](/docs/components/text-field) and [Select](/docs/components/select). `className` on the root accepts a function of the render props (`isInvalid`, `isDisabled`, `isReadOnly`, `isRequired`, `state`).
+
+## API Reference
+
+### DateField
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text under the input." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message." },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    value: { type: "DateValue | null", description: "Controlled value." },
+    defaultValue: { type: "DateValue | null", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: DateValue | null) => void", description: "Called when a complete value is entered or cleared." },
+    granularity: { type: '"day" | "hour" | "minute" | "second"', default: '"day"', description: "Smallest unit shown." },
+    placeholderValue: { type: "DateValue | null", description: "Where arrow keys start when empty. Defaults to today at midnight." },
+    minValue: { type: "DateValue | null", description: "Earliest valid value." },
+    maxValue: { type: "DateValue | null", description: "Latest valid value." },
+    isDateUnavailable: { type: "(date: DateValue) => boolean", description: "Marks specific dates invalid." },
+    hourCycle: { type: "12 | 24", description: "Overrides the locale's hour cycle." },
+    hideTimeZone: { type: "boolean", default: "false", description: "Hides the time zone segment of zoned values." },
+    shouldForceLeadingZeros: { type: "boolean", description: "Always zero-pads month, day and hour." },
+    isRequired: { type: "boolean", default: "false", description: "Requires a value before the form can submit." },
+    isInvalid: { type: "boolean", description: "Forces the invalid state (e.g. for server errors)." },
+    validate: { type: "(value: DateValue) => string | string[] | true | null | undefined", description: "Custom validation. Return an error message to mark the field invalid." },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "native blocks submit and uses browser messages; aria shows errors live." },
+    isDisabled: { type: "boolean", default: "false" },
+    isReadOnly: { type: "boolean", default: "false" },
+    autoFocus: { type: "boolean", description: "Focuses the first segment on mount." },
+    name: { type: "string", description: "Submits the value as an ISO 8601 string with forms." },
+    form: { type: "string", description: "Id of the form this field belongs to." },
+    autoComplete: { type: "string", description: "Autofill hint, e.g. bday." },
+    onFocus: { type: "(e: FocusEvent) => void" },
+    onBlur: { type: "(e: FocusEvent) => void" },
+    onFocusChange: { type: "(isFocused: boolean) => void" },
+    className: { type: "string | ((state: DateFieldRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`DateField`](https://react-aria.adobe.com/DateField#api).
+
+### TimeField
+
+Accepts the same field props (`label`, `description`, `errorMessage`, `variant`, `size`, validation, form and focus props) with time-specific values:
+
+<TypeTable
+  type={{
+    value: { type: "TimeValue | null", description: "Controlled value: Time, CalendarDateTime or ZonedDateTime." },
+    defaultValue: { type: "TimeValue | null", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: TimeValue | null) => void", description: "Receives the same type you passed in." },
+    granularity: { type: '"hour" | "minute" | "second"', default: '"minute"', description: "Smallest unit shown." },
+    hourCycle: { type: "12 | 24", description: "Overrides the locale's hour cycle." },
+    placeholderValue: { type: "TimeValue", description: "Where arrow keys start when empty. Defaults to 12:00 AM / 00:00." },
+    minValue: { type: "TimeValue | null", description: "Earliest valid time." },
+    maxValue: { type: "TimeValue | null", description: "Latest valid time." },
+    hideTimeZone: { type: "boolean", description: "Hides the time zone segment of zoned values." },
+    shouldForceLeadingZeros: { type: "boolean", description: "Always zero-pads the hour." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`TimeField`](https://react-aria.adobe.com/TimeField#api).
+
+### DateInput
+
+The segmented input used by both fields. Use it inside React Aria's `DateField` or `TimeField` for custom layouts.
+
+<TypeTable
+  type={{
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    slot: { type: "string", description: 'e.g. "start" / "end" inside a DateRangePicker.' },
+    className: { type: "string | ((state: DateInputRenderProps) => string)" },
+  }}
+/>
+
+## Related
+
+- [Date Picker](/docs/components/date-picker) — a date field with a calendar popover, and date ranges.
+- [Calendar](/docs/components/calendar) — an inline month grid.
+- [Number Field](/docs/components/number-field) — the same stepper interaction for numbers.
+- [Text Field](/docs/components/text-field) — shares the field variants and sizes.

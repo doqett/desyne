@@ -1,0 +1,85 @@
+---
+title: AI & llms.txt
+description: Give Cursor, Claude, ChatGPT or any coding assistant accurate Desyne context with llms.txt, full-text Markdown and per-page Markdown.
+---
+
+Coding assistants guess at APIs they haven't seen. Desyne publishes its docs in
+plain Markdown so you can give them the real thing: component props, examples and
+patterns from this site, not from their training data.
+
+## What's available
+
+| URL | What it is | Use it when |
+| --- | --- | --- |
+| [`/llms.txt`](/llms.txt) | An index of every page with a one-line description, following the [llms.txt](https://llmstxt.org) format | The tool can follow links itself |
+| [`/llms-full.txt`](/llms-full.txt) | Every docs page concatenated as Markdown | You want everything in one context |
+| `/docs/<page>.md` | A single page as Markdown, e.g. [`/docs/forms.md`](/docs/forms.md) | You only need one component or guide |
+
+Docs pages also return Markdown when a client asks for it with an
+`Accept: text/markdown` header, so agents that request Markdown get it from the normal
+URL.
+
+## Copy a page
+
+Every docs page has a **Copy Markdown** button under the title. It copies the page as
+Markdown, ready to paste into a chat. The menu next to it opens the page directly in
+ChatGPT, Claude, Cursor or Scira AI with the Markdown URL attached.
+
+## Cursor
+
+Add the docs once and reference them in any chat:
+
+1. **Settings → Indexing & Docs → Add doc**, and enter the `/llms-full.txt` URL of this
+   site.
+2. In chat, type `@Docs` and pick it.
+
+Or add a project rule so every request uses Desyne conventions:
+
+```md title=".cursor/rules/desyne.mdc"
+---
+description: UI components
+globs: ["**/*.tsx"]
+---
+UI components come from Desyne (React Aria + shadcn tokens), installed in components/ui.
+- Use onPress, not onClick, on Button. Use isDisabled, isRequired, isInvalid.
+- Fields take label, description and errorMessage props. Wrap forms in react-aria-components <Form>.
+- Colors via the `color` prop (primary, brand, neutral, danger, success, warning, info).
+- Style states with data-* variants: data-hovered:, data-pressed:, data-focus-visible:, data-selected:.
+- Reference: https://desyne.dev/llms.txt
+```
+
+## Claude
+
+- **Claude Code:** add a line to `CLAUDE.md` such as
+  "UI docs: fetch https://desyne.dev/llms.txt and the linked `.md` pages before
+  writing components." Claude Code can fetch the index and the pages it needs.
+- **Claude.ai projects:** download `/llms-full.txt` and add it to the project's
+  knowledge, or paste single pages with **Copy Markdown**.
+
+## ChatGPT and other chat tools
+
+Paste the output of **Copy Markdown** for the components you're working with, or attach
+`llms-full.txt` as a file. For a single question, linking the `.md` URL of the page is
+often enough for tools that browse.
+
+## The shadcn MCP server
+
+The shadcn CLI includes an MCP server that lets assistants browse and install from the
+registries in your `components.json`, including `@desyne` and (with your key)
+`@desyne-pro`:
+
+```bash
+npx shadcn@latest mcp init --client claude   # or cursor, vscode
+```
+
+Then ask things like "add the date picker from @desyne" or "show me Pro pricing
+blocks".
+
+## Prompting tips
+
+- **Name the library and version of React Aria patterns:** "Use Desyne's `Select`
+  (React Aria) with `selectedKey`/`onSelectionChange`."
+- **Point at an example:** "Follow the data table recipe on /docs/components/table.md."
+- **Ask for accessible names:** "Every icon-only button needs `aria-label`."
+- **Keep the tokens:** "Use semantic colors (`bg-card`, `text-muted-foreground`), not
+  raw palette colors."

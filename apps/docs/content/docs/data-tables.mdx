@@ -1,0 +1,239 @@
+---
+title: Data tables
+description: Build sortable, filterable, selectable and paginated tables with the Table component, React Aria's sort and selection state, and your own data logic.
+---
+
+`Table` is a styled React Aria table. React Aria handles the grid semantics, keyboard
+navigation, row selection and sort announcements; you keep full control of the data.
+There's no data-grid abstraction: sorting, filtering and paging are a few lines of
+`useMemo` over your rows, or a request to your API.
+
+The full result of this guide is the
+[data table recipe](/docs/components/table), live.
+
+## Columns and rows
+
+```tsx
+import { Cell, Column, Row, Table, TableBody, TableHeader } from "@/components/ui/table";
+
+<Table aria-label="Invoices">
+  <TableHeader>
+    <Column id="id" isRowHeader>Invoice</Column>
+    <Column id="customer">Customer</Column>
+    <Column id="amount" className="text-right">Amount</Column>
+  </TableHeader>
+  <TableBody items={invoices}>
+    {(inv) => (
+      <Row>
+        <Cell className="font-medium">{inv.id}</Cell>
+        <Cell>{inv.customer}</Cell>
+        <Cell className="text-right tabular-nums">{currency.format(inv.amount)}</Cell>
+      </Row>
+    )}
+  </TableBody>
+</Table>
+```
+
+- Give the table an `aria-label` (or `aria-labelledby` pointing at a heading).
+- Mark one column `isRowHeader` so screen readers announce rows by that cell.
+- Items need an `id` property (or pass `id` to `Row`) so selection and updates are stable.
+- Right-align numbers and use `tabular-nums` so digits line up.
+
+### Appearance
+
+| Prop | Values | Default |
+| --- | --- | --- |
+| `density` | `compact`, `default`, `comfortable` | `default` |
+| `striped` | Zebra rows | `false` |
+| `bordered` | Grid lines between every cell | `false` |
+| `framed` | Wrap in a rounded, bordered card | `true` |
+
+## Sorting
+
+Hold a `SortDescriptor` in state, mark columns `allowsSorting`, and sort the rows:
+
+```tsx
+"use client";
+
+import { useMemo, useState } from "react";
+import type { SortDescriptor } from "react-aria-components";
+
+const [sort, setSort] = useState<SortDescriptor>({ column: "issued", direction: "descending" });
+
+const rows = useMemo(() => {
+  const key = sort.column as keyof Invoice;
+  return [...invoices].sort((a, b) => {
+    const cmp =
+      typeof a[key] === "number"
+        ? (a[key] as number) - (b[key] as number)
+        : String(a[key]).localeCompare(String(b[key]));
+    return sort.direction === "descending" ? -cmp : cmp;
+  });
+}, [sort]);
+
+<Table aria-label="Invoices" sortDescriptor={sort} onSortChange={setSort}>
+  <TableHeader>
+    <Column id="customer" isRowHeader allowsSorting>Customer</Column>
+    <Column id="issued" allowsSorting>Issued</Column>
+    <Column id="amount" allowsSorting className="text-right">Amount</Column>
+  </TableHeader>
+  <TableBody items={rows}>{/* … */}</TableBody>
+</Table>
+```
+
+The column `id` is what arrives in `sort.column`. Headers get a sort indicator and
+`aria-sort` automatically.
+
+## Filtering and search
+
+Filter before sorting, and reset to the first page when a filter changes:
+
+```tsx
+const [query, setQuery] = useState("");
+const [status, setStatus] = useState<Key | null>("all");
+
+const filtered = useMemo(() => {
+  const q = query.trim().toLowerCase();
+  return invoices.filter(
+    (inv) =>
+      (status === "all" || inv.status === status) &&
+      (!q || inv.customer.toLowerCase().includes(q) || inv.id.toLowerCase().includes(q)),
+  );
+}, [query, status]);
+
+<div className="flex flex-wrap items-center gap-2">
+  <SearchField
+    aria-label="Search invoices"
+    placeholder="Search customer or invoice…"
+    size="sm"
+    value={query}
+    onChange={(v) => { setQuery(v); setPage(1); }}
+    className="min-w-48 flex-1"
+  />
+  <Select aria-label="Status" size="sm" selectedKey={status}
+    onSelectionChange={(k) => { setStatus(k); setPage(1); }} className="w-40">
+    <SelectItem id="all">All statuses</SelectItem>
+    <SelectItem id="Paid">Paid</SelectItem>
+    <SelectItem id="Overdue">Overdue</SelectItem>
+  </Select>
+</div>
+```
+
+`sm` controls (28px) keep the toolbar compact and aligned.
+
+## Empty state
+
+Render something useful when nothing matches:
+
+```tsx
+<TableBody items={rows} renderEmptyState={() => "No invoices match your filters."}>
+  {(inv) => <Row>{/* … */}</Row>}
+</TableBody>
+```
+
+## Selection and bulk actions
+
+```tsx
+const [selected, setSelected] = useState<Selection>(new Set());
+const count = selected === "all" ? filtered.length : selected.size;
+
+<Table
+  aria-label="Invoices"
+  selectionMode="multiple"
+  selectedKeys={selected}
+  onSelectionChange={setSelected}
+>
+  …
+</Table>
+```
+
+With `selectionMode="multiple"` the table adds a checkbox column and a select-all
+checkbox in the header. `selected` is either a `Set` of row ids or the string `"all"`.
+Swap the filter toolbar for bulk actions while rows are selected:
+
+```tsx
+{count > 0 ? (
+  <div className="flex items-center gap-2">
+    <span className="font-medium text-sm">{count} selected</span>
+    <Button size="sm" variant="outline"><DownloadIcon /> Export</Button>
+    <Button size="sm" variant="ghost" onPress={() => setSelected(new Set())}>Clear</Button>
+  </div>
+) : (
+  <Toolbar />
+)}
+```
+
+Use `selectionMode="single"` for master-detail layouts, and `selectionBehavior="replace"`
+for file-manager style selection where clicking a row replaces the selection.
+
+## Pagination
+
+Slice the filtered rows and render a `Paginator`:
+
+```tsx
+import { Paginator } from "@/components/ui/pagination";
+
+const PAGE_SIZE = 20;
+const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+const current = Math.min(page, pageCount);
+const rows = filtered.slice((current - 1) * PAGE_SIZE, current * PAGE_SIZE);
+
+<Paginator page={current} pageCount={pageCount} onPageChange={setPage} size="sm" />
+```
+
+## Row actions and links
+
+Put a menu in the last cell for per-row actions:
+
+```tsx
+<Cell>
+  <MenuTrigger>
+    <Button variant="ghost" size="icon-sm" aria-label={`Actions for ${inv.id}`}>
+      <MoreHorizontalIcon />
+    </Button>
+    <MenuContent placement="bottom end">
+      <MenuItem onAction={() => open(inv)}>View</MenuItem>
+      <MenuItem onAction={() => download(inv)}>Download PDF</MenuItem>
+      <MenuSeparator />
+      <MenuItem variant="destructive" onAction={() => voidInvoice(inv)}>Void</MenuItem>
+    </MenuContent>
+  </MenuTrigger>
+</Cell>
+```
+
+To make whole rows navigate, give `Row` an `href`. React Aria treats the row as a link
+(Enter opens it, and with a [RouterProvider](/docs/routing) it uses your router):
+
+```tsx
+<Row href={`/invoices/${inv.id}`}>…</Row>
+```
+
+## Server-side data
+
+For large data sets, keep the same state (`sort`, `query`, `page`) and fetch instead of
+filtering in memory:
+
+```tsx
+const params = new URLSearchParams({
+  q: query,
+  sort: `${String(sort.column)}:${sort.direction}`,
+  page: String(page),
+});
+const { data, isLoading } = useSWR(`/api/invoices?${params}`, fetcher);
+
+<TableBody
+  items={data?.rows ?? []}
+  renderEmptyState={() => (isLoading ? <Spinner /> : "No invoices found.")}
+>
+  …
+</TableBody>
+```
+
+Put the state in the URL (search params) when people should be able to share or
+bookmark a filtered view.
+
+## Responsive tables
+
+Tables scroll horizontally inside their frame on small screens. For phone-first lists,
+consider a [Grid List](/docs/components/grid-list) with stacked content instead of
+squeezing columns.

@@ -1,0 +1,29 @@
+name: Component request
+description: Suggest a new component, variant or example.
+labels: ["component request"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Component name
+      placeholder: e.g. Color picker
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What would you build with it? What problem does it solve?
+    validations:
+      required: true
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Prior art
+      description: The React Aria primitive it would build on, or links to similar components elsewhere.
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd like to open a pull request for this.

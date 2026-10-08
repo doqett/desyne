@@ -1,0 +1,252 @@
+---
+title: Tag Group
+description: A focusable group of compact labels, keywords or filters. Tags can be colored, selected (single or multiple), removed with the keyboard or a button, act as links or actions, and come in soft and outline variants at two sizes.
+---
+
+<ComponentLinks aria="TagGroup" source="tag-group" />
+
+<ComponentPreview name="tag-group/demo" />
+
+## Installation
+
+<InstallTabs name="tag-group" />
+
+## Usage
+
+```tsx
+import { Tag, TagGroup } from "@/components/ui/tag-group";
+```
+
+```tsx
+<TagGroup label="Labels">
+  <Tag color="danger">bug</Tag>
+  <Tag color="info">docs</Tag>
+</TagGroup>
+```
+
+### When to use
+
+- Tag Group — a set of short labels users scan, filter by or remove: labels on an issue, active filters, selected skills.
+- [Badge](/docs/components/badge) — a single, non-interactive status or count.
+- [Toggle Button Group](/docs/components/toggle-button-group) — a few mutually exclusive options that behave like buttons in a toolbar.
+- [Checkbox Group](/docs/components/checkbox) — many options in a form with their own labels and descriptions.
+- [Combo Box](/docs/components/combobox) with a Tag Group — picking from a long list and showing the picks as tags.
+
+## Anatomy
+
+```tsx
+<TagGroup>          {/* label, list, description, error */}
+  <Tag>             {/* role="row" */}
+    <Icon />
+    Label
+    {/* remove button, when onRemove is set */}
+  </Tag>
+</TagGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `TagGroup` | `<div>` | Root with `label`, `description` and `errorMessage`. `data-slot="tag-group"`. |
+| Tag list | `<div role="grid">` | Wrapping flex row of tags. Shows `renderEmptyState` when empty. |
+| `Tag` | `<div role="row">` | A tag. Plain-string children become its `textValue`. `data-slot="tag"`. |
+| Remove button | `<button slot="remove">` | A small ✕, rendered automatically when the group has `onRemove`. |
+| Label | `<span>` | From `label`. |
+| Description / error | `<span slot="…">` | From `description` and `errorMessage`. |
+
+## Examples
+
+### Colors
+
+A `color` gives a tag the tinted `soft` look. Without a color, tags use the neutral `outline` style.
+
+<ComponentPreview name="tag-group/colors" />
+
+### Variants
+
+Set `variant` on the group to style every tag: `outline` (default without a color) or `soft`. A `variant` on an individual `Tag` overrides it.
+
+<ComponentPreview name="tag-group/variants" />
+
+### Sizes
+
+`sm` (20px) for dense tables and cards, `md` (24px) by default. Set it on the group or per tag.
+
+<ComponentPreview name="tag-group/sizes" />
+
+### With icons
+
+Icons are sized to 12px automatically. Pass `textValue` when children aren't a plain string.
+
+<ComponentPreview name="tag-group/icons" />
+
+### Single selection
+
+`selectionMode="single"` turns tags into choice chips. Add `disallowEmptySelection` so one is always selected. Selected tags always use the solid primary style.
+
+<ComponentPreview name="tag-group/single-selection" />
+
+### Controlled selection
+
+`selectedKeys` and `onSelectionChange` own the selection in `multiple` mode. Handle both a `Set` of keys and `"all"`.
+
+<ComponentPreview name="tag-group/controlled" />
+
+### Removable tags
+
+`onRemove` adds a remove button to every tag and enables <kbd>Backspace</kbd> / <kbd>Delete</kbd>. It receives the keys to remove; `useListData` makes updating the list a one-liner. `renderEmptyState` shows when the last tag is gone.
+
+<ComponentPreview name="tag-group/removable" />
+
+### Disabled tags
+
+`disabledKeys` keeps tags visible but not focusable, selectable or removable.
+
+<ComponentPreview name="tag-group/disabled" />
+
+### Actions
+
+`onAction` makes tags actionable without selecting them, for suggestions and quick filters.
+
+<ComponentPreview name="tag-group/actions" />
+
+### Links
+
+Give tags an `href` to render them as links. They work with client-side routers through React Aria's `RouterProvider`.
+
+<ComponentPreview name="tag-group/links" />
+
+### Description and error
+
+`description` explains the group; `errorMessage` replaces it with red text. Both are linked to the tag list for screen readers. Tag groups have no built-in validation, so decide when to show the error yourself.
+
+<ComponentPreview name="tag-group/validation" />
+
+## Recipes
+
+### Tag input
+
+A [`TextField`](/docs/components/text-field) adds a tag on <kbd>Enter</kbd>, with duplicate detection and a maximum count. The tags below are removable.
+
+<ComponentPreview name="tag-group/recipe-tag-input" />
+
+### Filter chips
+
+Pill-shaped, single-select chips that filter a list. `disallowEmptySelection` guarantees an active filter.
+
+<ComponentPreview name="tag-group/recipe-filter-chips" />
+
+### Active filters bar
+
+Removable `soft` tags that summarize applied filters, with a "Clear all" action. Each tag's `textValue` reads the field and value together.
+
+<ComponentPreview name="tag-group/recipe-active-filters" />
+
+## Accessibility
+
+- The tag list is a `role="grid"` and each tag a `role="row"`, so screen readers announce position and selected state. The group is labelled by `label` (or `aria-label`).
+- The whole group is one tab stop; arrow keys move between tags. If the last tag is removed while focused, focus moves to the list itself so it isn't lost.
+- Remove buttons are labelled "Remove" together with the tag text. Keyboard users can also press <kbd>Backspace</kbd> / <kbd>Delete</kbd> on the focused tag.
+- `description` and `errorMessage` are linked with `aria-describedby`.
+- Colors are decoration only. Put the meaning in the text ("bug", "blocked"), not just the color.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into and out of the group |
+| <kbd>←</kbd> / <kbd>→</kbd> | Moves between tags (reversed in RTL) |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Moves to the first / last tag |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Selects the tag, triggers `onAction` or follows a link |
+| <kbd>Backspace</kbd> / <kbd>Delete</kbd> | Removes the focused tag (with `onRemove`) |
+| <kbd>Esc</kbd> | Clears the selection |
+
+## Styling
+
+### Data attributes
+
+On each `Tag`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | The tag is selected (solid primary style) |
+| `data-focused` / `data-focus-visible` | The tag has focus / keyboard focus |
+| `data-hovered` / `data-pressed` | Hovered with a mouse / being pressed |
+| `data-disabled` | The tag is disabled |
+| `data-allows-removing` | The group has `onRemove` |
+| `data-selection-mode` | `single` or `multiple` |
+
+On the tag list (the element with `role="grid"`): `data-empty`, `data-focused`, `data-focus-visible`. The root `TagGroup` is a Tailwind group (`group/field`).
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `tag-group` | Root |
+| `tag` | Each tag |
+| `label`, `description` | Field text |
+
+### Tone variables
+
+Like [Button](/docs/components/button#tone-variables), tag colors come from the `--tone` variable, so a one-off color is just a class:
+
+```tsx
+<Tag color="primary" className="[--tone:var(--color-pink-600)]">design</Tag>
+```
+
+- `className` on `TagGroup` styles the root (a string). `className` on `Tag` accepts a function of the render props.
+- Add `rounded-full px-3` to a `Tag` for pill-shaped chips.
+
+## API Reference
+
+### TagGroup
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text under the tags." },
+    errorMessage: { type: "string", description: "Error text shown under the tags when set." },
+    variant: { type: '"soft" | "outline"', description: "Style for every tag. Defaults per tag: soft with a color, outline without." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Size for every tag." },
+    items: { type: "Iterable<T>", description: "Items for dynamic rendering with a children function." },
+    children: { type: "ReactNode | ((item: T) => ReactNode)", description: "Static Tags, or a render function." },
+    renderEmptyState: { type: "(props: TagListRenderProps) => ReactNode", description: "Content shown when there are no tags." },
+    selectionMode: { type: '"none" | "single" | "multiple"', default: '"none"' },
+    selectionBehavior: { type: '"toggle" | "replace"', default: '"toggle"' },
+    selectedKeys: { type: '"all" | Iterable<Key>', description: "Controlled selection." },
+    defaultSelectedKeys: { type: '"all" | Iterable<Key>', description: "Uncontrolled initial selection." },
+    onSelectionChange: { type: "(keys: Selection) => void", description: "Called when the selection changes." },
+    disallowEmptySelection: { type: "boolean", default: "false", description: "Prevents deselecting the last tag." },
+    disabledKeys: { type: "Iterable<Key>", description: "Tags that are disabled." },
+    onRemove: { type: "(keys: Set<Key>) => void", description: "Enables removal and adds remove buttons." },
+    onAction: { type: "(key: Key) => void", description: "Called when a tag is actioned." },
+    escapeKeyBehavior: { type: '"clearSelection" | "none"', default: '"clearSelection"' },
+    shouldSelectOnPressUp: { type: "boolean", description: "Selects on pointer up instead of down." },
+    className: { type: "string", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`TagGroup`](https://react-aria.adobe.com/TagGroup#api).
+
+### Tag
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique key. Set automatically from item.id with dynamic items." },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', description: "Tone. Implies the soft variant unless the group or tag sets one." },
+    variant: { type: '"soft" | "outline"', description: "Overrides the group's variant." },
+    size: { type: '"sm" | "md"', description: "Overrides the group's size." },
+    textValue: { type: "string", description: "Accessible text. Required when children aren't a plain string." },
+    isDisabled: { type: "boolean", description: "Disables this tag." },
+    href: { type: "string", description: "Renders the tag as a link." },
+    onAction: { type: "() => void", description: "Called when this tag is actioned." },
+    className: { type: "string | ((state: TagRenderProps) => string)" },
+    children: { type: "ReactNode | ((state: TagRenderProps) => ReactNode)" },
+  }}
+/>
+
+## Related
+
+- [Badge](/docs/components/badge) — static status labels with the same colors.
+- [Combo Box](/docs/components/combobox) — pick from a long list, then show picks as tags.
+- [Toggle Button Group](/docs/components/toggle-button-group) — segmented choices.
+- [List Box](/docs/components/list-box) — a vertical list of selectable options.

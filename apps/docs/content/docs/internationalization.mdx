@@ -1,0 +1,179 @@
+---
+title: Internationalisation
+description: Locales, right-to-left layouts, dates, times, numbers and calendars, all handled by React Aria's I18nProvider and @internationalized/date.
+---
+
+React Aria formats and parses dates, times and numbers for the user's locale, mirrors
+keyboard navigation in right-to-left languages and ships translated strings for its
+built-in labels (such as "Next month" or "Clear search") in 30+ languages.
+
+## Setting the locale
+
+By default React Aria uses the browser's language. To set it explicitly, for example
+from your router or user settings, wrap the app in `I18nProvider`:
+
+```tsx title="app/[lang]/layout.tsx"
+import { I18nProvider } from "react-aria-components";
+
+export default async function Layout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  return (
+    <html lang={lang} dir={rtlLocales.has(lang.split("-")[0]) ? "rtl" : "ltr"}>
+      <body>
+        <I18nProvider locale={lang}>{children}</I18nProvider>
+      </body>
+    </html>
+  );
+}
+
+const rtlLocales = new Set(["ar", "fa", "he", "ur"]);
+```
+
+`I18nProvider` is a client component; using it in a server layout is fine because its
+children stay server-rendered.
+
+<Callout title="Server rendering">
+  On the server there's no browser language, so React Aria falls back to `en-US`.
+  Set `I18nProvider` from the request (route segment, cookie or `Accept-Language`)
+  to avoid a hydration mismatch in date and number output.
+</Callout>
+
+You can also nest providers to localise one part of a page:
+
+```tsx
+<I18nProvider locale="de-DE">
+  <DatePicker label="Lieferdatum" />
+</I18nProvider>
+```
+
+## Right-to-left
+
+Set `dir="rtl"` on `<html>` (as above) so the browser lays out text right to left.
+React Aria reads the locale's direction and mirrors keyboard behaviour: in Arabic or
+Hebrew, <kbd>→</kbd> moves to the previous item in tabs, radio groups and calendars, and
+sliders fill from the right.
+
+Tailwind handles layout through logical utilities. Some component spacing uses physical
+classes (`pl-*`, `mr-*`), so check RTL screens and swap them for logical equivalents in
+your copy where needed:
+
+| Physical | Logical |
+| --- | --- |
+| `ml-2` / `mr-2` | `ms-2` / `me-2` |
+| `pl-3` / `pr-3` | `ps-3` / `pe-3` |
+| `left-0` / `right-0` | `start-0` / `end-0` |
+| `text-left` | `text-start` |
+| `rounded-l-md` | `rounded-s-md` |
+
+Use the `rtl:` variant for anything that should flip visually, such as directional
+icons: `<ChevronRightIcon className="rtl:rotate-180" />`.
+
+## Dates and times
+
+Date components use [`@internationalized/date`](https://react-aria.adobe.com/internationalized/date/)
+values instead of JavaScript `Date`, so a date is a calendar date with no hidden time
+zone.
+
+```bash
+npm install @internationalized/date
+```
+
+```tsx
+"use client";
+
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { useState } from "react";
+import { DatePicker } from "@/components/ui/date-picker";
+
+export function DueDate() {
+  const [value, setValue] = useState(parseDate("2026-11-02"));
+  return (
+    <DatePicker
+      label="Due date"
+      value={value}
+      onChange={(v) => v && setValue(v)}
+      minValue={today(getLocalTimeZone())}
+    />
+  );
+}
+```
+
+| Value type | Create it with | Use for |
+| --- | --- | --- |
+| `CalendarDate` | `parseDate("2026-11-02")`, `today(tz)` | Birthdays, due dates |
+| `CalendarDateTime` | `parseDateTime("2026-11-02T09:30")` | Local appointments |
+| `ZonedDateTime` | `parseZonedDateTime("2026-11-02T09:30[Europe/Berlin]")`, `now(tz)` | Events across time zones |
+| `Time` | `parseTime("09:30")` | Time Field |
+
+The field adapts to the locale: segment order (`dd.mm.yyyy` in German, `yyyy/mm/dd` in
+Japanese), 12- or 24-hour time and the first day of the week. Override the week start
+with `firstDayOfWeek="mon"`.
+
+Convert at the edges of your app: `value.toString()` gives an ISO string for your API,
+and `value.toDate(getLocalTimeZone())` gives a `Date` when a library needs one.
+
+### Other calendars
+
+Add a Unicode calendar extension to the locale and the Calendar, Date Field and Date
+Picker render in that system while your value stays convertible:
+
+```tsx
+<I18nProvider locale="th-TH-u-ca-buddhist">
+  <Calendar aria-label="Date" />
+</I18nProvider>
+```
+
+Try the Arabic, Japanese imperial and Thai Buddhist locales in the
+[Calendar locales example](/docs/components/calendar).
+
+## Numbers
+
+Number Field formats with `Intl.NumberFormat` options and parses what users type in
+their locale, including the decimal separator:
+
+```tsx
+<NumberField label="Price" defaultValue={1299.5}
+  formatOptions={{ style: "currency", currency: "EUR" }} />
+
+<NumberField label="Discount" defaultValue={0.15}
+  formatOptions={{ style: "percent" }} />
+
+<NumberField label="Weight" defaultValue={12}
+  formatOptions={{ style: "unit", unit: "kilogram" }} />
+```
+
+In `de-DE` the first one reads "1.299,50 €"; in `en-US`, "€1,299.50".
+
+For display-only numbers and dates, use React Aria's formatter hooks so output matches
+the provider's locale:
+
+```tsx
+"use client";
+
+import { useDateFormatter, useNumberFormatter } from "react-aria";
+
+export function Total({ amount, paidAt }: { amount: number; paidAt: Date }) {
+  const money = useNumberFormatter({ style: "currency", currency: "USD" });
+  const date = useDateFormatter({ dateStyle: "medium" });
+  return <p>{money.format(amount)} paid on {date.format(paidAt)}</p>;
+}
+```
+
+`react-aria` is a separate package from `react-aria-components`; install it if you use
+these hooks.
+
+## Your own strings
+
+React Aria translates its built-in strings only. Your labels, placeholders and
+messages come from your app, so pass them through your i18n library (next-intl,
+react-i18next, Lingui) like any other text:
+
+```tsx
+<TextField label={t("billing.email")} errorMessage={t("errors.email")} />
+```

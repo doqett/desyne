@@ -1,0 +1,257 @@
+---
+title: Slider
+description: Lets users pick a number, or a range between two numbers, by dragging a thumb along a track. Locale-aware value formatting, steps, tick marks, seven color tones and two sizes, with full keyboard support.
+---
+
+<ComponentLinks aria="Slider" source="slider" />
+
+<ComponentPreview name="slider/demo" />
+
+## Installation
+
+<InstallTabs name="slider" />
+
+## Usage
+
+```tsx
+import { Slider } from "@/components/ui/slider";
+```
+
+```tsx
+<Slider label="Volume" defaultValue={60} />
+
+<Slider label="Price" defaultValue={[200, 800]} maxValue={1000} />
+```
+
+Pass a number for a single thumb, or an array for one thumb per value. The type of `value`, `defaultValue` and `onChange` follows whichever you pass.
+
+### When to use
+
+- Slider — an approximate value within a known range where relative position matters more than precision: volume, opacity, a price range.
+- [Number Field](/docs/components/number-field) — an exact number, or a range too large to drag through. Pair the two when users need both ([example](#with-a-number-field)).
+- [Radio Group](/docs/components/radio-group) or [Select](/docs/components/select) — a handful of discrete, named options rather than a continuous scale.
+- [Progress Bar](/docs/components/progress-bar) or [Meter](/docs/components/meter) — displaying a value users can't change.
+
+## Anatomy
+
+```tsx
+<Slider>        {/* root: label, output, track, marks */}
+  Label         {/* from `label` */}
+  Output        {/* formatted value, from `showOutput` */}
+  Track         {/* background, filled range and one thumb per value */}
+  Marks         {/* from `marks` */}
+</Slider>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Slider` | `<div role="group">` | Root. Sets the tone variables from `color`. |
+| Label | `<label>` | Rendered from `label`. |
+| Output | `<output>` | Current value(s), formatted with `formatOptions`. Two values are formatted as a locale-aware range. Hidden with `showOutput={false}`. |
+| Track | `<div>` | Muted background plus a filled segment from the start (or between two thumbs). |
+| Thumb | `<div>` + hidden `<input type="range">` | One per value. Grows a soft ring on hover, focus and drag. |
+| Marks | `<div aria-hidden>` | Numeric labels positioned along the track from `marks`. Hidden from screen readers, which announce the thumb's value instead. |
+
+## Examples
+
+### Range
+
+Pass an array to `defaultValue` (or `value`) for two thumbs. The fill spans between them, and thumbs can't cross each other. Each thumb gets its own accessible label: two-thumb sliders default to "Minimum" and "Maximum", and `thumbLabels` sets your own (e.g. `["Start", "End"]`).
+
+<ComponentPreview name="slider/range" />
+
+### Step, min and max
+
+`minValue` and `maxValue` default to 0 and 100, and `step` to 1. Values snap to the step while dragging and with the keyboard.
+
+<ComponentPreview name="slider/step" />
+
+### Value formatting
+
+`formatOptions` takes any `Intl.NumberFormat` options. The output and the value screen readers announce are both formatted in the user's locale: percentages, currencies and units.
+
+<ComponentPreview name="slider/formatting" />
+
+### Fill offset
+
+By default the fill starts at `minValue`. For a single thumb, `fillOffset` starts it from another value instead, such as 0 on a -12 to 12 scale, so the fill grows in either direction. The equalizer in the next example uses `fillOffset={0}`.
+
+### Vertical
+
+`orientation="vertical"` stacks the label and output above a vertical track. Marks sit beside the track. A vertical slider is `h-48` by default; set a height with `className` (e.g. `h-56`). Sizes, colors, ranges and marks all work the same way. Up and down arrows move the thumb.
+
+<ComponentPreview name="slider/vertical" />
+
+### Marks
+
+`marks` renders labels under the track at the given values. Match them to `step` so every mark is reachable. Marks show raw numbers; they don't use `formatOptions`.
+
+<ComponentPreview name="slider/marks" />
+
+### Colors
+
+`color` accepts any tone and defaults to `brand`. Use `neutral` for media controls and `danger` or `warning` only when the value itself signals risk.
+
+<ComponentPreview name="slider/colors" />
+
+### Sizes
+
+`md` is the default. `sm` has a thinner track and a smaller thumb for dense panels.
+
+<ComponentPreview name="slider/sizes" />
+
+### With icons, no visible label
+
+Set `showOutput={false}` and put icons on either side for a compact control. Without a `label`, an `aria-label` is required.
+
+<ComponentPreview name="slider/with-icons" />
+
+### Disabled
+
+`isDisabled` dims the slider and removes every thumb from the tab order.
+
+<ComponentPreview name="slider/disabled" />
+
+### Controlled
+
+`onChange` fires continuously while dragging; `onChangeEnd` fires once when the user lets go (or after each key press). Update the UI with the first and save or fetch with the second.
+
+<ComponentPreview name="slider/controlled" />
+
+### With a number field
+
+Share one state between a slider and a [`NumberField`](/docs/components/number-field) so users can drag for speed or type for precision.
+
+<ComponentPreview name="slider/with-input" />
+
+### Form submission
+
+Pass `name` and each thumb's hidden range input is submitted with the form. For a range, a string names every thumb, so read it with `formData.getAll(name)`; an array such as `["ageMin", "ageMax"]` names each thumb separately. `form` associates the inputs with a `<form>` elsewhere in the document by id. A disabled slider is not submitted.
+
+<ComponentPreview name="slider/form" align="start" />
+
+## Recipes
+
+### Price filter
+
+A range slider kept in sync with two number fields, with a live result count.
+
+<ComponentPreview name="slider/recipe-price-filter" />
+
+### Image adjustments
+
+Small neutral sliders driving CSS filters on a preview, with a reset.
+
+<ComponentPreview name="slider/recipe-image-adjust" />
+
+### Pricing calculator
+
+Two sliders feeding a live monthly estimate, one with `marks` and one formatted in gigabytes.
+
+<ComponentPreview name="slider/recipe-pricing-calculator" />
+
+## Accessibility
+
+- Each thumb contains a visually hidden `<input type="range">`, so screen readers announce it as a slider with its label, current value, minimum and maximum.
+- The announced value uses `formatOptions` (e.g. "80%", "€2,500"), and the visible output is an `<output>` element linked to the thumbs.
+- Without a `label`, pass `aria-label` or `aria-labelledby`.
+- In a range, each thumb input has its thumb label as `aria-label`, combined with the slider label through `aria-labelledby`, so screen readers can tell the thumbs apart. Override the defaults with `thumbLabels`.
+- Clicking anywhere on the track moves the nearest thumb there; thumbs can also be dragged with mouse, touch or pen.
+- In right-to-left locales the track direction and arrow keys are mirrored.
+- The focus ring only appears for keyboard focus (`data-focus-visible`).
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the next thumb |
+| <kbd>→</kbd> / <kbd>↑</kbd> | Increases the value by one step |
+| <kbd>←</kbd> / <kbd>↓</kbd> | Decreases the value by one step |
+| <kbd>Page Up</kbd> / <kbd>Page Down</kbd> | Increases / decreases by a larger step |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Sets the minimum / maximum value |
+
+## Styling
+
+### Data attributes
+
+On the `Slider` root:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-disabled` | `isDisabled` is true |
+| `data-orientation` | `"horizontal"` or `"vertical"` |
+
+On each thumb (style them from the root with arbitrary variants such as `[&_[data-dragging]]:…`):
+
+| Attribute | Present when |
+| --- | --- |
+| `data-dragging` | Being dragged |
+| `data-hovered` | Hovered with a mouse or pen |
+| `data-focused` / `data-focus-visible` | Focused / focused with the keyboard |
+| `data-disabled` | The slider is disabled |
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `slider` | Root |
+| `label` | The label |
+| `slider-track` | The track (click and drag target) |
+| `slider-fill` | The filled segment |
+| `slider-thumb` | Each thumb |
+
+### Tone variables
+
+`color` sets `--tone` on the root. The filled track, the thumb border and its ring all use it, so a one-off color is a single class:
+
+```tsx
+<Slider label="Heat" className="[--tone:var(--color-orange-500)]" defaultValue={70} />
+```
+
+### Render props
+
+`className` accepts a function of the slider state (`orientation`, `isDisabled`, `state`):
+
+```tsx
+<Slider className={({ isDisabled }) => (isDisabled ? "grayscale" : "")} />
+```
+
+## API Reference
+
+### Slider
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    showOutput: { type: "boolean", default: "true", description: "Shows the formatted value next to the label." },
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', default: '"brand"', description: "Tone of the fill and thumbs." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Track thickness and thumb size." },
+    marks: { type: "number[]", description: "Values to label along the track, e.g. [0, 25, 50, 75, 100]." },
+    orientation: { type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Vertical sliders default to h-48; set a height with className." },
+    name: { type: "string | string[]", description: "Form name. A string names every thumb; an array names each thumb by index." },
+    form: { type: "string", description: "Id of the form the thumbs' inputs belong to." },
+    thumbLabels: { type: "string[]", description: 'Accessible label for each thumb, by index. Two-thumb sliders default to ["Minimum", "Maximum"].' },
+    fillOffset: { type: "number", description: "For a single thumb, the value the fill starts from. Defaults to minValue." },
+    value: { type: "number | number[]", description: "Controlled value. An array renders one thumb per item." },
+    defaultValue: { type: "number | number[]", description: "Uncontrolled initial value." },
+    onChange: { type: "(value: T) => void", description: "Called continuously while the value changes." },
+    onChangeEnd: { type: "(value: T) => void", description: "Called when the user stops dragging or releases a key." },
+    minValue: { type: "number", default: "0" },
+    maxValue: { type: "number", default: "100" },
+    step: { type: "number", default: "1", description: "Increment between values." },
+    formatOptions: { type: "Intl.NumberFormatOptions", description: "Formats the output and the announced value." },
+    isDisabled: { type: "boolean", default: "false" },
+    id: { type: "string" },
+    "aria-label": { type: "string", description: "Accessible name when there's no visible label." },
+    "aria-labelledby": { type: "string" },
+    className: { type: "string | ((state: SliderRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Slider`](https://react-aria.adobe.com/Slider#api).
+
+## Related
+
+- [Number Field](/docs/components/number-field) — for exact numeric input.
+- [Progress Bar](/docs/components/progress-bar) — shares the same tones, for read-only progress.
+- [Color Picker](/docs/components/color-picker) — includes a `ColorSlider` for color channels.

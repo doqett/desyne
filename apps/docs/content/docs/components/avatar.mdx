@@ -1,0 +1,197 @@
+---
+title: Avatar
+description: A user or workspace image with an automatic fallback to initials or an icon while it loads or when it fails. Five sizes, circle and square shapes, deterministic fallback colors, a presence dot, and stacked groups with a "+N" overflow.
+---
+
+<ComponentLinks source="avatar" />
+
+<ComponentPreview name="avatar/demo" />
+
+## Installation
+
+<InstallTabs name="avatar" />
+
+## Usage
+
+```tsx
+import { Avatar, AvatarGroup } from "@/components/ui/avatar";
+```
+
+```tsx
+<Avatar src={user.image} alt={user.name} fallback="OM" />
+```
+
+<Callout title="One component, no sub-parts">
+  Unlike shadcn's `Avatar` / `AvatarImage` / `AvatarFallback` trio, this avatar
+  takes `src`, `alt` and `fallback` as props. It tracks the image's loading
+  state itself and shows the fallback until the image has loaded, or for good
+  if it fails.
+</Callout>
+
+### When to use
+
+- Avatar: to identify a person, team or workspace next to their name or content.
+- [Badge](/docs/components/badge): for a status label; use the avatar's `status` prop for presence.
+- [Item](/docs/components/item): a list row with an avatar as its media, a name and a secondary line.
+- Use `shape="square"` for organizations, workspaces and apps, and circles for people, so the two are easy to tell apart.
+
+## Anatomy
+
+```tsx
+<AvatarGroup max={4}>        {/* optional stack with a "+N" overflow */}
+  <Avatar                    {/* root span: size, shape */}
+    src="…"                  {/* <img>, shown once loaded */}
+    fallback="OM"            {/* initials or icon while loading / on error */}
+    status="online"          {/* presence dot in the corner */}
+  />
+</AvatarGroup>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Avatar` | `<span>` | Root. Sized by `size`, carries `data-slot="avatar"`. |
+| Image | `<img>` | Rendered when `src` is set. Hidden (but still loading) until it fires `load`; removed if it fires `error`. |
+| Fallback | `<span>` | The `fallback` content, shown while the image loads or after it fails. Tinted when `colorful` is set. |
+| Status | `<span role="img">` | A dot sized to 28% of the avatar, labelled with the status name. |
+| `AvatarGroup` | `<div>` | Overlaps its children and adds a ring around each. With `max`, renders a "+N" avatar for the rest. |
+
+## Examples
+
+### Sizes
+
+`md` (32px) is the default. `xs` and `sm` fit inline text, table rows and dense lists; `lg` and `xl` suit headers and profile cards. Fallback text scales with the size.
+
+<ComponentPreview name="avatar/sizes" />
+
+### Shapes
+
+`circle` (default) for people, `square` for organizations, workspaces and apps.
+
+<ComponentPreview name="avatar/shapes" />
+
+### Fallbacks
+
+The fallback shows while the image loads, and stays if it fails to load or there's no `src`. Pass initials, or any node such as an icon for guests. Always pass `alt` with the person's name: it becomes the image's alt text, and the fallback's accessible name when no image is shown.
+
+<ComponentPreview name="avatar/fallback" />
+
+### Colorful fallbacks
+
+`colorful` tints the fallback with one of six soft palettes, picked from a hash of `alt` (or the fallback text when `alt` is empty). The same name always gets the same color, so people are recognizable across the app, in light and dark mode.
+
+<ComponentPreview name="avatar/colorful" />
+
+### Status
+
+`status` adds a presence dot in the bottom-right corner: `online` (success), `busy` (danger), `away` (warning) or `offline` (muted). The dot has a background-colored ring so it stays visible on any surface.
+
+<ComponentPreview name="avatar/status" />
+
+### With name
+
+Next to a visible name, pass `alt=""` so the name isn't read twice; the image (or fallback) is then treated as decorative.
+
+<ComponentPreview name="avatar/with-text" />
+
+### Group
+
+`AvatarGroup` overlaps avatars and rings each one with the background color. `max` shows that many avatars and collapses the rest into a "+N" avatar. Its `size` prop sizes the "+N" avatar and every child that doesn't set its own `size`, so you set it once on the group. A child with an explicit `size` keeps it. Tighten the overlap with a `-space-x-*` class.
+
+<ComponentPreview name="avatar/group" />
+
+## Recipes
+
+### Account menu
+
+An avatar as the trigger of a [`Menu`](/docs/components/menu). Wrap it in a React Aria `Button` with an `aria-label`, since the avatar alone isn't focusable.
+
+<ComponentPreview name="avatar/recipe-account-menu" />
+
+### Comment thread
+
+A list of comments with avatars aligned to the first line of each message.
+
+<ComponentPreview name="avatar/recipe-comments" />
+
+### Project card
+
+A square workspace avatar in a [`Card`](/docs/components/card) header and a small `AvatarGroup` of the team in the footer.
+
+<ComponentPreview name="avatar/recipe-project-card" />
+
+## Accessibility
+
+- With an image, `alt` is the image's alt text. When no image is shown and `alt` is set, the fallback gets `role="img"` and `aria-label={alt}`.
+- While an image is still loading, the fallback is `aria-hidden` and the (invisible) `<img>` carries the name.
+- With `alt=""` (the default), the avatar is decorative: the image has empty alt text and the fallback is `aria-hidden`. Use this when the name is already visible next to the avatar.
+- The status dot is `role="img"` with `aria-label` set to the status name ("online", "busy", "away", "offline"), so it's announced as a separate image. If presence is shown elsewhere in text, you can omit `status`.
+- The "+N" avatar in a group has `aria-label="N more"`. Give the group itself `role="group"` and an `aria-label` such as "6 collaborators" for context.
+- Avatars aren't interactive. To make one clickable, wrap it in a button or link with an accessible name, as in the [account menu](#account-menu) recipe.
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-slot="avatar"` | `Avatar` root | Always |
+| `data-slot="avatar-group"` | `AvatarGroup` | Always |
+
+`AvatarGroup` styles its children through `*:data-[slot=avatar]:…` (ring and full rounding), so anything you render inside with `data-slot="avatar"` joins the stack.
+
+### Customizing
+
+- `className` on `Avatar` goes to the root span; use it for custom sizes (`size-12 text-base`) or rings.
+- The ring color in groups is `ring-background`. Override it on a colored surface with `*:data-[slot=avatar]:ring-card` on the group.
+- `colorful` palettes are defined in the component source as OKLCH values with dark-mode pairs. Edit that array to match your brand.
+
+## API Reference
+
+### Avatar
+
+<TypeTable
+  type={{
+    src: { type: "string", description: "Image URL. The fallback shows until it loads, and replaces it if it fails." },
+    alt: {
+      type: "string",
+      default: '""',
+      description: "Name of the person or entity. Used as alt text, as the fallback's accessible name, and as the colorful seed. Empty means decorative.",
+    },
+    fallback: { type: "ReactNode", description: "Shown while the image loads or when it fails. Usually initials or an icon." },
+    size: { type: '"xs" | "sm" | "md" | "lg" | "xl"', default: '"md"', description: "20, 24, 32, 40 or 56px." },
+    shape: { type: '"circle" | "square"', default: '"circle"' },
+    colorful: {
+      type: "boolean",
+      default: "false",
+      description: "Tints the fallback with a palette derived from alt (or the fallback text).",
+    },
+    status: { type: '"online" | "busy" | "away" | "offline"', description: "Presence dot in the bottom-right corner." },
+    className: { type: "string", description: "Classes for the root span." },
+  }}
+/>
+
+Also accepts every prop of `<span>`.
+
+### AvatarGroup
+
+<TypeTable
+  type={{
+    max: { type: "number", description: "Show at most this many children, then a \"+N\" avatar for the rest." },
+    size: {
+      type: '"xs" | "sm" | "md" | "lg" | "xl"',
+      default: '"md"',
+      description: "Size of the \"+N\" avatar and of children that don't set their own size. An explicit size on a child wins.",
+    },
+    children: { type: "ReactNode", description: "Avatar elements." },
+    className: { type: "string", description: "Classes for the wrapper, e.g. -space-x-1 to change the overlap." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+## Related
+
+- [Item](/docs/components/item): list rows with an avatar as media.
+- [Badge](/docs/components/badge): labels next to a name, like roles or "Verified".
+- [Menu](/docs/components/menu): account menus triggered by an avatar.
+- [Card](/docs/components/card): profile and project cards.

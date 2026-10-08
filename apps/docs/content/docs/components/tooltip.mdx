@@ -1,0 +1,234 @@
+---
+title: Tooltip
+description: A short label shown on hover or keyboard focus, for icon-only buttons, abbreviations and extra context. Tuned delays, a shared warm-up between tooltips, dark and light variants, and an arrow that follows the placement.
+---
+
+<ComponentLinks aria="Tooltip" source="tooltip" />
+
+<ComponentPreview name="tooltip/demo" />
+
+## Installation
+
+<InstallTabs name="tooltip" />
+
+## Usage
+
+```tsx
+import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip";
+```
+
+```tsx
+<TooltipTrigger>
+  <Button variant="ghost" size="icon" aria-label="Save">
+    <SaveIcon />
+  </Button>
+  <Tooltip>Save</Tooltip>
+</TooltipTrigger>
+```
+
+`TooltipTrigger` wraps a focusable trigger (a [`Button`](/docs/components/button), [`Link`](/docs/components/link), [`ToggleButton`](/docs/components/toggle-button) or any element inside React Aria's `Focusable`) and the `Tooltip` that describes it.
+
+<Callout title="Tooltips supplement, they don't replace labels">
+  The tooltip is linked to its trigger with `aria-describedby`, so it's read as
+  a description after the trigger's name. Icon-only buttons still need an
+  `aria-label`. Touch users never see tooltips, so don't put essential
+  information or interactive content in them; use a
+  [Popover](/docs/components/popover) instead.
+</Callout>
+
+### When to use
+
+- Tooltip — a brief label or hint for a control, especially icon-only buttons, abbreviations and truncated text.
+- [Popover](/docs/components/popover) — interactive content, or anything users need to read on touch devices.
+- Inline help text (a field `description`) — guidance that should always be visible.
+- [Toast](/docs/components/toast) — feedback about something that just happened.
+
+## Anatomy
+
+```tsx
+<TooltipTrigger>          {/* hover, focus and delay handling */}
+  <Button />              {/* focusable trigger */}
+  <Tooltip>               {/* role="tooltip", optional arrow */}
+    Label
+  </Tooltip>
+</TooltipTrigger>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `TooltipTrigger` | — | Opens the tooltip on hover (after `delay`) or keyboard focus (immediately). Defaults to a 400ms open and 100ms close delay. |
+| `Tooltip` | `<div role="tooltip">` (portal) | The positioned bubble. Carries `data-slot="tooltip"`. |
+| Arrow | `OverlayArrow` › `<svg>` | 8px arrow pointing at the trigger. Rendered unless `showArrow={false}`. |
+
+## Examples
+
+### Placement
+
+`placement` accepts `top` (default), `bottom`, `left`, `right`, `start`, `end` and combinations like `top start`. The tooltip flips to the opposite side when there isn't room, and the arrow rotates with it.
+
+<ComponentPreview name="tooltip/placement" />
+
+### Light variant
+
+`variant="light"` renders a bordered card that matches popovers. Use it for two-line content, like a metric name and its definition. Tooltips are capped at `max-w-xs`; pass a `max-w-*` class for a narrower measure.
+
+<ComponentPreview name="tooltip/light" />
+
+### Without arrow
+
+`showArrow={false}` hides the arrow. Drop the `offset` to keep the tooltip close to dense toolbars.
+
+<ComponentPreview name="tooltip/no-arrow" />
+
+### With keyboard shortcut
+
+Tooltips are a natural place to advertise shortcuts. Put a [`Kbd`](/docs/components/kbd) in the content; the light variant keeps it legible.
+
+<ComponentPreview name="tooltip/with-kbd" />
+
+### Delay
+
+`delay` and `closeDelay` on `TooltipTrigger` set how long hover waits before opening and closing. Once one tooltip has opened, moving to a nearby trigger opens the next one immediately. Keyboard focus always opens without delay.
+
+<ComponentPreview name="tooltip/delay" />
+
+### Focus only
+
+`trigger="focus"` shows the tooltip for keyboard focus only, not on hover. Use it for hints that would be noisy under the mouse.
+
+<ComponentPreview name="tooltip/focus-trigger" />
+
+### Controlled
+
+`isOpen` and `onOpenChange` on `TooltipTrigger` let you open the tooltip from code, like confirming a copy action. `shouldCloseOnPress={false}` keeps it open while the trigger is pressed.
+
+<ComponentPreview name="tooltip/controlled" />
+
+### Disabling tooltips
+
+`isDisabled` on `TooltipTrigger` turns the tooltip off without touching the trigger. Here tooltips only appear while the navigation is collapsed to icons. Disabled buttons never show tooltips, since they don't receive hover or focus.
+
+<ComponentPreview name="tooltip/disabled" />
+
+### Custom trigger
+
+Wrap non-interactive elements in React Aria's `Focusable` so they can own a tooltip. The child needs `tabIndex={0}` and an ARIA role (`button`, `img`, `link` and similar), and must forward its ref.
+
+<ComponentPreview name="tooltip/custom-trigger" />
+
+## Recipes
+
+### Collapsed navigation
+
+An icon rail with right-side tooltips that show each destination and its shortcut. `delay={0}` makes scanning the rail instant.
+
+<ComponentPreview name="tooltip/recipe-icon-rail" />
+
+### Avatar stack
+
+Overlapping [`Avatar`](/docs/components/avatar)s, each wrapped in `Focusable` with `role="img"` and a name, show who has access on hover or focus.
+
+<ComponentPreview name="tooltip/recipe-avatar-stack" />
+
+### Metric definitions
+
+KPI cards with an info button next to each label. The light variant holds the metric's name and a short definition.
+
+<ComponentPreview name="tooltip/recipe-metric-card" />
+
+## Accessibility
+
+- The tooltip has `role="tooltip"` and is linked to its trigger with `aria-describedby`, so screen readers read it after the trigger's name.
+- It opens on hover after `delay`, and immediately when the trigger receives keyboard focus. It doesn't open for touch.
+- It closes on <kbd>Esc</kbd>, when the pointer leaves (after `closeDelay`), when focus moves away, and when the trigger is pressed (unless `shouldCloseOnPress={false}`).
+- Keep tooltip content short and non-interactive. Anything focusable inside a tooltip can't be reached.
+- The trigger must be focusable. Wrap plain elements in `Focusable` with a `tabIndex` and a role.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Focusing the trigger opens the tooltip |
+| <kbd>Esc</kbd> | Hides the tooltip |
+
+## Styling
+
+### Data attributes
+
+On the `Tooltip`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-placement` | Always: the resolved side, `"top"`, `"bottom"`, `"left"` or `"right"` |
+| `data-entering` | Opening animation is running |
+| `data-exiting` | Closing animation is running |
+| `data-slot="tooltip"` | Always |
+
+The enter animation fades, zooms and slides in from the trigger's side based on `data-placement`.
+
+### Customizing
+
+- `className` on `Tooltip` styles the bubble: it's `w-fit max-w-xs rounded-md px-2.5 py-1.5 text-xs` with `text-balance`. Pass `max-w-*` or padding classes to change it, or `flex items-center gap-2` to lay out rich content.
+- The default variant uses `bg-foreground text-background`, so it inverts with the theme; `light` uses `bg-popover` with a border.
+- The arrow's fill follows the variant. When overriding the background, hide the arrow or restyle it via `[&_svg]:fill-…`.
+- `--trigger-anchor-point` is set on the tooltip, for a custom `transform-origin`.
+
+### Render props
+
+`className` and `children` accept a function of the tooltip's state:
+
+```tsx
+<Tooltip className={({ placement }) => (placement === "bottom" ? "mt-1" : "")}>
+  Label
+</Tooltip>
+```
+
+## API Reference
+
+### TooltipTrigger
+
+<TypeTable
+  type={{
+    children: { type: "ReactNode", description: "A focusable trigger followed by a Tooltip." },
+    delay: { type: "number", default: "400", description: "Milliseconds of hover before the tooltip opens." },
+    closeDelay: { type: "number", default: "100", description: "Milliseconds before the tooltip closes after the pointer leaves." },
+    trigger: { type: '"hover" | "focus"', default: '"hover"', description: '"focus" opens the tooltip for keyboard focus only.' },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the tooltip, independent of the trigger." },
+    shouldCloseOnPress: { type: "boolean", default: "true", description: "Close the tooltip when the trigger is pressed." },
+    isOpen: { type: "boolean", description: "Controlled open state." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the tooltip opens or closes." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`TooltipTrigger`](https://react-aria.adobe.com/Tooltip#api).
+
+### Tooltip
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "light"', default: '"default"', description: "Dark inverted chip, or a light bordered card." },
+    showArrow: { type: "boolean", default: "true", description: "Renders an arrow pointing at the trigger." },
+    placement: { type: "Placement", default: '"top"', description: 'Preferred position, e.g. "right", "top start".' },
+    offset: { type: "number", default: "8", description: "Distance from the trigger along the main axis, in px." },
+    crossOffset: { type: "number", default: "0", description: "Shift along the cross axis, in px." },
+    containerPadding: { type: "number", default: "12", description: "Minimum space between the tooltip and the viewport edge." },
+    shouldFlip: { type: "boolean", default: "true", description: "Flip to the opposite side when there isn't enough room." },
+    arrowBoundaryOffset: { type: "number", description: "Minimum distance between the arrow and the tooltip's edge." },
+    triggerRef: { type: "RefObject<Element | null>", description: "Element to position against, when used without TooltipTrigger." },
+    isOpen: { type: "boolean", description: "Controlled open state, when used without TooltipTrigger." },
+    defaultOpen: { type: "boolean", description: "Uncontrolled initial open state, when used without TooltipTrigger." },
+    onOpenChange: { type: "(isOpen: boolean) => void", description: "Called when the open state changes, when used without TooltipTrigger." },
+    className: { type: "string | ((state: TooltipRenderProps) => string)", description: "Classes, or a function of the render state." },
+    children: { type: "ReactNode | ((state: TooltipRenderProps) => ReactNode)", description: "Tooltip content." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Tooltip`](https://react-aria.adobe.com/Tooltip#api).
+
+## Related
+
+- [Popover](/docs/components/popover) — interactive content anchored to a trigger.
+- [Button](/docs/components/button) — icon-only buttons are the most common tooltip trigger.
+- [Kbd](/docs/components/kbd) — show shortcuts inside tooltips.
+- [Toggle Button](/docs/components/toggle-button) — label icon-only toggles with a tooltip.

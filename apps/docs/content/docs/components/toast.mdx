@@ -1,0 +1,311 @@
+---
+title: Toast
+description: Brief, non-blocking notifications that stack in a corner of the screen, powered by sonner. Typed toasts with themed icons, descriptions, actions, promise and loading states, in-place updates, custom content and six positions.
+---
+
+<ComponentLinks docs={{ label: "sonner", href: "https://sonner.emilkowal.ski" }} source="toast" />
+
+<ComponentPreview name="toast/demo" />
+
+## Installation
+
+<InstallTabs name="toast" />
+
+## Usage
+
+Mount `<Toaster />` once, near the root of your app:
+
+```tsx
+// app/layout.tsx
+import { Toaster } from "@/components/ui/toast";
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Toaster />
+      </body>
+    </html>
+  );
+}
+```
+
+Then call `toast()` from anywhere — event handlers, effects, even outside React:
+
+```tsx
+import { toast } from "@/components/ui/toast";
+
+toast.success("Changes saved");
+```
+
+<Callout title="One Toaster per app">
+  Toasts only appear where a `<Toaster />` is mounted, and every mounted
+  `<Toaster />` without an `id` renders every toast, so two of them show
+  duplicates. Mount it once in the root layout, not inside pages or dialogs.
+</Callout>
+
+### When to use
+
+- Toast — short feedback about something that just happened ("Saved", "Invite sent", "Deploy failed"), or background work the user doesn't have to wait on.
+- [Alert](/docs/components/alert) — a message that belongs to the page and must stay visible until the situation changes, such as a form error or a billing problem.
+- [Dialog](/docs/components/dialog) — when the user must respond before continuing.
+- Don't put the only way to do something in a toast; it disappears. Actions like "Undo" should be shortcuts for something also reachable elsewhere.
+
+## Anatomy
+
+```tsx
+<Toaster />                      {/* <section aria-live="polite"> › <ol> per position */}
+
+toast(title, {
+  icon,                          // leading icon (typed toasts get one by default)
+  description,                   // secondary line
+  action,                        // primary button
+  cancel,                        // secondary button
+});
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Toaster` | `<section>` › `<ol>` | The live region and one list per position in use. Themed with popover tokens. |
+| Toast | `<li data-sonner-toast>` | One notification. Carries `data-type` (`success`, `error`, …). |
+| Icon | `<div data-icon>` | Lucide icon per type; tinted with the matching status color. |
+| Title | `<div data-title>` | The first argument to `toast()`. |
+| Description | `<div data-description>` | Muted secondary text. |
+| Action / Cancel | `<button>` | From `action` and `cancel`. The action closes the toast unless its `onClick` calls `event.preventDefault()`; cancel always closes it. |
+| Close button | `<button aria-label="Close toast">` | Shown when `closeButton` is set on the toast or the Toaster. Never shown on loading or custom toasts. |
+
+## Examples
+
+### Types
+
+`toast()` shows a plain message. `toast.success`, `toast.info`, `toast.warning` and `toast.error` add a tinted icon that matches the status colors of the rest of the library.
+
+<ComponentPreview name="toast/types" />
+
+### Description
+
+`description` adds a muted second line for detail that doesn't fit the title. Keep the title short enough to scan.
+
+<ComponentPreview name="toast/description" />
+
+### Actions
+
+`action` renders a primary button, `cancel` a secondary one. Both take a `label` and an `onClick`, and close the toast after running. Use them for quick follow-ups like "Undo" or "View".
+
+<ComponentPreview name="toast/action" />
+
+### Promise
+
+`toast.promise` shows a loading toast, then replaces it with the result. `success` and `error` can be functions that receive the resolved value or the rejection reason.
+
+<ComponentPreview name="toast/promise" />
+
+### Updating a toast
+
+Every call returns an id. Pass it back as `id` to update the same toast in place — for example, to walk a `toast.loading` toast through several steps before it succeeds.
+
+<ComponentPreview name="toast/update" />
+
+### Dismissing
+
+`toast.dismiss(id)` closes one toast; `toast.dismiss()` closes them all. Use it for toasts that track a state the user can end elsewhere.
+
+<ComponentPreview name="toast/dismiss" />
+
+### Duration and close button
+
+Toasts close after 4 seconds by default. Shorten `duration` for trivial confirmations, lengthen it for anything with text to read, and use `Infinity` with `closeButton` for ongoing states. Timers pause while the user hovers the stack or the tab is hidden.
+
+<ComponentPreview name="toast/duration" />
+
+### Custom icon
+
+`icon` replaces the default icon, and adds one to plain toasts. Size it with `size-4` to match the built-in icons.
+
+<ComponentPreview name="toast/icon" />
+
+### Rich colors
+
+`richColors: true` tints the whole toast with sonner's success, info, warning and error palettes. Set it on the `<Toaster />` to apply it to every toast. The palettes switch to their dark variants automatically when your app is in dark mode (see [Color mode](#color-mode)); toggle the docs theme to compare.
+
+<ComponentPreview name="toast/rich-colors" />
+
+### Position
+
+The Toaster's `position` (default `bottom-right`) sets where toasts appear. Individual toasts can override it with their own `position`.
+
+<ComponentPreview name="toast/position" />
+
+### Custom content
+
+`toast.custom` renders your own JSX and keeps sonner's stacking, timing and swipe-to-dismiss. The render function receives the toast's id so buttons inside can dismiss it.
+
+<ComponentPreview name="toast/custom" />
+
+## Recipes
+
+### Save with toast.promise
+
+Submit a form, keep the button pending until the promise settles, and let `toast.promise` report success or the server's error message. `finally` resets the button either way.
+
+<ComponentPreview name="toast/recipe-save-form" />
+
+### Delete with undo
+
+Remove the item from the list right away and offer "Undo" in the toast. Commit the delete in `onAutoClose`, once the undo window has passed.
+
+<ComponentPreview name="toast/recipe-undo-delete" />
+
+### Export progress
+
+A custom toast with a [`ProgressBar`](/docs/components/progress-bar), re-rendered through the same id as the export runs, then swapped for a success toast with a download action.
+
+<ComponentPreview name="toast/recipe-export-progress" />
+
+## Accessibility
+
+- The Toaster renders a `<section>` with `aria-live="polite"`, so new toasts are announced without interrupting and without moving focus.
+- The region is labelled "Notifications" plus the hotkey. Press <kbd>Alt</kbd>+<kbd>T</kbd> to expand the stack and move focus into it; each toast is focusable.
+- Timers pause while the stack is expanded (hovered, or opened with the hotkey), while a toast is being pressed or swiped, and while the page is hidden.
+- sonner disables its own transitions and animations under `prefers-reduced-motion`, and the Lucide loading icon stops spinning (`motion-reduce:animate-none`).
+- Toasts disappear. Keep messages short, give important ones a longer `duration`, and never make a toast the only way to reach an action.
+- For errors that block the user, prefer an [Alert](/docs/components/alert) near the cause, or pair the toast with one.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Alt</kbd>+<kbd>T</kbd> | Expands the toasts and moves focus to them (configurable with `hotkey`) |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd> | Moves between toasts and their buttons |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activates the focused action, cancel or close button |
+| <kbd>Esc</kbd> | Collapses the expanded stack when focus is inside it |
+
+## Styling
+
+### Theme
+
+`Toaster` maps sonner's colors to your tokens: `--normal-bg` is `--popover`, `--normal-text` is `--popover-foreground`, `--normal-border` is `--border` and `--border-radius` is `--radius`. It also sets `toastOptions.classNames` for the toast shadow, muted descriptions, primary action buttons, muted cancel buttons and per-type icon colors, and replaces the icons with Lucide ones.
+
+Your props are merged with these defaults instead of replacing them:
+
+| Prop | How it merges |
+| --- | --- |
+| `className` | Joined with the built-in `toaster group` classes (tailwind-merge). |
+| `style` | Shallow-merged over the token variables, so you can override one, such as `--width`, and keep the rest. |
+| `icons` | Merged per type. Passing only `success` keeps the Lucide info, warning, error and loading icons. |
+| `toastOptions` | Every option is passed through; `toastOptions.classNames` is merged key by key with `cn`, so your `toast` or `actionButton` classes are added to the defaults. |
+
+```tsx
+<Toaster
+  icons={{ success: <PartyPopperIcon className="size-4" /> }}
+  toastOptions={{ classNames: { title: "!font-semibold" } }}
+  style={{ "--width": "420px" } as React.CSSProperties}
+/>
+```
+
+sonner's own styles aren't in a cascade layer, so the defaults use the `!` (important) modifier. Use `!` on your classes too when they need to beat a sonner style or a default, for example `!bg-card`.
+
+### Color mode
+
+sonner's `richColors` and `invert` palettes depend on its `theme`. By default `Toaster` follows the `.dark` class on `<html>`, the same switch the theme tokens use, and watches it with a `MutationObserver`, so toasts change palette the moment your theme toggle runs. This works with next-themes (`attribute="class"`), fumadocs and hand-rolled toggles alike, and adds no dependency. During server rendering and hydration it uses `"light"`, then switches after hydration.
+
+Pass `theme` to take over: `"light"` or `"dark"` to pin it, or `"system"` to follow `prefers-color-scheme` instead of the class (useful if your app themes with media queries rather than `.dark`).
+
+### Custom toasts
+
+`toast.custom` content still receives the `toast` classes (border, radius and shadow) on its `<li>`, but no background, padding or width. Give your root element `bg-popover`, padding and `w-(--width)` (356px by default).
+
+### Per-toast classes
+
+Every toast accepts `className`, `classNames` (with keys such as `title`, `description`, `actionButton`, `icon`) and `style`, merged with the Toaster's defaults.
+
+## API Reference
+
+### Toaster
+
+<TypeTable
+  type={{
+    position: {
+      type: '"top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"',
+      default: '"bottom-right"',
+      description: "Where toasts appear.",
+    },
+    duration: { type: "number", default: "4000", description: "Default time in ms before a toast closes." },
+    visibleToasts: { type: "number", default: "3", description: "How many toasts are visible in the stack." },
+    expand: { type: "boolean", default: "false", description: "Always show the stack expanded instead of collapsed." },
+    gap: { type: "number", default: "14", description: "Gap in px between expanded toasts." },
+    closeButton: { type: "boolean", default: "false", description: "Adds a close button to every toast." },
+    richColors: { type: "boolean", default: "false", description: "Tints every typed toast with its status palette." },
+    theme: { type: '"light" | "dark" | "system"', default: "follows .dark on <html>", description: "Color scheme used by sonner's built-in palettes. See Color mode." },
+    invert: { type: "boolean", default: "false", description: "Inverts the colors of every toast." },
+    offset: { type: "string | number | { top?, right?, bottom?, left? }", default: '"24px"', description: "Distance from the viewport edges." },
+    mobileOffset: { type: "string | number | { top?, right?, bottom?, left? }", default: '"16px"', description: "Offset on screens up to 600px wide." },
+    hotkey: { type: "string[]", default: '["altKey", "KeyT"]', description: "Keys that expand and focus the toasts." },
+    swipeDirections: { type: '("top" | "right" | "bottom" | "left")[]', description: "Directions a toast can be swiped away. Derived from position by default." },
+    dir: { type: '"ltr" | "rtl" | "auto"', description: "Text direction. Read from the document by default." },
+    id: { type: "string", description: "Only render toasts created with a matching toasterId." },
+    containerAriaLabel: { type: "string", default: '"Notifications"', description: "Label of the live region (the hotkey is appended)." },
+    customAriaLabel: { type: "string", description: "Replaces the whole live region label." },
+    toastOptions: { type: "ToastOptions", description: "Defaults for every toast. classNames are merged key by key with the built-in ones (see Styling)." },
+    icons: { type: "ToastIcons", description: "Icons per type, merged over the built-in Lucide icons." },
+    className: { type: "string", description: 'Classes on each list, merged with the built-in "toaster group".' },
+    style: { type: "CSSProperties", description: "Inline styles on each list, merged over the token mapping." },
+  }}
+/>
+
+### toast()
+
+```tsx
+toast(message, options?)          // plain
+toast.success(message, options?)  // .info, .warning, .error, .loading, .message
+toast.promise(promise, { loading, success, error, description?, finally? })
+toast.custom((id) => <JSX />, options?)
+toast.dismiss(id?)                // one toast, or all of them
+```
+
+Every call except `dismiss` returns the toast's id. `toast.promise` returns an object with `unwrap()`, which resolves or rejects with the original promise.
+
+<TypeTable
+  type={{
+    id: { type: "string | number", description: "Reuse an id to update an existing toast in place." },
+    description: { type: "ReactNode | (() => ReactNode)", description: "Secondary text under the title." },
+    icon: { type: "ReactNode", description: "Replaces the type's icon, or adds one to a plain toast." },
+    action: { type: "{ label: ReactNode; onClick: (event) => void } | ReactNode", description: "Primary button. Closes the toast unless onClick calls event.preventDefault()." },
+    cancel: { type: "{ label: ReactNode; onClick: (event) => void } | ReactNode", description: "Secondary button. Closes the toast after onClick." },
+    duration: { type: "number", default: "4000", description: "Time in ms before it closes. Infinity keeps it open. Loading toasts never close on their own." },
+    closeButton: { type: "boolean", description: "Shows a close button on this toast." },
+    dismissible: { type: "boolean", default: "true", description: "When false, the toast can't be swiped or closed by the user." },
+    position: { type: "Position", description: "Overrides the Toaster's position for this toast." },
+    richColors: { type: "boolean", description: "Tints this toast with its status palette." },
+    invert: { type: "boolean", description: "Inverts this toast's colors." },
+    onDismiss: { type: "(toast: ToastT) => void", description: "Called when the user closes or swipes the toast, or it's dismissed programmatically." },
+    onAutoClose: { type: "(toast: ToastT) => void", description: "Called when the toast closes because its timer ran out." },
+    toasterId: { type: "string", description: "Send the toast to the Toaster with this id." },
+    className: { type: "string" },
+    classNames: { type: "ToastClassnames", description: "Classes for the toast's parts (title, description, actionButton, icon, …)." },
+    style: { type: "CSSProperties" },
+    unstyled: { type: "boolean", description: "Removes sonner's default styles from this toast." },
+  }}
+/>
+
+### toast.promise
+
+<TypeTable
+  type={{
+    loading: { type: "ReactNode", description: "Shown while the promise is pending." },
+    success: { type: "ReactNode | ((data) => ReactNode | { message, ...options })", description: "Shown when it resolves. Return an object to also set description, action and so on." },
+    error: { type: "ReactNode | ((error) => ReactNode | { message, ...options })", description: "Shown when it rejects." },
+    description: { type: "ReactNode | ((dataOrError) => ReactNode)", description: "Description for every state." },
+    finally: { type: "() => void | Promise<void>", description: "Runs after the promise settles either way." },
+  }}
+/>
+
+Also accepts every `toast()` option except `description`, which takes the form above. See the [sonner docs](https://sonner.emilkowal.ski) for the full reference.
+
+## Related
+
+- [Alert](/docs/components/alert) — persistent, in-page messages.
+- [Dialog](/docs/components/dialog) — when the user must respond.
+- [Progress Bar](/docs/components/progress-bar) — progress inside a custom toast.
+- [Button](/docs/components/button) — `isPending` for the action that triggers the toast.

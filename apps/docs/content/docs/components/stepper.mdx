@@ -1,0 +1,154 @@
+---
+title: Stepper
+description: Shows where the user is in a multi-step flow, such as onboarding, checkout or a setup wizard. Horizontal or vertical, with complete, current, upcoming and error states, optional descriptions and icons, two sizes, and pressable steps for moving back through the flow.
+---
+
+<ComponentLinks source="stepper" />
+
+<ComponentPreview name="stepper/demo" />
+
+## Installation
+
+<InstallTabs name="stepper" />
+
+## Usage
+
+```tsx
+import { Step, Stepper } from "@/components/ui/stepper";
+```
+
+```tsx
+<Stepper aria-label="Workspace setup" currentStep={1}>
+  <Step title="Account" description="Name and email" />
+  <Step title="Workspace" description="Team and URL" />
+  <Step title="Billing" description="Plan and payment" />
+</Stepper>
+```
+
+`currentStep` is the zero-based index of the active step. Steps before it are `complete`, the step itself is `current`, and later steps are `upcoming`. Set `status` on a `Step` to override this, for example to mark a step as `error`.
+
+### When to use
+
+- Stepper: a flow with a fixed number of ordered steps, where knowing what's left helps the user (onboarding, checkout, import wizards, KYC).
+- [Tabs](/docs/components/tabs): sections the user can visit in any order.
+- [Progress Bar](/docs/components/progress-bar): progress of a task the user isn't driving step by step.
+- [Timeline](/docs/components/timeline): a record of events that already happened.
+
+## Anatomy
+
+```tsx
+<Stepper>                 {/* <ol>, orientation, size, currentStep */}
+  <Step title description>{/* <li>, data-status */}
+    {/* indicator: number, check, cross or icon */}
+    {/* title + description (a <button> when pressable) */}
+    {/* connector to the next step */}
+    {/* children: content under the title (vertical only) */}
+  </Step>
+</Stepper>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Stepper` | `<ol>` | Ordered list. Pass `aria-label` to name the flow. Provides orientation, size and `currentStep` to its steps. |
+| `Step` | `<li>` | Sets `data-status` and `aria-current="step"` on the current step. |
+| Indicator | `<span>` | The step number (1-based, unpadded), a check when complete, a cross on error, or your `icon`. |
+| Trigger | React Aria `Button` or `<div>` | A button when `onStepChange` is set and the step can be reached; otherwise plain text. |
+| Connector | `<span>` | Line to the next step. Brand-colored once the step is complete. Not rendered after the last step. |
+| Content | `<div>` | `children` of a `Step`, shown under the title in vertical steppers. |
+
+## Examples
+
+### Vertical
+
+`orientation="vertical"` stacks steps with the connector running down the left. Pass `children` to a `Step` to show content under its title, such as the active step's form.
+
+<ComponentPreview name="stepper/vertical" />
+
+### Pressable steps
+
+With `onStepChange`, reachable steps render as buttons and pressing one calls the handler with its index. By default (`isLinear`), only steps up to `currentStep` are pressable, so users can go back but not skip ahead. Set `isLinear={false}` to allow any step.
+
+<ComponentPreview name="stepper/navigation" />
+
+### Error state and icons
+
+`status="error"` shows a cross and turns the title red. Use `description` to say what went wrong. `icon` replaces the number (and the check or cross) with your own glyph.
+
+<ComponentPreview name="stepper/status" />
+
+### Sizes
+
+`md` (32px indicators) is the default. `sm` (24px) suits dialogs, sidebars and dense headers.
+
+<ComponentPreview name="stepper/sizes" />
+
+## Accessibility
+
+- The stepper is an `<ol>`, so screen readers announce the number of steps and each step's position. Give it an `aria-label` that names the flow, e.g. "Checkout".
+- The current step gets `aria-current="step"` (on its button when pressable, otherwise on the `<li>`).
+- Each step includes visually hidden status text ("Completed", "Current step", "Not started", "Error"), so status isn't conveyed by color or icon alone.
+- Pressable steps are React Aria buttons: they work with mouse, touch and keyboard (Tab, then Enter or Space) and show a focus ring on keyboard focus. Unreachable steps aren't buttons, so they aren't in the tab order.
+- The connector and indicator glyphs are decorative.
+- A stepper doesn't move focus. When the step changes, move focus to the new step's heading or first field yourself.
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Values |
+| --- | --- | --- |
+| `data-slot="stepper"` | `Stepper` | Always |
+| `data-orientation` | `Stepper` | `horizontal` · `vertical` |
+| `data-slot="step"` | `Step` | Always |
+| `data-status` | `Step` | `complete` · `current` · `upcoming` · `error` |
+| `data-slot="step-indicator"` | Indicator | Always |
+| `data-slot="step-trigger"` | Pressable trigger | When pressable |
+| `data-slot="step-title"` / `step-description` | Text | Always / with `description` |
+| `data-slot="step-connector"` | Connector | All but the last step |
+| `data-slot="step-content"` | Children | Vertical, with `children` |
+
+`Step` sets the `group/step` group, so you can style its children by status:
+
+```tsx
+<Step className="group-data-[status=error]/step:..." title="Upload" />
+```
+
+## API Reference
+
+### Stepper
+
+<TypeTable
+  type={{
+    currentStep: { type: "number", description: "Zero-based index of the current step. Earlier steps are complete, later ones upcoming." },
+    onStepChange: { type: "(index: number) => void", description: "Makes reachable steps pressable. Called with the pressed step's index." },
+    isLinear: { type: "boolean", default: "true", description: "When true, only steps up to currentStep can be pressed." },
+    orientation: { type: '"horizontal" | "vertical"', default: '"horizontal"', description: "Layout direction." },
+    size: { type: '"sm" | "md"', default: '"md"', description: "Indicator size: 24px or 32px." },
+    "aria-label": { type: "string", description: "Names the flow for screen readers." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<ol>`.
+
+### Step
+
+<TypeTable
+  type={{
+    title: { type: "ReactNode", description: "Step name." },
+    description: { type: "ReactNode", description: "Secondary line under the title." },
+    status: { type: '"complete" | "current" | "upcoming" | "error"', description: "Overrides the status derived from currentStep." },
+    icon: { type: "ReactNode", description: "Replaces the number, check and cross in the indicator." },
+    isDisabled: { type: "boolean", description: "Dims the step and makes it not pressable." },
+    children: { type: "ReactNode", description: "Content under the title. Vertical steppers only." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<li>`.
+
+## Related
+
+- [Tabs](/docs/components/tabs): sections in any order.
+- [Progress Bar](/docs/components/progress-bar): overall progress as a bar.
+- [Timeline](/docs/components/timeline): a history of events.

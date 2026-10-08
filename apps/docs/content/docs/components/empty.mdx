@@ -1,0 +1,150 @@
+---
+title: Empty
+description: An empty state for lists, tables, search results and new accounts. Media, a title, a short explanation and the next action, centered, in three surfaces and three sizes. Same composition style as Item and Card, and works in server components.
+---
+
+<ComponentLinks source="empty" />
+
+<ComponentPreview name="empty/demo" />
+
+## Installation
+
+<InstallTabs name="empty" />
+
+## Usage
+
+```tsx
+import {
+  Empty,
+  EmptyActions,
+  EmptyDescription,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+```
+
+```tsx
+<Empty>
+  <EmptyMedia variant="icon">
+    <FolderOpenIcon />
+  </EmptyMedia>
+  <EmptyTitle>No projects yet</EmptyTitle>
+  <EmptyDescription>Create a project to get started.</EmptyDescription>
+  <EmptyActions>
+    <Button>New project</Button>
+  </EmptyActions>
+</Empty>
+```
+
+### When to use
+
+- Empty: a place that would normally show content but has none, such as a new account, a cleared inbox or a search with no matches. Explain why, and offer the next step.
+- [Alert](/docs/components/alert): a problem the user needs to know about, such as a failed load.
+- [Skeleton](/docs/components/skeleton): content that's still loading. Don't show an empty state before the data arrives.
+
+## Anatomy
+
+```tsx
+<Empty>                {/* variant, size */}
+  <EmptyMedia />       {/* icon tile, round badge, avatars or illustration */}
+  <EmptyTitle />       {/* what's empty */}
+  <EmptyDescription /> {/* why, and what to do */}
+  <EmptyActions />     {/* buttons or links */}
+</Empty>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Empty` | `<div>` | Centered flex column, balanced text. `variant` sets the surface, `size` the padding and gap. |
+| `EmptyMedia` | `<div aria-hidden>` | `icon`: 40px bordered tile, like `ItemMedia`. `round`: 48px muted circle. `default`: no surface, for avatars or illustrations (bare SVGs get 32px). |
+| `EmptyTitle` | `<div>` | 16px semibold. Put a heading element inside if the empty state stands in for a page section. |
+| `EmptyDescription` | `<p>` | Muted, max 24rem wide. Links inside are underlined. |
+| `EmptyActions` | `<div>` | Centered row that wraps. |
+
+## Examples
+
+### Outline
+
+`variant="outline"` draws a dashed border, for empty page sections and places where content can be added or dropped. `EmptyMedia variant="round"` gives the icon a soft circle.
+
+<ComponentPreview name="empty/outline" />
+
+### No search results
+
+`variant="muted"` fills the background, for empty panels inside other surfaces. Add `role="status"` when the empty state appears in response to typing, so the change is announced. Offer a way out, like clearing the search.
+
+<ComponentPreview name="empty/search" />
+
+### Avatars as media
+
+`EmptyMedia` with the default variant holds anything, such as an [`AvatarGroup`](/docs/components/avatar). `size="lg"` adds room for full-page empty states.
+
+<ComponentPreview name="empty/avatars" />
+
+### Inside a card
+
+`size="sm"` with a smaller title and description fits card bodies and popovers.
+
+<ComponentPreview name="empty/in-card" />
+
+## Accessibility
+
+- `Empty` is a plain `<div>` with no role. Add `role="status"` when it replaces results in response to user input, so screen readers announce it.
+- `EmptyMedia` is `aria-hidden`; make sure the title says what the icon shows.
+- `EmptyTitle` is a `<div>`. When the empty state is the main content of a page or section, wrap the text in a heading at the right level: `<EmptyTitle><h2>No projects yet</h2></EmptyTitle>`.
+- Name actions by what they do ("New project", "Clear search"), not "Click here".
+
+## Styling
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="empty"` | `Empty` |
+| `data-slot="empty-media"` | `EmptyMedia` |
+| `data-slot="empty-title"` | `EmptyTitle` |
+| `data-slot="empty-description"` | `EmptyDescription` |
+| `data-slot="empty-actions"` | `EmptyActions` |
+
+### `emptyVariants`
+
+The `tailwind-variants` function behind `Empty`, for applying the same layout to your own element (for example a `<section>` or a table cell).
+
+## API Reference
+
+### Empty
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "outline" | "muted"', default: '"default"', description: "Surface: none, dashed border, or muted fill." },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"', description: "Padding (24, 32 or 48px) and gap." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### EmptyMedia
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "icon" | "round"', default: '"default"', description: "icon: 40px bordered tile. round: 48px muted circle. default: no surface." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### EmptyTitle / EmptyActions
+
+No extra props. Accept every prop of `<div>`.
+
+### EmptyDescription
+
+No extra props. Accepts every prop of `<p>`.
+
+## Related
+
+- [Item](/docs/components/item): the rows that fill the list once it isn't empty.
+- [Card](/docs/components/card): a frame for small empty states.
+- [Skeleton](/docs/components/skeleton): placeholders while loading.

@@ -1,0 +1,266 @@
+---
+title: Card
+description: A surface that groups related content and actions. Four surface styles, three padding sizes, a header with an action slot and optional hairline, an inset surface for previews, and a footer for actions. Server-component safe.
+---
+
+<ComponentLinks source="card" />
+
+<ComponentPreview name="card/demo" />
+
+## Installation
+
+<InstallTabs name="card" />
+
+## Usage
+
+```tsx
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardInset,
+  CardTitle,
+} from "@/components/ui/card";
+```
+
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Usage this month</CardTitle>
+    <CardDescription>Resets on the 1st.</CardDescription>
+  </CardHeader>
+  <CardContent>…</CardContent>
+  <CardFooter>…</CardFooter>
+</Card>
+```
+
+<Callout title="Plain elements, no client JavaScript">
+  Every card part is a styled `<div>` with no React Aria behavior and no
+  `"use client"` directive, so cards render in server components. Put
+  interactive children (buttons, fields, links) inside and they bring their own
+  behavior.
+</Callout>
+
+### When to use
+
+- Card: a self-contained group of content with its own heading, such as a stat, a settings section, a pricing tier or a preview.
+- [Item](/docs/components/item): a single row inside a list (media, a title, a quiet second line and actions). Stack items inside a card rather than stacking cards.
+- [Alert](/docs/components/alert): a message that needs attention, not a container.
+- [Dialog](/docs/components/dialog) or [Sheet](/docs/components/sheet): content that should interrupt or overlay the page.
+- Avoid wrapping a whole page in one card, and avoid nesting outline cards; use `filled` or `CardInset` for an inner surface.
+
+## Anatomy
+
+```tsx
+<Card>                  {/* surface: variant, size (sets --card-px) */}
+  <CardHeader>          {/* grid: title + description, action on the right */}
+    <CardTitle />       {/* a leading svg becomes an icon */}
+    <CardDescription />
+    <CardAction />      {/* top-right slot: button, badge, menu */}
+  </CardHeader>
+  <CardContent>         {/* horizontally padded body */}
+    <CardInset />       {/* optional muted inner surface */}
+  </CardContent>
+  <CardFooter />        {/* row of actions or meta text */}
+</Card>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Card` | `<div>` | Root. Flex column with vertical padding and a gap between parts. Sets the `--card-px` variable used by the other parts. |
+| `CardHeader` | `<div>` | Two-row grid. Switches to two columns when it contains a `CardAction`. `separator` draws an inset hairline underneath. |
+| `CardTitle` | `<div>` | Medium-weight title. Any direct `svg` child is sized to 16px and spaced as a leading icon. |
+| `CardDescription` | `<div>` | Muted supporting text. |
+| `CardAction` | `<div>` | Pinned to the top-right of the header, spanning both rows. |
+| `CardContent` | `<div>` | Adds the card's horizontal padding. |
+| `CardInset` | `<div>` | A rounded, muted surface for previews, code, media or empty states. Add your own padding. |
+| `CardFooter` | `<div>` | Horizontal flex row with the card's horizontal padding. |
+
+The parts render as `<div>` for layout flexibility. `CardTitle` is not a heading element; if the card title should appear in the document outline, put an `<h2>`/`<h3>` inside it.
+
+## Examples
+
+### Variants
+
+`outline` is the default and suits most dashboard surfaces. `elevated` lifts featured content with a soft shadow, `filled` is a muted panel with no border for secondary or nested content, and `ghost` keeps the spacing and slots with no surface at all.
+
+<ComponentPreview name="card/variants" />
+
+### Sizes
+
+`size` controls the vertical padding, the gap between parts and the `--card-px` horizontal padding every part reads. `sm` (12px) suits dense grids, `md` (16px) is the default and `lg` (24px) suits forms and focused content.
+
+<ComponentPreview name="card/sizes" />
+
+### Header, action and inset
+
+Pass `separator` to `CardHeader` for an inset hairline aligned with the content. An svg inside `CardTitle` becomes a leading icon, `CardAction` holds one quiet action in the top-right corner, and `CardInset` is the muted surface for the headline figure.
+
+<ComponentPreview name="card/widget" />
+
+### Bordered header and footer
+
+Add `border-b` to `CardHeader` or `border-t` to `CardFooter` for full-width dividers; the parts add matching padding on the bordered side automatically. Use this for settings sections where the footer holds the save action.
+
+<ComponentPreview name="card/footer" />
+
+### Media
+
+For an edge-to-edge cover, remove the top padding with `pt-0` and clip the corners with `overflow-hidden`. The cover can be an image, video or illustration.
+
+<ComponentPreview name="card/media" />
+
+### Stat cards
+
+A description, a large tabular value in `CardTitle` and a trend [`Badge`](/docs/components/badge) in `CardAction` make a compact KPI tile. Use `size="sm"` in grids.
+
+<ComponentPreview name="card/stats" />
+
+### Interactive cards
+
+`isInteractive` only adds a pointer cursor and hover feedback; it does not make the card focusable or clickable. Put a real link inside and stretch it over the card with an `after:absolute after:inset-0` overlay, so middle-click, "open in new tab" and keyboard focus keep working. `has-[a:focus-visible]` moves the focus ring to the card.
+
+<ComponentPreview name="card/interactive" />
+
+### Loading
+
+Mirror the final layout with [`Skeleton`](/docs/components/skeleton) blocks so nothing shifts when data arrives. Mark the card `aria-busy` while it loads.
+
+<ComponentPreview name="card/loading" />
+
+### Empty state
+
+Use `CardInset` as a quiet frame for an empty state, with one clear action to fill it.
+
+<ComponentPreview name="card/empty" />
+
+## Recipes
+
+### Pricing tiers
+
+Two tiers side by side. The featured plan uses `elevated` with a ring and a "Popular" badge in `CardAction`; `size="lg"` gives the content room.
+
+<ComponentPreview name="card/recipe-pricing" />
+
+### Settings section
+
+A notification settings panel: a header with an icon and hairline, a list of [`Switch`](/docs/components/switch)es with descriptions, and a bordered footer for the save action.
+
+<ComponentPreview name="card/recipe-settings" />
+
+### Team members
+
+A card that holds a list of [`Item`](/docs/components/item) rows with [`Avatar`](/docs/components/avatar)s, role badges and a per-row menu button. `px-2` on `CardContent` lets row hover backgrounds reach closer to the edge.
+
+<ComponentPreview name="card/recipe-team" />
+
+## Accessibility
+
+- Cards have no role. They're visual grouping only; screen readers read the content in order.
+- `CardTitle` renders a `<div>`. When the card's title is a real section heading, render a heading element inside it (for example `<CardTitle><h3>…</h3></CardTitle>`) so it shows up in the heading outline.
+- For a card that navigates, use a real link (see [Interactive cards](#interactive-cards)); don't put `onClick` on the card `<div>`. Keep other interactive elements outside the stretched link's overlay, or raise them with `relative z-10`.
+- `isInteractive` is purely visual. It doesn't add focus, a role or keyboard handling.
+- If a card is a meaningful landmark (for example a named region of a dashboard), add `role="region"` and `aria-labelledby` pointing at its title.
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Present when |
+| --- | --- | --- |
+| `data-slot="card"` | `Card` | Always |
+| `data-slot="card-header"` | `CardHeader` | Always |
+| `data-separator` | `CardHeader` | `separator` is true |
+| `data-slot="card-title"` | `CardTitle` | Always |
+| `data-slot="card-description"` | `CardDescription` | Always |
+| `data-slot="card-action"` | `CardAction` | Always. `CardHeader` switches to two columns when it contains one. |
+| `data-slot="card-content"` | `CardContent` | Always |
+| `data-slot="card-inset"` | `CardInset` | Always |
+| `data-slot="card-footer"` | `CardFooter` | Always |
+
+`Card` also sets the `group/card` Tailwind group, so children can react to hover with `group-hover/card:…`.
+
+### Padding variable
+
+Every part reads its horizontal padding from `--card-px`, which `size` sets. Override it to change the padding everywhere at once:
+
+```tsx
+<Card className="[--card-px:--spacing(5)]">…</Card>
+```
+
+### `cardVariants`
+
+The `tailwind-variants` function behind `Card`. Use it to give another element (a `<section>`, a link, a React Aria `GridListItem`) the card surface.
+
+```tsx
+import { cardVariants } from "@/components/ui/card";
+
+<section className={cardVariants({ variant: "elevated", size: "lg" })}>…</section>;
+```
+
+## API Reference
+
+### Card
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"outline" | "elevated" | "filled" | "ghost"',
+      default: '"outline"',
+      description: "Surface style: hairline border, soft shadow, muted fill, or none.",
+    },
+    size: {
+      type: '"sm" | "md" | "lg"',
+      default: '"md"',
+      description: "Vertical padding, gap between parts, and the --card-px horizontal padding (12, 16 or 24px).",
+    },
+    isInteractive: {
+      type: "boolean",
+      default: "false",
+      description: "Adds a pointer cursor and hover border and shadow. Visual only.",
+    },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### CardHeader
+
+<TypeTable
+  type={{
+    separator: {
+      type: "boolean",
+      default: "false",
+      description: "Draws an inset hairline under the header, aligned with the card's content.",
+    },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### CardTitle / CardDescription / CardAction / CardContent / CardInset / CardFooter
+
+No extra props. Each accepts every prop of `<div>`.
+
+### cardVariants
+
+<TypeTable
+  type={{
+    variant: { type: "CardProps['variant']", default: '"outline"' },
+    size: { type: "CardProps['size']", default: '"md"' },
+    isInteractive: { type: "boolean", default: "false" },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Item](/docs/components/item): list rows to place inside a card.
+- [Badge](/docs/components/badge): status and trend labels for card actions.
+- [Skeleton](/docs/components/skeleton): loading placeholders that match a card's layout.
+- [Separator](/docs/components/separator): dividers between sections of a card.

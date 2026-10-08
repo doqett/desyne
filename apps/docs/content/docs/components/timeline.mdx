@@ -1,0 +1,177 @@
+---
+title: Timeline
+description: A vertical list of events, such as an activity feed, an order's shipping history or a ticket's audit trail. Each item has a dot, icon or avatar, a title, a time and optional content, joined by connector lines. Comes in default and compact densities, with tone-colored markers and an option to hide the connector.
+---
+
+<ComponentLinks source="timeline" />
+
+<ComponentPreview name="timeline/demo" />
+
+## Installation
+
+<InstallTabs name="timeline" />
+
+## Usage
+
+```tsx
+import {
+  Timeline,
+  TimelineContent,
+  TimelineDescription,
+  TimelineHeader,
+  TimelineIndicator,
+  TimelineItem,
+  TimelineTime,
+  TimelineTitle,
+} from "@/components/ui/timeline";
+```
+
+```tsx
+<Timeline aria-label="Shipment history">
+  <TimelineItem>
+    <TimelineIndicator color="success" />
+    <TimelineContent>
+      <TimelineHeader>
+        <TimelineTitle>Order delivered</TimelineTitle>
+        <TimelineTime dateTime="2026-10-04T14:41">Today, 2:41 PM</TimelineTime>
+      </TimelineHeader>
+      <TimelineDescription>Left at the front door</TimelineDescription>
+    </TimelineContent>
+  </TimelineItem>
+</Timeline>
+```
+
+The timeline is static markup with no `"use client"`, so it renders in server components.
+
+### When to use
+
+- Timeline: things that already happened, in order, where when they happened matters (activity, history, audit logs, tracking).
+- [Stepper](/docs/components/stepper): steps the user still has to complete.
+- [Item](/docs/components/item): a list of entities, not events.
+- [Table](/docs/components/table): large logs that users filter, sort or export.
+
+## Anatomy
+
+```tsx
+<Timeline>                     {/* <ol>, variant, connector */}
+  <TimelineItem>               {/* <li> */}
+    <TimelineIndicator />      {/* dot, icon tile or media + connector */}
+    <TimelineContent>          {/* fills the rest of the row */}
+      <TimelineHeader>         {/* title and time on one row */}
+        <TimelineTitle />
+        <TimelineTime />       {/* <time> */}
+      </TimelineHeader>
+      <TimelineDescription />  {/* body text or any content */}
+    </TimelineContent>
+  </TimelineItem>
+</Timeline>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Timeline` | `<ol>` | Sets `--timeline-indicator` (marker size) and `--timeline-gap` (space between items) for the chosen `variant`. |
+| `TimelineItem` | `<li>` | A row: marker column plus content. |
+| `TimelineIndicator` | `<div aria-hidden>` | With no children, a dot. With children, a 28px round icon tile (`variant="icon"`) or a circle that an image or avatar fills (`variant="media"`). Draws the connector down to the next item. |
+| `TimelineContent` | `<div>` | Aligns its first line with the marker and adds the gap below each item. |
+| `TimelineHeader` | `<div>` | Flex row that wraps. The time is pushed to the end. |
+| `TimelineTitle` | `<div>` | Foreground text. `<strong>` inside is medium weight, for names. |
+| `TimelineTime` | `<time>` | Muted, tabular. Pass `dateTime` with an ISO value. |
+| `TimelineDescription` | `<div>` | Muted body text. Can hold badges, quotes or cards. |
+
+## Examples
+
+### Dots
+
+Leave `TimelineIndicator` empty for a dot. Without `color` it's a neutral ring; with `color` it's filled with a soft halo, useful for the latest or most important event.
+
+<ComponentPreview name="timeline/dots" />
+
+### Compact
+
+`variant="compact"` shrinks markers to 20px and tightens spacing for dense activity feeds in sidebars and popovers.
+
+<ComponentPreview name="timeline/compact" />
+
+### Rich content
+
+Content can be anything: a quoted reply, a badge, an attachment. Use `variant="media"` to fill the marker with an [`Avatar`](/docs/components/avatar) or image.
+
+<ComponentPreview name="timeline/rich-content" />
+
+### Without connector
+
+`connector={false}` hides the lines (spacing stays the same), for feeds where items aren't a single continuous sequence.
+
+<ComponentPreview name="timeline/without-connector" />
+
+## Accessibility
+
+- The timeline is an `<ol>`, so screen readers announce the number of events. Add an `aria-label` when the context doesn't already make clear what the list is.
+- Markers are `aria-hidden`. If an icon or color carries meaning (e.g. failed vs. succeeded), say so in the title or description too.
+- `TimelineTime` renders a `<time>` element; pass a machine-readable `dateTime` alongside friendly text like "2h ago".
+- `TimelineTitle` is a `<div>`. If items are sections with their own headings, put a heading element inside it.
+
+## Styling
+
+### Data attributes
+
+| Attribute | On | Values |
+| --- | --- | --- |
+| `data-slot="timeline"` | `Timeline` | Always |
+| `data-variant` | `Timeline` | `default` · `compact` |
+| `data-connector` | `Timeline` | `true` · `false` |
+| `data-slot="timeline-item"` | `TimelineItem` | Always |
+| `data-slot="timeline-indicator"` | Marker column | Always |
+| `data-slot="timeline-dot"` | Dot | No children |
+| `data-slot="timeline-connector"` | Line | Always (hidden on the last item) |
+| `data-slot="timeline-content"` / `-header` / `-title` / `-time` / `-description` | Parts | Always |
+
+### CSS variables
+
+| Variable | Default | Compact | Used for |
+| --- | --- | --- | --- |
+| `--timeline-indicator` | `--spacing(7)` (28px) | `--spacing(5)` (20px) | Marker size and column width |
+| `--timeline-gap` | `--spacing(6)` | `--spacing(3.5)` | Space under each item |
+
+Override them on `Timeline`, e.g. `className="[--timeline-gap:--spacing(10)]"`.
+
+## API Reference
+
+### Timeline
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "compact"', default: '"default"', description: "Marker size and spacing." },
+    connector: { type: "boolean", default: "true", description: "Draws lines between markers." },
+    className: { type: "string" },
+  }}
+/>
+
+Also accepts every prop of `<ol>`.
+
+### TimelineIndicator
+
+<TypeTable
+  type={{
+    color: { type: '"primary" | "brand" | "neutral" | "danger" | "success" | "warning" | "info"', description: "Fills the dot, or tints the icon tile. Omit for a neutral outline." },
+    variant: { type: '"icon" | "media"', default: '"icon"', description: "With children: a tinted or outlined icon tile, or a circle the child fills (images, avatars)." },
+    children: { type: "ReactNode", description: "Icon, image or avatar. Leave empty for a dot." },
+    className: { type: "string", description: "Classes on the marker." },
+  }}
+/>
+
+Also accepts every prop of `<div>`.
+
+### TimelineTime
+
+Accepts every prop of `<time>`, including `dateTime`.
+
+### TimelineItem / TimelineContent / TimelineHeader / TimelineTitle / TimelineDescription
+
+No extra props. `TimelineItem` accepts every prop of `<li>`; the others accept every prop of `<div>`.
+
+## Related
+
+- [Stepper](/docs/components/stepper): steps still to come.
+- [Avatar](/docs/components/avatar): people in activity feeds.
+- [Item](/docs/components/item): lists of entities.

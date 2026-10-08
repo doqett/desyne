@@ -1,0 +1,235 @@
+---
+title: Toggle Button
+description: A button that switches between on and off, like bold, mute or star. Announced as a pressed toggle, works with mouse, touch and keyboard, and picks up its style from a surrounding toggle button group.
+---
+
+<ComponentLinks aria="ToggleButton" source="toggle-button" />
+
+<ComponentPreview name="toggle-button/demo" />
+
+## Installation
+
+<InstallTabs name="toggle-button" />
+
+## Usage
+
+```tsx
+import { ToggleButton } from "@/components/ui/toggle-button";
+```
+
+```tsx
+<ToggleButton aria-label="Bold" defaultSelected>
+  <BoldIcon />
+</ToggleButton>
+```
+
+<Callout title="The label describes the action, not the state">
+  A toggle button is announced with `aria-pressed`, so screen readers already
+  say whether it is on. Keep the label constant ("Mute", "Bold") and let the
+  pressed state carry the meaning. Swapping the label to "Unmute" while it is
+  pressed reads as "Unmute, pressed", which is ambiguous.
+</Callout>
+
+### When to use
+
+- Toggle button — an on/off state that applies immediately and persists, usually in a toolbar: bold, mute, pin, star.
+- [Toggle Button Group](/docs/components/toggle-button-group) — a set of related toggles, with single selection (a segmented control) or multiple selection (a formatting bar).
+- [Switch](/docs/components/switch) — a labelled on/off setting in a form or settings list.
+- [Checkbox](/docs/components/checkbox) — a choice that is submitted with a form.
+- [Button](/docs/components/button) — a one-off action with no persistent state.
+
+## Anatomy
+
+A toggle button is a single element. Icons and text are plain children, sized and spaced for you.
+
+```tsx
+<ToggleButton>
+  <Icon />   {/* optional, auto-sized */}
+  Label
+</ToggleButton>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `ToggleButton` | `<button aria-pressed>` | Root. Carries `data-slot="toggle-button"` and all state attributes. Inside a single-selection group it becomes `role="radio"` with `aria-checked`. |
+| Icon | `<svg>` | Sized `size-4` (`size-3` / `size-3.5` for `xs` / `sm`) unless you pass a `size-*` class. |
+
+## Examples
+
+### Variants
+
+`default` is borderless and fills with the accent color when selected, which suits toolbars. `outline` has a border and turns brand-tinted when selected, which reads better as a standalone control. A third variant, `segmented`, is applied automatically inside a segmented [`ToggleButtonGroup`](/docs/components/toggle-button-group).
+
+<ComponentPreview name="toggle-button/variants" />
+
+### With icon and label
+
+Put an icon before the label for standalone toggles like Star, Pin or Watch. The label keeps the control understandable without a tooltip.
+
+<ComponentPreview name="toggle-button/outline" />
+
+### Sizes
+
+`md` (32px) is the default. `xs` and `sm` fit dense toolbars and table rows; `lg` suits touch-first controls like call or player bars. Every size has a matching minimum width, so icon-only toggles stay square.
+
+<ComponentPreview name="toggle-button/sizes" />
+
+### Controlled
+
+Use `isSelected` and `onChange` to own the state, for example to persist it or to react to it elsewhere on the page. Use `defaultSelected` when the button can manage itself.
+
+<ComponentPreview name="toggle-button/controlled" />
+
+### Render props
+
+`children` and `className` accept a function of the button's state. Use it to fill or swap the icon for the selected state without lifting state up, while the label stays the same.
+
+<ComponentPreview name="toggle-button/render-props" />
+
+### With tooltip
+
+Icon-only toggles need an `aria-label`. Wrap them in a [`TooltipTrigger`](/docs/components/tooltip) so mouse users see the same label.
+
+<ComponentPreview name="toggle-button/tooltip" />
+
+### Disabled
+
+`isDisabled` removes the button from the tab order and keeps its current state visible, so users can still see whether it is on.
+
+<ComponentPreview name="toggle-button/disabled" />
+
+### Custom selected style
+
+Style the selected state with Tailwind's `data-selected:` variant. Here the icon fills in and takes the destructive or brand color instead of the default accent background.
+
+<ComponentPreview name="toggle-button/custom-style" />
+
+## Recipes
+
+### Post actions
+
+A like toggle with a live count and a save toggle, next to a regular comment button. The accessible label includes the count so it's announced too.
+
+<ComponentPreview name="toggle-button/recipe-post-actions" />
+
+### Media player
+
+A compact player bar mixing toggle buttons (like, shuffle, play/pause, repeat) with plain buttons (previous, next). The play toggle uses a render prop to swap icons.
+
+<ComponentPreview name="toggle-button/recipe-player" />
+
+### Filter chips
+
+Rounded outline toggles that each switch a filter on or off, driving a filtered list. Use independent toggles like this when filters combine freely; use a [`ToggleButtonGroup`](/docs/components/toggle-button-group) with `selectionMode="multiple"` when you want the group to be one keyboard stop.
+
+<ComponentPreview name="toggle-button/recipe-filter-chips" />
+
+## Accessibility
+
+- Renders a native `<button>` with `aria-pressed`, so it is announced as a toggle button along with its pressed state.
+- Inside a single-selection `ToggleButtonGroup`, React Aria switches it to `role="radio"` with `aria-checked`.
+- Icon-only toggles must have an `aria-label` (or `aria-labelledby`). Keep the label the same in both states.
+- The focus ring only appears for keyboard focus (`data-focus-visible`).
+- `isDisabled` sets the native `disabled` attribute and removes the button from the tab order.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the button |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Toggles the button |
+
+## Styling
+
+### Data attributes
+
+Style states with Tailwind's data variants, e.g. `data-selected:text-brand`.
+
+| Attribute | Present when |
+| --- | --- |
+| `data-selected` | The button is on |
+| `data-hovered` | Hovered with a mouse or pen (never on touch) |
+| `data-pressed` | Being pressed |
+| `data-focused` | Focused by any means |
+| `data-focus-visible` | Focused with the keyboard |
+| `data-disabled` | `isDisabled` is true (directly or from the group) |
+| `data-slot="toggle-button"` | Always |
+
+### Render props
+
+`className` and `children` also accept a function of the button's state:
+
+```tsx
+<ToggleButton
+  aria-label="Mute"
+  className={({ isSelected }) => (isSelected ? "text-destructive" : "")}
+>
+  {({ isSelected }) => (isSelected ? <VolumeXIcon /> : <Volume2Icon />)}
+</ToggleButton>
+```
+
+### `toggleVariants`
+
+The `tailwind-variants` function behind the component. Use it to give another element the toggle look, or to extend the variants.
+
+```tsx
+import { toggleVariants } from "@/components/ui/toggle-button";
+
+toggleVariants({ variant: "outline", size: "sm" });
+```
+
+`ToggleGroupStyleContext` is also exported. `ToggleButtonGroup` uses it to pass `variant` and `size` down; props set directly on a `ToggleButton` win over the context.
+
+## API Reference
+
+### ToggleButton
+
+<TypeTable
+  type={{
+    variant: {
+      type: '"default" | "outline" | "segmented"',
+      default: '"default"',
+      description: "Visual style. Inherited from a surrounding ToggleButtonGroup when not set.",
+    },
+    size: {
+      type: '"xs" | "sm" | "md" | "lg"',
+      default: '"md"',
+      description: "Height, minimum width and padding. Inherited from a surrounding ToggleButtonGroup when not set.",
+    },
+    isSelected: { type: "boolean", description: "Controlled selected state." },
+    defaultSelected: { type: "boolean", default: "false", description: "Uncontrolled initial selected state." },
+    onChange: { type: "(isSelected: boolean) => void", description: "Called when the selected state changes." },
+    id: { type: "Key", description: "Inside a ToggleButtonGroup, the key used in selectedKeys. Standalone, the DOM id." },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the button and removes it from the tab order." },
+    onPress: { type: "(e: PressEvent) => void", description: "Called when a press is released over the button." },
+    onPressStart: { type: "(e: PressEvent) => void", description: "Called when a press starts." },
+    onPressEnd: { type: "(e: PressEvent) => void", description: "Called when a press ends." },
+    onPressChange: { type: "(isPressed: boolean) => void", description: "Called when the pressed state changes." },
+    onHoverStart: { type: "(e: HoverEvent) => void", description: "Called when a hover starts." },
+    onHoverEnd: { type: "(e: HoverEvent) => void", description: "Called when a hover ends." },
+    autoFocus: { type: "boolean", description: "Focuses the button on mount." },
+    slot: { type: "string | null", description: "React Aria slot name." },
+    className: { type: "string | ((state: ToggleButtonRenderProps) => string)", description: "Classes, or a function of the render state." },
+    children: { type: "ReactNode | ((state: ToggleButtonRenderProps) => ReactNode)", description: "Content, or a function of the render state." },
+    "aria-label": { type: "string", description: "Accessible name. Required for icon-only buttons." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`ToggleButton`](https://react-aria.adobe.com/ToggleButton#api), including focus and keyboard handlers.
+
+### toggleVariants
+
+<TypeTable
+  type={{
+    variant: { type: '"default" | "outline" | "segmented"', default: '"default"' },
+    size: { type: '"xs" | "sm" | "md" | "lg"', default: '"md"' },
+    className: { type: "string", description: "Extra classes, merged with tailwind-merge." },
+  }}
+/>
+
+## Related
+
+- [Toggle Button Group](/docs/components/toggle-button-group) — single or multiple selection across a set of toggle buttons.
+- [Button](/docs/components/button) — for one-off actions.
+- [Switch](/docs/components/switch) — a labelled on/off setting.
+- [Tooltip](/docs/components/tooltip) — labels for icon-only toggles.

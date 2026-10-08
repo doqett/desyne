@@ -1,0 +1,226 @@
+---
+title: Search Field
+description: A text input for search queries, with a search icon, a clear button, Escape to clear and an optional keyboard shortcut hint. Works for live filtering, submit-on-Enter, async search and native search forms.
+---
+
+<ComponentLinks aria="SearchField" source="search-field" />
+
+<ComponentPreview name="search-field/demo" />
+
+## Installation
+
+<InstallTabs name="search-field" />
+
+## Usage
+
+```tsx
+import { SearchField } from "@/components/ui/search-field";
+```
+
+```tsx
+<SearchField aria-label="Search" onSubmit={(query) => search(query)} />
+```
+
+Use `value` and `onChange` to filter as the user types, or `onSubmit` to run the search when they press <kbd>Enter</kbd>. The clear button and <kbd>Esc</kbd> reset the value and call `onClear`.
+
+<Callout title="onSubmit replaces form submission">
+  When `onSubmit` is set, <kbd>Enter</kbd> calls it and does not submit a
+  surrounding `<form>`. Leave `onSubmit` off (and give the field a `name`) when
+  you want <kbd>Enter</kbd> to submit the form natively.
+</Callout>
+
+### When to use
+
+- Search Field — a query that filters or searches content elsewhere on the page or site.
+- [Combo Box](/docs/components/combobox) — the result is picking one option from a list shown under the input.
+- [Command Palette](/docs/components/command-palette) — a global, keyboard-first launcher for navigation and actions.
+- [Text Field](/docs/components/text-field) — ordinary text entry that isn't a query.
+
+## Anatomy
+
+```tsx
+<SearchField>          {/* root: <div>, owns the query and state attributes */}
+  <Label />            {/* from `label` */}
+  <FieldGroup>         {/* the visible box */}
+    <SearchIcon />     {/* decorative */}
+    <FieldInput />     {/* <input type="search"> */}
+    <Keyboard />       {/* from `shortcut`, only while empty */}
+    <Button />         {/* clear button, only while not empty */}
+  </FieldGroup>
+  <Description />      {/* from `description` */}
+  <FieldError />       {/* shown only while invalid */}
+</SearchField>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `SearchField` | `<div>` | Root. Carries `data-slot="search-field"`, the `group/field` class and `data-empty` while the query is empty. |
+| `Label` | `<label>` | Rendered when `label` is set. |
+| `FieldGroup` | `<div>` | The visible box, styled by `fieldVariants`. |
+| Search icon | `<svg>` | Decorative (`aria-hidden`). |
+| `FieldInput` | `<input type="search">` | The native input. The browser's own cancel button is hidden in favour of the clear button. |
+| Shortcut | `<kbd>` | Rendered when `shortcut` is set, visible only while the field is empty. It's a hint; you bind the key. |
+| Clear button | `<button>` | Labelled "Clear search", skipped in the tab order, hidden while empty. React Aria wires it through context, so don't place other React Aria buttons inside the field. |
+| `Description` | `<span slot="description">` | Rendered when `description` is set. |
+| `FieldError` | `<span slot="errorMessage">` | Rendered only while invalid. |
+
+## Examples
+
+### Variants
+
+`outline` (default), `filled` for toolbars, headers and tinted surfaces, and `underlined` for minimal layouts.
+
+<ComponentPreview name="search-field/variants" />
+
+### Sizes
+
+`sm` (28px) suits toolbars and table headers, `md` (32px) is the default, `lg` (40px) suits hero and landing-page search.
+
+<ComponentPreview name="search-field/sizes" />
+
+### With label and description
+
+Most search fields rely on `aria-label`, but a visible `label` helps in forms and filter panels. The default placeholder is "Search…".
+
+<ComponentPreview name="search-field/with-label" />
+
+### Keyboard shortcut
+
+`shortcut` shows a hint while the field is empty. Binding the key is up to you: listen on `window` and focus the input. The root doesn't expose the input, so reach it through a wrapper ref.
+
+<ComponentPreview name="search-field/shortcut" />
+
+### Submit and clear
+
+`onSubmit` runs on <kbd>Enter</kbd> with the current query, and `onClear` runs when the clear button or <kbd>Esc</kbd> empties the field. Set `enterKeyHint="search"` to label the enter key on mobile keyboards.
+
+<ComponentPreview name="search-field/submit" />
+
+### Live filtering
+
+Control the value with `value` and `onChange` to filter a list as the user types. React Aria's `useFilter` gives you locale-aware `contains`, `startsWith` and `endsWith` matchers that ignore case and accents with `sensitivity: "base"`. Announce the result count with an `aria-live` region.
+
+<ComponentPreview name="search-field/controlled" />
+
+### Async search
+
+Fetch results in an effect keyed on the query and abort stale requests, so fast typing never shows out-of-order results. Show a [`Spinner`](/docs/components/spinner) while loading and an empty state when nothing matches.
+
+<ComponentPreview name="search-field/async" />
+
+### Disabled and read only
+
+`isDisabled` dims the field and disables the clear button. `isReadOnly` keeps a saved query visible and selectable, and also disables clearing.
+
+<ComponentPreview name="search-field/disabled" />
+
+### Search form
+
+Without `onSubmit`, <kbd>Enter</kbd> submits the surrounding form natively and the query is sent under its `name`, like a classic `?q=` search. `isRequired` and `minLength` use native validation. Give the form `role="search"` so it's exposed as a search landmark.
+
+<ComponentPreview name="search-field/form" />
+
+## Recipes
+
+### App header
+
+A small `filled` search in a top bar, focused with <kbd>/</kbd> from anywhere on the page, next to icon actions.
+
+<ComponentPreview name="search-field/recipe-header" />
+
+### Filterable member list
+
+A search in a card header filtering a list by name and email, with an empty state that clears the query.
+
+<ComponentPreview name="search-field/recipe-members" />
+
+## Accessibility
+
+- The input has `type="search"`, so assistive technology announces it as a search field.
+- Always provide a label: `label`, `aria-label`, or `aria-labelledby`. The search icon is decorative.
+- The clear button is labelled "Clear search" (localized). It's skipped in the tab order because <kbd>Esc</kbd> does the same thing, and pressing it keeps focus in the input so the mobile keyboard stays open.
+- The shortcut hint is visual only. If you bind a global shortcut, avoid keys users type into other inputs; the header recipe ignores <kbd>/</kbd> while an input is focused.
+- Wrap search areas in `role="search"` (on a `<form>` or a `<div>`) to create a search landmark.
+- For live results, announce counts or "no results" with an `aria-live="polite"` region.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Enter</kbd> | Calls `onSubmit`, or submits the surrounding form when there's no `onSubmit` |
+| <kbd>Esc</kbd> | Clears the field and calls `onClear`. When already empty, the key passes through, for example to close a dialog |
+
+## Styling
+
+### Data attributes
+
+On the `SearchField` root. Children can react with `group-data-*/field:` variants; the component itself uses `group-data-empty/field:` to swap the shortcut hint and the clear button.
+
+| Attribute | Present when |
+| --- | --- |
+| `data-empty` | The query is empty |
+| `data-disabled` | `isDisabled` is true |
+| `data-readonly` | `isReadOnly` is true |
+| `data-required` | `isRequired` is true |
+| `data-invalid` | Validation failed, or `isInvalid` is true |
+
+On the `FieldGroup`: `data-hovered`, `data-focus-within`, `data-focus-visible`, `data-invalid` and `data-disabled`.
+
+### Slots
+
+| `data-slot` | Element |
+| --- | --- |
+| `search-field` | Root |
+| `label`, `description`, `field-error` | Field text |
+| `field-group` | Visible box |
+| `field-input` | `<input>` |
+
+The box comes from `fieldVariants` in `field.tsx`; see [Text Field](/docs/components/text-field#style-helpers). `className` also accepts a function of the render state (`isEmpty`, `isDisabled`, `isInvalid`, `isReadOnly`, `isRequired`, `state`).
+
+## API Reference
+
+### SearchField
+
+<TypeTable
+  type={{
+    label: { type: "ReactNode", description: "Visible label. Required unless you pass aria-label or aria-labelledby." },
+    description: { type: "ReactNode", description: "Helper text shown under the input." },
+    errorMessage: { type: "string | ((v: ValidationResult) => string)", description: "Replaces the default validation message while invalid." },
+    placeholder: { type: "string", default: '"Search…"' },
+    shortcut: { type: "string", description: 'Keyboard hint shown while empty, e.g. "⌘K" or "/". Binding the key is up to you.' },
+    variant: { type: '"outline" | "filled" | "underlined"', default: '"outline"' },
+    size: { type: '"sm" | "md" | "lg"', default: '"md"' },
+    value: { type: "string", description: "Controlled query." },
+    defaultValue: { type: "string", description: "Uncontrolled initial query." },
+    onChange: { type: "(value: string) => void", description: "Called with the new query on every change." },
+    onSubmit: { type: "(value: string) => void", description: "Called on Enter. Prevents the surrounding form from submitting." },
+    onClear: { type: "() => void", description: "Called when the clear button or Escape empties the field." },
+    type: { type: '"text" | "search" | "url" | "tel" | "email" | "password" | (string & {})', default: '"search"' },
+    enterKeyHint: { type: '"enter" | "done" | "go" | "next" | "previous" | "search" | "send"', description: "Label for the enter key on virtual keyboards." },
+    name: { type: "string", description: "Name used when submitting a form." },
+    form: { type: "string", description: "Id of the form this field belongs to." },
+    autoComplete: { type: "string" },
+    minLength: { type: "number", description: "Native minimum length constraint." },
+    maxLength: { type: "number" },
+    isRequired: { type: "boolean", default: "false" },
+    isDisabled: { type: "boolean", default: "false", description: "Disables the input and the clear button." },
+    isReadOnly: { type: "boolean", default: "false", description: "Keeps the query selectable; disables editing and clearing." },
+    isInvalid: { type: "boolean" },
+    validate: { type: "(value: string) => ValidationError | true | null | undefined" },
+    validationBehavior: { type: '"native" | "aria"', default: '"native"', description: "Inherits from a parent Form." },
+    autoFocus: { type: "boolean" },
+    onFocus: { type: "(e: FocusEvent) => void" },
+    onBlur: { type: "(e: FocusEvent) => void" },
+    onKeyDown: { type: "(e: KeyboardEvent) => void" },
+    className: { type: "string | ((state: SearchFieldRenderProps) => string)", description: "Classes for the root." },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`SearchField`](https://react-aria.adobe.com/SearchField#api).
+
+## Related
+
+- [Combo Box](/docs/components/combobox) — search that ends in choosing an option.
+- [Command Palette](/docs/components/command-palette) — a global search and command launcher.
+- [Text Field](/docs/components/text-field) — the shared field building blocks.
+- [Kbd](/docs/components/kbd) — for showing shortcuts elsewhere.

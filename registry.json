@@ -1,0 +1,1606 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "desyne",
+  "homepage": "https://desyne.dev",
+  "items": [
+    {
+      "name": "primitive",
+      "type": "registry:lib",
+      "title": "primitive",
+      "description": "Shared helpers: composeTailwindRenderProps, focus ring, the color tone system (adds brand/success/warning/info tokens) and the structural tokens (radius levels, border width, field chrome, shadows, density, type) every component reads.",
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/lib/primitive.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "cssVars": {
+        "theme": {
+          "color-brand": "var(--brand)",
+          "color-brand-foreground": "var(--brand-foreground)",
+          "color-destructive-foreground": "var(--destructive-foreground)",
+          "color-success": "var(--success)",
+          "color-success-foreground": "var(--success-foreground)",
+          "color-warning": "var(--warning)",
+          "color-warning-foreground": "var(--warning-foreground)",
+          "color-info": "var(--info)",
+          "color-info-foreground": "var(--info-foreground)"
+        },
+        "light": {
+          "brand": "oklch(0.54 0.21 277)",
+          "brand-foreground": "oklch(0.99 0.005 277)",
+          "destructive-foreground": "oklch(0.99 0 0)",
+          "success": "oklch(0.62 0.16 150)",
+          "success-foreground": "oklch(0.99 0 0)",
+          "warning": "oklch(0.76 0.16 70)",
+          "warning-foreground": "oklch(0.25 0.06 70)",
+          "info": "oklch(0.6 0.16 240)",
+          "info-foreground": "oklch(0.99 0 0)",
+          "radius-control": "calc(var(--radius) - 2px)",
+          "radius-box": "calc(var(--radius) + 4px)",
+          "radius-overlay": "var(--radius)",
+          "radius-badge": "calc(var(--radius) - 2px)",
+          "radius-checkbox": "4px",
+          "radius-pill": "calc(infinity * 1px)",
+          "border-width": "1px",
+          "field-bg": "var(--card)",
+          "field-border": "var(--input)",
+          "field-shadow": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+          "shadow-control": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+          "shadow-solid": "inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(0 0 0 / 0.12)",
+          "shadow-box": "0 1px 2px rgb(0 0 0 / 0.04)",
+          "shadow-elevated": "0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -8px rgb(0 0 0 / 0.08)",
+          "shadow-overlay": "0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05)",
+          "shadow-dialog": "0 25px 50px -12px rgb(0 0 0 / 0.1)",
+          "ring-width": "3px",
+          "heading-weight": "600",
+          "heading-tracking": "-0.025em",
+          "title-weight": "500",
+          "button-weight": "500",
+          "control-h-xs": "1.5rem",
+          "control-h-sm": "1.75rem",
+          "control-h-md": "2rem",
+          "control-h-lg": "2.5rem",
+          "control-px-xs": "0.5rem",
+          "control-px-sm": "0.625rem",
+          "control-px-md": "0.75rem",
+          "control-px-lg": "1rem",
+          "cell-px": "0.75rem",
+          "cell-py": "0.625rem"
+        },
+        "dark": {
+          "brand": "oklch(0.67 0.18 277)",
+          "brand-foreground": "oklch(0.99 0.005 277)",
+          "destructive-foreground": "oklch(0.99 0 0)",
+          "success": "oklch(0.72 0.15 150)",
+          "success-foreground": "oklch(0.2 0.05 150)",
+          "warning": "oklch(0.8 0.15 75)",
+          "warning-foreground": "oklch(0.25 0.06 70)",
+          "info": "oklch(0.7 0.14 240)",
+          "info-foreground": "oklch(0.2 0.05 240)",
+          "field-bg": "color-mix(in oklab, var(--input) 20%, transparent)",
+          "field-border": "var(--input)",
+          "shadow-box": "0 0 #0000",
+          "shadow-elevated": "0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.3)",
+          "shadow-overlay": "0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3)"
+        }
+      }
+    },
+    {
+      "name": "design",
+      "type": "registry:lib",
+      "title": "design",
+      "description": "Design engine: styles (default, soft, sharp, bold), neutral bases, brand colors, radius, density and fonts turned into CSS variables, plus URL encoding and a scoped applyDesign helper.",
+      "files": [
+        {
+          "path": "packages/ui/src/lib/design.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "typography",
+      "type": "registry:ui",
+      "title": "Typography",
+      "description": "Heading, Text, Lead, Code, Blockquote, List and a Prose wrapper for MDX.",
+      "categories": [
+        "typography"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/typography.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Triggers an action, with variants, sizes and a pending state.",
+      "categories": [
+        "buttons"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toggle-button",
+      "type": "registry:ui",
+      "title": "Toggle Button",
+      "description": "A button that can be switched on or off.",
+      "categories": [
+        "buttons"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/toggle-button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toggle-button-group",
+      "type": "registry:ui",
+      "title": "Toggle Button Group",
+      "description": "A set of toggle buttons with single or multiple selection.",
+      "categories": [
+        "buttons"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "@desyne/toggle-button"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/toggle-button-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toolbar",
+      "type": "registry:ui",
+      "title": "Toolbar",
+      "description": "Groups of buttons and toggles with arrow-key navigation and one tab stop.",
+      "categories": [
+        "buttons"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/toolbar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "form",
+      "type": "registry:ui",
+      "title": "Form",
+      "description": "Form with live validation, server errors, sections, rows and an actions bar.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/form.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "description": "Label, Description, FieldError and Input building blocks.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "text-field",
+      "type": "registry:ui",
+      "title": "Text Field",
+      "description": "Single-line text input with label, description and validation.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/text-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "Textarea",
+      "description": "Multi-line text input that grows with its content.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "number-field",
+      "type": "registry:ui",
+      "title": "Number Field",
+      "description": "Numeric input with steppers, locale formatting and bounds.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/number-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "search-field",
+      "type": "registry:ui",
+      "title": "Search Field",
+      "description": "Text input for search with a clear button.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/search-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "Pick one option from a collapsible list.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/list-box",
+        "@desyne/popover",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/select.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "combobox",
+      "type": "registry:ui",
+      "title": "Combo Box",
+      "description": "Text input with a filterable list of suggestions.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/list-box",
+        "@desyne/popover",
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/combobox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "Checkbox and CheckboxGroup, with indeterminate state.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/checkbox.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "description": "Choose a single option from a set.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/radio-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "Toggle a setting on or off.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/switch.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "slider",
+      "type": "registry:ui",
+      "title": "Slider",
+      "description": "Pick a value or range by dragging a thumb.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/slider.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "input-otp",
+      "type": "registry:ui",
+      "title": "Input OTP",
+      "description": "One-time password input with individual character slots.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "input-otp",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/input-otp.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "cssVars": {
+        "theme": {
+          "animate-caret-blink": "caret-blink 1.25s ease-out infinite"
+        }
+      },
+      "css": {
+        "@keyframes caret-blink": {
+          "0%,70%,100%": {
+            "opacity": "1"
+          },
+          "20%,50%": {
+            "opacity": "0"
+          }
+        }
+      }
+    },
+    {
+      "name": "color-picker",
+      "type": "registry:ui",
+      "title": "Color Picker",
+      "description": "Color area, sliders, swatches, hex field and a popover picker.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/field",
+        "@desyne/popover",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/color-picker.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "drop-zone",
+      "type": "registry:ui",
+      "title": "Drop Zone",
+      "description": "Drag-and-drop target with a FileTrigger for browsing files.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/drop-zone.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "calendar",
+      "type": "registry:ui",
+      "title": "Calendar",
+      "description": "Calendar and RangeCalendar for picking dates.",
+      "categories": [
+        "date & time"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/list-box",
+        "@desyne/popover",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/calendar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "date-field",
+      "type": "registry:ui",
+      "title": "Date Field",
+      "description": "Segmented DateField and TimeField inputs.",
+      "categories": [
+        "date & time"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/date-field.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "date-picker",
+      "type": "registry:ui",
+      "title": "Date Picker",
+      "description": "DatePicker and DateRangePicker with a calendar popover.",
+      "categories": [
+        "date & time"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/calendar",
+        "@desyne/date-field",
+        "@desyne/field",
+        "@desyne/popover",
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/date-picker.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Modal dialog and alert dialog.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sheet",
+      "type": "registry:ui",
+      "title": "Sheet",
+      "description": "A dialog that slides in from an edge of the screen.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/dialog",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/sheet.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "Floating content anchored to a trigger.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tooltip",
+      "type": "registry:ui",
+      "title": "Tooltip",
+      "description": "A short label shown on hover or focus.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/tooltip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "type": "registry:ui",
+      "title": "Menu",
+      "description": "Dropdown menu with sections, selection, shortcuts and submenus.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/popover",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "command-palette",
+      "type": "registry:ui",
+      "title": "Command Palette",
+      "description": "Keyboard-driven command menu that filters as you type.",
+      "categories": [
+        "overlays"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/dialog",
+        "@desyne/menu",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/command-palette.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tabs",
+      "type": "registry:ui",
+      "title": "Tabs",
+      "description": "Switch between panels of related content.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/tabs.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "breadcrumbs",
+      "type": "registry:ui",
+      "title": "Breadcrumbs",
+      "description": "Show the current page's location in a hierarchy.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/breadcrumbs.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "link",
+      "type": "registry:ui",
+      "title": "Link",
+      "description": "Accessible link with style variants.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/link.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "pagination",
+      "type": "registry:ui",
+      "title": "Pagination",
+      "description": "Navigate between pages of results.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/pagination.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "disclosure",
+      "type": "registry:ui",
+      "title": "Disclosure",
+      "description": "Collapsible sections and accordions.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/disclosure.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "sidebar",
+      "type": "registry:ui",
+      "title": "Sidebar",
+      "description": "Collapsible app sidebar with icon mode, mobile sheet and a keyboard shortcut.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/dialog",
+        "@desyne/separator",
+        "@desyne/sheet",
+        "@desyne/tooltip",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/sidebar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "list-box",
+      "type": "registry:ui",
+      "title": "List Box",
+      "description": "A selectable list of options, with sections.",
+      "categories": [
+        "collections"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/list-box.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "grid-list",
+      "type": "registry:ui",
+      "title": "Grid List",
+      "description": "An interactive list with selection and actions.",
+      "categories": [
+        "collections"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/checkbox",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/grid-list.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "table",
+      "type": "registry:ui",
+      "title": "Table",
+      "description": "Data table with sorting and row selection.",
+      "categories": [
+        "collections"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/checkbox",
+        "@desyne/primitive",
+        "@desyne/spinner",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/table.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tree",
+      "type": "registry:ui",
+      "title": "Tree",
+      "description": "Expandable hierarchy with icons, selection and keyboard navigation.",
+      "categories": [
+        "collections"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/checkbox",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/tree.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tag-group",
+      "type": "registry:ui",
+      "title": "Tag Group",
+      "description": "Selectable, removable tags.",
+      "categories": [
+        "collections"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/tag-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "Container with header, content and footer.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "Small status or count label.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/badge.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "User image with fallback initials, sizes and groups.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/avatar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "separator",
+      "type": "registry:ui",
+      "title": "Separator",
+      "description": "Visually or semantically separates content.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/separator.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "item",
+      "type": "registry:ui",
+      "title": "Item",
+      "description": "List row with media, a title, a quiet second line and actions.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/item.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "title": "Kbd",
+      "description": "Display keyboard keys and shortcuts.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/kbd.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chart",
+      "type": "registry:ui",
+      "title": "Chart",
+      "description": "Recharts wrapper with themed colors, tooltip and legend.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "recharts"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/chart.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "carousel",
+      "type": "registry:ui",
+      "title": "Carousel",
+      "description": "Swipeable slides built on Embla.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "embla-carousel-react",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/carousel.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "title": "Alert",
+      "description": "Callout for important messages.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/alert.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "progress-bar",
+      "type": "registry:ui",
+      "title": "Progress Bar",
+      "description": "Shows progress of a task, determinate or not.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "@desyne/progress-circle",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/progress-bar.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "cssVars": {
+        "theme": {
+          "animate-indeterminate": "indeterminate 1.5s ease-in-out infinite"
+        }
+      },
+      "css": {
+        "@keyframes indeterminate": {
+          "0%": {
+            "translate": "-100% 0"
+          },
+          "100%": {
+            "translate": "300% 0"
+          }
+        }
+      }
+    },
+    {
+      "name": "meter",
+      "type": "registry:ui",
+      "title": "Meter",
+      "description": "Shows a value within a known range, like storage used.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/meter.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "Placeholder while content loads, with pulse or shimmer animation.",
+      "categories": [
+        "feedback"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "cssVars": {
+        "theme": {
+          "animate-shimmer": "shimmer 1.6s ease-in-out infinite"
+        }
+      },
+      "css": {
+        "@keyframes shimmer": {
+          "100%": {
+            "translate": "100% 0"
+          }
+        }
+      }
+    },
+    {
+      "name": "spinner",
+      "type": "registry:ui",
+      "title": "Spinner",
+      "description": "Loading indicator.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/spinner.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "Stacked notifications powered by sonner.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "sonner"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/toast.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "stepper",
+      "type": "registry:ui",
+      "title": "Stepper",
+      "description": "Steps of a multi-step flow, horizontal or vertical, with status and optional navigation.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/stepper.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "rating",
+      "type": "registry:ui",
+      "title": "Rating",
+      "description": "Star rating input with keyboard support, and a read-only display with half stars.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "lucide-react",
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/rating.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "input-group",
+      "type": "registry:ui",
+      "title": "Input Group",
+      "description": "Attach text, icons and buttons to an input as one focusable field.",
+      "categories": [
+        "forms"
+      ],
+      "dependencies": [
+        "react-aria-components",
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/field",
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/input-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "timeline",
+      "type": "registry:ui",
+      "title": "Timeline",
+      "description": "A vertical feed of events with dots or icons, times and connector lines.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/timeline.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "description-list",
+      "type": "registry:ui",
+      "title": "Description List",
+      "description": "Term and value pairs for detail pages, side by side or stacked.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/description-list.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "type": "registry:ui",
+      "title": "Empty",
+      "description": "Empty state with media, a title, a description and actions.",
+      "categories": [
+        "display"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/empty.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "progress-circle",
+      "type": "registry:ui",
+      "title": "Progress Circle",
+      "description": "Circular progress, determinate or indeterminate, with the value inside.",
+      "categories": [
+        "feedback"
+      ],
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/progress-circle.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "scroll-area",
+      "type": "registry:ui",
+      "title": "Scroll Area",
+      "description": "Native scrolling with thin, themed scrollbars and optional fade edges.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [
+        "tailwind-variants"
+      ],
+      "registryDependencies": [
+        "@desyne/primitive",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/components/ui/scroll-area.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "login-01",
+      "type": "registry:block",
+      "title": "Login 01",
+      "description": "Simple sign-in page with email and password.",
+      "dependencies": [
+        "react-aria-components"
+      ],
+      "registryDependencies": [
+        "@desyne/button",
+        "@desyne/card",
+        "@desyne/checkbox",
+        "@desyne/text-field"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/src/blocks/login-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/login/page.tsx"
+        }
+      ]
+    }
+  ]
+}

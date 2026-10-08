@@ -1,0 +1,198 @@
+---
+title: Tree
+description: An expandable hierarchy such as a file explorer, docs navigation or nested permissions. Items take a title, an icon that can follow the expanded state and a trailing suffix, with single or multiple selection and full keyboard support.
+---
+
+<ComponentLinks aria="Tree" source="tree" />
+
+<ComponentPreview name="tree/demo" />
+
+## Installation
+
+<InstallTabs name="tree" />
+
+## Usage
+
+```tsx
+import { Tree, TreeItem } from "@/components/ui/tree";
+```
+
+```tsx
+<Tree aria-label="Files" defaultExpandedKeys={["src"]}>
+  <TreeItem id="src" title="src" icon={<FolderIcon />}>
+    <TreeItem id="index" title="index.ts" icon={<FileIcon />} />
+  </TreeItem>
+  <TreeItem id="readme" title="README.md" icon={<FileIcon />} />
+</Tree>
+```
+
+Nest `TreeItem`s inside a `TreeItem` to give it children; the expand chevron appears automatically. Give every item a unique `id`.
+
+### When to use
+
+- Tree — data with real nesting that users open and close: folders, org charts, category trees, nested settings or permissions.
+- [Disclosure](/docs/components/disclosure) — a few collapsible sections of content, not a navigable list of items.
+- [Sidebar](/docs/components/sidebar) — app navigation with one or two levels. Use a tree inside it when the hierarchy is deep or user-defined (projects and folders).
+- [Grid List](/docs/components/grid-list) or [List Box](/docs/components/list-box) — a flat list.
+
+## Anatomy
+
+```tsx
+<Tree>                          {/* role="treegrid" */}
+  <TreeItem>                    {/* role="row" aria-level aria-expanded */}
+    {/* checkbox (toggle selection) · indent · chevron · icon · title · suffix */}
+    <TreeItem />                {/* nested items */}
+  </TreeItem>
+</Tree>
+```
+
+| Part | Renders | Notes |
+| --- | --- | --- |
+| `Tree` | `<div role="treegrid">` | React Aria `Tree`. Owns expansion and selection state. `variant="bordered"` frames it as a card. |
+| `TreeItem` | `<div role="row">` | One node. Sets `aria-level`, `aria-expanded` and `aria-selected`. |
+| Selection checkbox | [`Checkbox`](/docs/components/checkbox) | Shown with `selectionMode` and the default `selectionBehavior="toggle"`. |
+| Indent | `<span>` | Width follows React Aria's `--tree-item-level` variable (16px per level). |
+| Chevron | `<button slot="chevron">` | Only on items with children. Rotates when expanded. Not a tab stop; the row handles the keyboard. |
+| Icon | `<span>` | `icon`: a node, or a function of the item state (for open/closed folders). |
+| Suffix | `<span>` | `suffix`: counts, sizes, badges or a status dot, pushed to the end. |
+
+## Examples
+
+### Dynamic items
+
+Pass data to `items` and a render function as children. For nested data, render a `Collection` of the node's children inside each `TreeItem`, calling the same function recursively. React Aria only renders expanded branches.
+
+<ComponentPreview name="tree/dynamic" />
+
+```tsx
+<Tree aria-label="Files" items={files}>
+  {function renderNode(node) {
+    return (
+      <TreeItem id={node.id} title={node.name}>
+        {node.children && <Collection items={node.children}>{renderNode}</Collection>}
+      </TreeItem>
+    );
+  }}
+</Tree>
+```
+
+### Multiple selection
+
+`selectionMode="multiple"` adds a checkbox to each row. Selecting a parent doesn't select its children; React Aria treats each row on its own, so select descendants yourself in `onSelectionChange` if your data needs it. `isDisabled` items can't be selected or expanded.
+
+<ComponentPreview name="tree/selection" />
+
+### Navigation
+
+For a docs or project navigator, use `selectionMode="single"` with `selectionBehavior="replace"`: clicking a row selects it with no checkbox, and the selected row shows the current page. `disallowEmptySelection` keeps one page selected. For links, give items an `href` instead and React Aria navigates on press (use your router's `RouterProvider` for client-side navigation).
+
+<ComponentPreview name="tree/navigation" />
+
+### Controlled expansion
+
+`expandedKeys` and `onExpandedChange` control which items are open, for "Expand all" and "Collapse all" buttons or to remember the open folders. `suffix` holds an unread count here.
+
+<ComponentPreview name="tree/controlled" />
+
+## Accessibility
+
+- The tree is a `treegrid`: one tab stop, with arrow keys inside. Give it an `aria-label` or `aria-labelledby`.
+- Each row announces its level, position ("3 of 5"), expanded state and selection.
+- `title` is the row's accessible name when it's a string. If `title` is JSX, pass `textValue` so type-ahead and screen readers get plain text.
+- The chevron and the selection checkbox are inside the row and aren't separate tab stops.
+- Icons are decorative; put the meaning in the title (or `textValue`), not only in a folder or lock icon.
+- Drag and drop isn't wired up in this component. React Aria's `useDragAndDrop` works with `Tree`; add a `slot="drag"` button to the item content if you need it.
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>↓</kbd> / <kbd>↑</kbd> | Next / previous visible row |
+| <kbd>→</kbd> | Expands a collapsed row; on an expanded row, moves to its first child |
+| <kbd>←</kbd> | Collapses an expanded row; on a child, moves to its parent |
+| <kbd>Home</kbd> / <kbd>End</kbd> | First / last visible row |
+| <kbd>Enter</kbd> | Expands or collapses, or runs `onAction` / follows `href` |
+| <kbd>Space</kbd> | Toggles selection |
+| Letters | Type-ahead to a row by its text |
+
+## Styling
+
+### Data attributes
+
+On each `TreeItem`:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-expanded` | The item is expanded |
+| `data-has-child-items` | The item has children |
+| `data-level` | Always: the 1-based depth |
+| `data-selected` | The item is selected |
+| `data-focused` / `data-focus-visible` | The row has focus / keyboard focus |
+| `data-hovered` / `data-pressed` | Hovered / being pressed |
+| `data-disabled` | `isDisabled` is set |
+
+Items set `--tree-item-level`, which the indent uses. Change the step by editing the indent span's width in the source.
+
+### Data slots
+
+| Slot | Element |
+| --- | --- |
+| `data-slot="tree"` | Root (with `data-variant`) |
+| `data-slot="tree-item"` | A row |
+| `data-slot="tree-item-content"` | The row's content |
+| `data-slot="tree-item-icon"` | The icon |
+| `data-slot="tree-item-title"` | The title |
+| `data-slot="tree-item-suffix"` | The suffix |
+
+## API Reference
+
+### Tree
+
+<TypeTable
+  type={{
+    variant: { type: '"plain" | "bordered"', default: '"plain"', description: "No frame, or a card with a border and padding." },
+    items: { type: "Iterable<T>", description: "Data for dynamic trees. Children is then a render function." },
+    selectionMode: { type: '"none" | "single" | "multiple"', default: '"none"', description: "Whether rows can be selected." },
+    selectionBehavior: { type: '"toggle" | "replace"', default: '"toggle"', description: "toggle shows checkboxes; replace selects on click like a file browser." },
+    selectedKeys: { type: '"all" | Iterable<Key>', description: "Controlled selection." },
+    defaultSelectedKeys: { type: '"all" | Iterable<Key>', description: "Initial selection." },
+    onSelectionChange: { type: "(keys: Selection) => void", description: "Called when the selection changes." },
+    disallowEmptySelection: { type: "boolean", description: "Prevents deselecting the last selected row." },
+    expandedKeys: { type: "Iterable<Key>", description: "Controlled expanded rows." },
+    defaultExpandedKeys: { type: "Iterable<Key>", description: "Initially expanded rows." },
+    onExpandedChange: { type: "(keys: Set<Key>) => void", description: "Called when a row expands or collapses." },
+    onAction: { type: "(key: Key) => void", description: "Called when a row is activated (Enter, or click with replace / no selection)." },
+    disabledKeys: { type: "Iterable<Key>", description: "Rows that can't be selected or expanded." },
+    renderEmptyState: { type: "(props) => ReactNode", description: "Content when there are no items." },
+    "aria-label": { type: "string", description: "Accessible name. Required unless aria-labelledby is set." },
+    className: { type: "string | ((state: TreeRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`Tree`](https://react-aria.adobe.com/Tree#api).
+
+### TreeItem
+
+<TypeTable
+  type={{
+    id: { type: "Key", description: "Unique id, used by selectedKeys and expandedKeys." },
+    title: { type: "ReactNode", description: "The row's label." },
+    textValue: { type: "string", description: "Plain text for type-ahead and the accessible name. Defaults to title when it's a string." },
+    icon: { type: "ReactNode | ((state: TreeItemContentRenderProps) => ReactNode)", description: "Leading icon, or a function of { isExpanded, isSelected, level, … }." },
+    suffix: { type: "ReactNode", description: "Trailing content: counts, badges, sizes." },
+    children: { type: "ReactNode", description: "Nested TreeItems (or a Collection)." },
+    isDisabled: { type: "boolean", description: "Disables the row." },
+    hasChildItems: { type: "boolean", description: "Shows the chevron before children are loaded (for lazy loading)." },
+    href: { type: "string", description: "Turns the row into a link." },
+    onAction: { type: "() => void", description: "Called when this row is activated." },
+    className: { type: "string | ((state: TreeItemRenderProps) => string)" },
+  }}
+/>
+
+Also accepts every prop of React Aria's [`TreeItem`](https://react-aria.adobe.com/Tree#treeitem).
+
+## Related
+
+- [Grid List](/docs/components/grid-list) — a flat interactive list with the same row styles.
+- [Sidebar](/docs/components/sidebar) — app navigation that can host a tree.
+- [Disclosure](/docs/components/disclosure) — collapsible content sections.
