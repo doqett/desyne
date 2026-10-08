@@ -16,6 +16,8 @@
       "!**/dist",
       "!**/public/r",
       "!**/examples/__index__.tsx",
+      "!**/examples/__sources__.ts",
+      "!**/examples/__groups__",
       "!**/generated",
       "!registry.json"
     ]

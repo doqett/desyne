@@ -11,6 +11,8 @@ next-env.d.ts
 # generated registry output
 apps/docs/public/r
 apps/docs/examples/__index__.tsx
+apps/docs/examples/__sources__.ts
+apps/docs/examples/__groups__/
 
 # local backups made while editing
 .backup/

@@ -2,7 +2,6 @@
 
 import { FileCode2Icon, FolderIcon, TerminalIcon } from "lucide-react";
 import { useState } from "react";
-import { examples } from "@/examples/__index__";
 import { cn } from "@/lib/utils";
 
 const steps = [
@@ -38,9 +37,13 @@ const tree = [
 ];
 
 /** Three-step tour from CLI to owned source to a composed screen. */
-export function CodeTour() {
+export function CodeTour({
+  source,
+}: {
+  /** Source of the composed screen in the last step, read on the server. */
+  source: string;
+}) {
   const [step, setStep] = useState<Step>("add");
-  const recipe = examples["switch/recipe-notifications"];
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[18rem_1fr] [&>*]:min-w-0">
       <div
@@ -137,7 +140,7 @@ export function CodeTour() {
         )}
         {step === "compose" && (
           <pre className="max-h-[28rem] overflow-auto p-5 font-mono text-[0.75rem] text-zinc-300 leading-relaxed">
-            <code>{recipe?.source}</code>
+            <code>{source}</code>
           </pre>
         )}
       </div>

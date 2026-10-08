@@ -12,6 +12,9 @@ import {
 import { tv, type VariantProps } from "tailwind-variants";
 import { cn } from "@/lib/utils";
 
+/** Rendered size in px per `size`, for the image's intrinsic width/height. */
+const pixelSizes = { xs: 20, sm: 24, md: 32, lg: 40, xl: 56 } as const;
+
 const avatarVariants = tv({
   base: "relative inline-flex shrink-0 select-none",
   variants: {
@@ -69,6 +72,9 @@ type Status = "loading" | "loaded" | "error";
 /** Set by `AvatarGroup` so children without their own `size` match it. */
 const AvatarGroupContext = createContext<{ size?: AvatarProps["size"] }>({});
 
+const statusBase =
+  "absolute right-0 bottom-0 size-[28%] min-w-2 min-h-2 rounded-full ring-2 ring-background";
+
 const fallbackBase =
   "flex size-full items-center justify-center overflow-hidden font-medium";
 
@@ -105,14 +111,23 @@ export function Avatar({
       ? palettes[hash(seed) % palettes.length]
       : "bg-muted text-muted-foreground";
   const radius = shape === "square" ? "rounded-md" : "rounded-full";
+  const px = pixelSizes[resolvedSize ?? "md"];
+  // A label on the root (e.g. AvatarGroup's "+N") needs a role to be valid
+  // ARIA; the root then names the avatar and its contents are decorative.
+  const labelled =
+    props["aria-label"] !== undefined || props["aria-labelledby"] !== undefined;
 
   return (
     <span
       data-slot="avatar"
+      role={labelled ? "img" : undefined}
       className={avatarVariants({ size: resolvedSize, shape, className })}
       {...props}
     >
-      <span className={cn("relative size-full overflow-hidden", radius)}>
+      <span
+        aria-hidden={labelled || undefined}
+        className={cn("relative size-full overflow-hidden", radius)}
+      >
         {current !== "loaded" &&
           (alt && (!src || current === "error") ? (
             <span
@@ -133,6 +148,8 @@ export function Avatar({
             ref={imgRef}
             src={src}
             alt={alt}
+            width={px}
+            height={px}
             onLoad={() => setState({ src, value: "loaded" })}
             onError={() => setState({ src, value: "error" })}
             className={cn(
@@ -142,16 +159,16 @@ export function Avatar({
           />
         )}
       </span>
-      {status && (
-        <span
-          role="img"
-          aria-label={status}
-          className={cn(
-            "absolute right-0 bottom-0 size-[28%] min-w-2 min-h-2 rounded-full ring-2 ring-background",
-            statusColors[status],
-          )}
-        />
-      )}
+      {status &&
+        (labelled ? (
+          <span aria-hidden className={cn(statusBase, statusColors[status])} />
+        ) : (
+          <span
+            role="img"
+            aria-label={status}
+            className={cn(statusBase, statusColors[status])}
+          />
+        ))}
     </span>
   );
 }

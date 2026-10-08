@@ -8,164 +8,93 @@ import {
   EyeIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { examples } from "@/examples/__index__";
+import { type ComponentType, lazy, Suspense, useState } from "react";
 import { cn } from "@/lib/utils";
+import { type Recipe, recipeTabs as tabs } from "./recipes";
 
-type Recipe = { key: string; title: string; component: string };
-const tabs: { id: string; label: string; recipes: Recipe[] }[] = [
-  {
-    id: "forms",
-    label: "Forms",
-    recipes: [
-      {
-        key: "radio-group/recipe-plan-picker",
-        title: "Plan picker",
-        component: "radio-group",
-      },
-      {
-        key: "slider/recipe-pricing-calculator",
-        title: "Pricing calculator",
-        component: "slider",
-      },
-      {
-        key: "input-otp/recipe-two-factor",
-        title: "Two-factor code",
-        component: "input-otp",
-      },
-      {
-        key: "combobox/recipe-tag-picker",
-        title: "Tag picker",
-        component: "combobox",
-      },
-    ],
-  },
-  {
-    id: "dates",
-    label: "Date & time",
-    recipes: [
-      {
-        key: "calendar/recipe-booking",
-        title: "Booking calendar",
-        component: "calendar",
-      },
-      {
-        key: "date-picker/recipe-travel",
-        title: "Travel dates",
-        component: "date-picker",
-      },
-      {
-        key: "date-field/recipe-business-hours",
-        title: "Business hours",
-        component: "date-field",
-      },
-      {
-        key: "date-picker/recipe-report-range",
-        title: "Report range",
-        component: "date-picker",
-      },
-    ],
-  },
-  {
-    id: "overlays",
-    label: "Overlays",
-    recipes: [
-      {
-        key: "dialog/recipe-invite",
-        title: "Invite dialog",
-        component: "dialog",
-      },
-      {
-        key: "popover/recipe-share",
-        title: "Share popover",
-        component: "popover",
-      },
-      {
-        key: "menu/recipe-row-actions",
-        title: "Row actions",
-        component: "menu",
-      },
-      {
-        key: "command-palette/recipe-app-search",
-        title: "App search",
-        component: "command-palette",
-      },
-    ],
-  },
-  {
-    id: "data",
-    label: "Data",
-    recipes: [
-      { key: "chart/recipe-kpi", title: "KPI chart", component: "chart" },
-      {
-        key: "grid-list/recipe-kanban",
-        title: "Kanban",
-        component: "grid-list",
-      },
-      {
-        key: "list-box/recipe-transfer",
-        title: "Transfer list",
-        component: "list-box",
-      },
-      {
-        key: "table/recipe-permissions",
-        title: "Permissions table",
-        component: "table",
-      },
-    ],
-  },
-  {
-    id: "feedback",
-    label: "Feedback",
-    recipes: [
-      {
-        key: "toast/recipe-undo-delete",
-        title: "Undo delete",
-        component: "toast",
-      },
-      {
-        key: "meter/recipe-usage-quotas",
-        title: "Usage quotas",
-        component: "meter",
-      },
-      {
-        key: "progress-bar/recipe-import",
-        title: "Import progress",
-        component: "progress-bar",
-      },
-      {
-        key: "alert/recipe-plan-limit",
-        title: "Plan limit",
-        component: "alert",
-      },
-    ],
-  },
-];
+/** One code-split chunk per recipe: only the open tab's demos are loaded. */
+const demos: Record<string, ComponentType> = {
+  "radio-group/recipe-plan-picker": lazy(
+    () => import("@/examples/radio-group/recipe-plan-picker"),
+  ),
+  "slider/recipe-pricing-calculator": lazy(
+    () => import("@/examples/slider/recipe-pricing-calculator"),
+  ),
+  "input-otp/recipe-two-factor": lazy(
+    () => import("@/examples/input-otp/recipe-two-factor"),
+  ),
+  "combobox/recipe-tag-picker": lazy(
+    () => import("@/examples/combobox/recipe-tag-picker"),
+  ),
+  "calendar/recipe-booking": lazy(
+    () => import("@/examples/calendar/recipe-booking"),
+  ),
+  "date-picker/recipe-travel": lazy(
+    () => import("@/examples/date-picker/recipe-travel"),
+  ),
+  "date-field/recipe-business-hours": lazy(
+    () => import("@/examples/date-field/recipe-business-hours"),
+  ),
+  "date-picker/recipe-report-range": lazy(
+    () => import("@/examples/date-picker/recipe-report-range"),
+  ),
+  "dialog/recipe-invite": lazy(() => import("@/examples/dialog/recipe-invite")),
+  "popover/recipe-share": lazy(() => import("@/examples/popover/recipe-share")),
+  "menu/recipe-row-actions": lazy(
+    () => import("@/examples/menu/recipe-row-actions"),
+  ),
+  "command-palette/recipe-app-search": lazy(
+    () => import("@/examples/command-palette/recipe-app-search"),
+  ),
+  "chart/recipe-kpi": lazy(() => import("@/examples/chart/recipe-kpi")),
+  "grid-list/recipe-kanban": lazy(
+    () => import("@/examples/grid-list/recipe-kanban"),
+  ),
+  "list-box/recipe-transfer": lazy(
+    () => import("@/examples/list-box/recipe-transfer"),
+  ),
+  "table/recipe-permissions": lazy(
+    () => import("@/examples/table/recipe-permissions"),
+  ),
+  "toast/recipe-undo-delete": lazy(
+    () => import("@/examples/toast/recipe-undo-delete"),
+  ),
+  "meter/recipe-usage-quotas": lazy(
+    () => import("@/examples/meter/recipe-usage-quotas"),
+  ),
+  "progress-bar/recipe-import": lazy(
+    () => import("@/examples/progress-bar/recipe-import"),
+  ),
+  "alert/recipe-plan-limit": lazy(
+    () => import("@/examples/alert/recipe-plan-limit"),
+  ),
+};
 
-function RecipeCard({ recipe }: { recipe: Recipe }) {
+function RecipeCard({ recipe, source }: { recipe: Recipe; source: string }) {
   const [view, setView] = useState<"preview" | "code">("preview");
   const [copied, setCopied] = useState(false);
-  const entry = examples[recipe.key as keyof typeof examples];
-  if (!entry) return null;
-  const Demo = entry.component;
+  const Demo = demos[recipe.key];
+  if (!Demo) return null;
 
   return (
     <article className="flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-card">
       <div className="relative flex min-h-80 flex-1">
         {view === "preview" ? (
           <div className="preview-canvas flex w-full items-center justify-center overflow-auto p-6">
-            <Demo />
+            <Suspense fallback={null}>
+              <Demo />
+            </Suspense>
           </div>
         ) : (
           <div className="relative w-full">
             <pre className="absolute inset-0 overflow-auto p-4 font-mono text-[0.75rem] text-foreground/85 leading-relaxed">
-              <code>{entry.source}</code>
+              <code>{source}</code>
             </pre>
             <button
               type="button"
               aria-label={copied ? "Copied" : "Copy code"}
               onClick={async () => {
-                await navigator.clipboard?.writeText(entry.source);
+                await navigator.clipboard?.writeText(source);
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1500);
               }}
@@ -222,7 +151,12 @@ function RecipeCard({ recipe }: { recipe: Recipe }) {
 }
 
 /** Tabbed wall of real recipes from the docs, each with preview and source. */
-export function RecipeWall() {
+export function RecipeWall({
+  sources,
+}: {
+  /** Example source by recipe key, read on the server. */
+  sources: Record<string, string>;
+}) {
   const [tab, setTab] = useState(tabs[0].id);
   const current = tabs.find((t) => t.id === tab) ?? tabs[0];
   return (
@@ -256,7 +190,7 @@ export function RecipeWall() {
         className="mt-6 grid gap-4 lg:grid-cols-2"
       >
         {current.recipes.map((r) => (
-          <RecipeCard key={r.key} recipe={r} />
+          <RecipeCard key={r.key} recipe={r} source={sources[r.key] ?? ""} />
         ))}
       </div>
     </div>

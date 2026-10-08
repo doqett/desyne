@@ -50,6 +50,14 @@ export const badgeVariants = tv({
       class:
         "text-[color-mix(in_oklab,var(--tone),black_38%)] dark:text-(--tone)",
     },
+    {
+      // Mid-lightness tones are ~3:1 on their own tint in light mode; darken
+      // the text so small badge labels meet WCAG AA (4.5:1).
+      variant: ["soft", "outline"],
+      color: ["success", "info", "danger"],
+      class:
+        "text-[color-mix(in_oklab,var(--tone),black_25%)] dark:text-(--tone)",
+    },
   ],
   defaultVariants: {
     variant: "soft",

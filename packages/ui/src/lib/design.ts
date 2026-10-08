@@ -290,7 +290,9 @@ export const brands: Record<BrandId, BrandPreset> = {
     "Indigo",
     "oklch(0.54 0.21 277)",
     "oklch(0.67 0.18 277)",
-    { light: "oklch(0.99 0.005 277)", dark: "oklch(0.99 0.005 277)" },
+    // Dark mode takes the computed deep-indigo text: white on the lighter
+    // dark-mode indigo is only ~3:1, below WCAG AA for small text.
+    { light: "oklch(0.99 0.005 277)" },
   ),
   blue: brand("blue", "Blue", "oklch(0.55 0.2 260)", "oklch(0.67 0.17 257)"),
   violet: brand(

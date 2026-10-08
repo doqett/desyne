@@ -1,4 +1,5 @@
-import { examples } from "@/examples/__index__";
+import { Example } from "@/examples/__index__";
+import { exampleSources } from "@/examples/__sources__";
 import { DocsCode } from "./docs/code-block";
 import { PreviewTabs } from "./preview-tabs";
 
@@ -14,21 +15,20 @@ export async function ComponentPreview({
   className,
   align,
 }: ComponentPreviewProps) {
-  const example = examples[name];
-  if (!example)
+  const source = exampleSources[name];
+  if (source === undefined)
     throw new Error(`Unknown example "${name}". Add examples/${name}.tsx.`);
-  const Example = example.component;
   return (
     <PreviewTabs
-      preview={<Example />}
-      source={example.source}
+      preview={<Example name={name} />}
+      source={source}
       filename={`${name.split("/").pop()}.tsx`}
       align={align}
       className={className}
       code={
         <DocsCode
           lang="tsx"
-          code={example.source}
+          code={source}
           bare
           viewportClassName="max-h-[32rem]"
         />

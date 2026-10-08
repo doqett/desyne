@@ -2,11 +2,14 @@ import { components } from "@desyne/ui/registry";
 import { ArrowUpRightIcon } from "lucide-react";
 import Link from "next/link";
 import { CopyCommand } from "@/components/home/copy-command";
-import { ExhibitWall } from "@/components/home/exhibit-wall";
 import { Faq } from "@/components/home/faq";
 import { JsonLd } from "@/components/json-ld";
 import { CodeTour } from "@/components/marketing/code-tour";
-import { KeyboardLab } from "@/components/marketing/keyboard-lab";
+import {
+  LazyExhibitWall,
+  LazyKeyboardLab,
+  LazyRecipeWall,
+} from "@/components/marketing/lazy-sections";
 import {
   Band,
   CTA,
@@ -15,10 +18,10 @@ import {
   Heading,
   Lead,
 } from "@/components/marketing/primitives";
-import { RecipeWall } from "@/components/marketing/recipe-wall";
+import { recipeKeys } from "@/components/marketing/recipes";
 import { BlockMarquee, TemplateCard } from "@/components/marketing/shots";
 import { ThemeStudio } from "@/components/marketing/theme-studio";
-import { examples } from "@/examples/__index__";
+import { exampleSources } from "@/examples/__sources__";
 import {
   absoluteUrl,
   homeDescription,
@@ -122,7 +125,11 @@ export default function HomePage() {
   const count = components.filter((c) =>
     source.getPage(["components", c.name]),
   ).length;
-  const exampleCount = Object.keys(examples).length;
+  const exampleCount = Object.keys(exampleSources).length;
+  // Only the recipes' source goes to the client; their demos load lazily.
+  const recipeSources = Object.fromEntries(
+    recipeKeys.map((key) => [key, exampleSources[key] ?? ""]),
+  );
 
   return (
     <main className="relative flex flex-1 flex-col overflow-x-clip">
@@ -215,7 +222,7 @@ export default function HomePage() {
           </CTA>
         </div>
         <div className="mt-10">
-          <RecipeWall />
+          <LazyRecipeWall sources={recipeSources} />
         </div>
       </Band>
 
@@ -237,7 +244,7 @@ export default function HomePage() {
           </CTA>
         </div>
         <div className="mt-10">
-          <KeyboardLab />
+          <LazyKeyboardLab />
         </div>
       </Band>
 
@@ -254,7 +261,7 @@ export default function HomePage() {
           </CTA>
         </div>
         <div className="mt-10">
-          <ExhibitWall />
+          <LazyExhibitWall />
         </div>
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
           {levers.map((l) => (
@@ -291,7 +298,9 @@ export default function HomePage() {
           </CTA>
         </div>
         <div className="mt-10">
-          <CodeTour />
+          <CodeTour
+            source={exampleSources["switch/recipe-notifications"] ?? ""}
+          />
         </div>
       </Band>
 

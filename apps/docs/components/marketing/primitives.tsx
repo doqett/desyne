@@ -110,7 +110,7 @@ export function Lead({
 
 /** Dims part of a heading so the punchline stands out. */
 export function Dim({ children }: { children: ReactNode }) {
-  return <span className="text-muted-foreground/70">{children}</span>;
+  return <span className="text-muted-foreground/80">{children}</span>;
 }
 
 const isExternal = (href: string) => href.startsWith("http");

@@ -17,10 +17,9 @@ import {
   TrendingUpIcon,
   UserPlusIcon,
 } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { UNSAFE_PortalProvider } from "react-aria";
 import { Form } from "react-aria-components";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarGroup } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -35,12 +34,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DialogClose,
@@ -79,6 +72,15 @@ import { ToggleButtonGroup } from "@/components/ui/toggle-button-group";
 import type { Design, Mode } from "@/lib/design";
 import { cn } from "@/lib/utils";
 import { applyPreviewDesign } from "./fonts";
+
+// Charts pull in recharts; load them on their own so routes that link here
+// (and prefetch this page) don't download it up front.
+const RevenueChart = lazy(() =>
+  import("./preview-charts").then((m) => ({ default: m.RevenueChart })),
+);
+const TrafficChart = lazy(() =>
+  import("./preview-charts").then((m) => ({ default: m.TrafficChart })),
+);
 
 /**
  * The live preview: a dashboard made only of library components, themed by
@@ -131,22 +133,7 @@ export function ThemePreview({
 
 /* ------------------------------------------------------------------ */
 
-const revenue = [
-  { month: "Jan", revenue: 18_600, previous: 14_200 },
-  { month: "Feb", revenue: 30_500, previous: 21_100 },
-  { month: "Mar", revenue: 23_700, previous: 24_800 },
-  { month: "Apr", revenue: 27_300, previous: 19_900 },
-  { month: "May", revenue: 36_900, previous: 26_400 },
-  { month: "Jun", revenue: 45_200, previous: 31_000 },
-];
-
-const revenueConfig = {
-  revenue: { label: "This year", color: "var(--chart-1)" },
-  previous: { label: "Last year", color: "var(--chart-2)" },
-} satisfies ChartConfig;
-
 function RevenueCard() {
-  const id = useId().replace(/:/g, "");
   return (
     <Card>
       <CardHeader>
@@ -161,53 +148,9 @@ function RevenueCard() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <ChartContainer
-          config={revenueConfig}
-          className="aspect-auto h-36 w-full"
-        >
-          <AreaChart data={revenue} margin={{ left: 4, right: 4, top: 4 }}>
-            <defs>
-              <linearGradient id={`${id}-rev`} x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-revenue)"
-                  stopOpacity={0.35}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-revenue)"
-                  stopOpacity={0.02}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis
-              dataKey="month"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-            />
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-            />
-            <Area
-              dataKey="previous"
-              type="natural"
-              fill="transparent"
-              stroke="var(--color-previous)"
-              strokeDasharray="4 4"
-              strokeWidth={1.5}
-            />
-            <Area
-              dataKey="revenue"
-              type="natural"
-              fill={`url(#${id}-rev)`}
-              stroke="var(--color-revenue)"
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ChartContainer>
+        <Suspense fallback={<div className="h-36 w-full" />}>
+          <RevenueChart />
+        </Suspense>
       </CardContent>
     </Card>
   );
@@ -503,10 +446,6 @@ const traffic = [
   { day: "Sun", visits: 142 },
 ];
 
-const trafficConfig = {
-  visits: { label: "Visits", color: "var(--chart-1)" },
-} satisfies ChartConfig;
-
 function ActivityCard() {
   const [view, setView] = useState("chart");
   return (
@@ -543,28 +482,9 @@ function ActivityCard() {
           {["week", "month", "year"].map((range) => (
             <TabPanel key={range} id={range}>
               {view === "chart" ? (
-                <ChartContainer
-                  config={trafficConfig}
-                  className="aspect-auto h-32 w-full"
-                >
-                  <BarChart data={scaled(range)}>
-                    <XAxis
-                      dataKey="day"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                    />
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent hideLabel />}
-                    />
-                    <Bar
-                      dataKey="visits"
-                      fill="var(--color-visits)"
-                      radius={4}
-                    />
-                  </BarChart>
-                </ChartContainer>
+                <Suspense fallback={<div className="h-32 w-full" />}>
+                  <TrafficChart data={scaled(range)} />
+                </Suspense>
               ) : (
                 <ul className="grid gap-1.5 text-sm">
                   {scaled(range)

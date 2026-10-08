@@ -1,7 +1,8 @@
 import { categories, components } from "@desyne/ui/registry";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
-import { examples } from "@/examples/__index__";
+import { Example } from "@/examples/__index__";
+import { exampleSources } from "@/examples/__sources__";
 import { newComponents } from "@/lib/docs-nav";
 import { DesignCanvas } from "./design/design-canvas";
 
@@ -13,9 +14,9 @@ export function ComponentGrid() {
           .filter((c) => c.category === category)
           .map((c) => ({
             ...c,
-            example: examples[`${c.name}/${c.preview ?? "demo"}`],
+            example: `${c.name}/${c.preview ?? "demo"}`,
           }))
-          .filter((c) => c.example);
+          .filter((c) => exampleSources[c.example] !== undefined);
         if (items.length === 0) return null;
         const id = `category-${category.toLowerCase().replace(/[^a-z]+/g, "-")}`;
         return (
@@ -38,7 +39,6 @@ export function ComponentGrid() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {items.map((c) => {
-                const Preview = c.example.component;
                 return (
                   <div
                     key={c.name}
@@ -51,7 +51,7 @@ export function ComponentGrid() {
                       className="ds-canvas relative h-48 overflow-hidden border-b bg-background text-foreground"
                     >
                       <div className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 flex w-[420px] scale-[0.7] items-center justify-center transition-transform duration-300 group-hover:scale-[0.73]">
-                        <Preview />
+                        <Example name={c.example} />
                       </div>
                     </DesignCanvas>
                     <div className="flex flex-col gap-1 px-4 py-3.5">
