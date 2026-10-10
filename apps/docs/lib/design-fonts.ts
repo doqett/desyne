@@ -1,39 +1,38 @@
-import {
-  Geist,
-  Geist_Mono,
-  IBM_Plex_Sans,
-  Inter,
-  Source_Serif_4,
-} from "next/font/google";
+import localFont from "next/font/local";
 
 /*
  * Web fonts for the design engine's font presets (`fonts` in `@/lib/design`).
- * Inter is the site font (preloaded); the rest load only when a design uses them.
- * Each exposes a CSS variable on <html> (see `designFontVariables`), e.g.
- * `var(--ds-font-geist)`, for pages that want to reference them directly.
+ * Self-hosted variable fonts (latin subset, SIL OFL) in `assets/fonts`, so
+ * builds never depend on Google Fonts. Inter is the site font (preloaded);
+ * the rest load only when a design uses them. Each exposes a CSS variable on
+ * <html> (see `designFontVariables`), e.g. `var(--ds-font-geist)`.
  */
-export const inter = Inter({
-  subsets: ["latin"],
+export const inter = localFont({
+  src: "../assets/fonts/inter.woff2",
+  weight: "100 900",
   variable: "--ds-font-inter",
 });
-const geist = Geist({
-  subsets: ["latin"],
+const geist = localFont({
+  src: "../assets/fonts/geist.woff2",
+  weight: "100 900",
   variable: "--ds-font-geist",
   preload: false,
 });
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
+const geistMono = localFont({
+  src: "../assets/fonts/geist-mono.woff2",
+  weight: "100 900",
   variable: "--ds-font-geist-mono",
   preload: false,
 });
-const plex = IBM_Plex_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+const plex = localFont({
+  src: "../assets/fonts/ibm-plex-sans.woff2",
+  weight: "100 700",
   variable: "--ds-font-plex",
   preload: false,
 });
-const sourceSerif = Source_Serif_4({
-  subsets: ["latin"],
+const sourceSerif = localFont({
+  src: "../assets/fonts/source-serif-4.woff2",
+  weight: "200 900",
   variable: "--ds-font-source-serif",
   preload: false,
 });
