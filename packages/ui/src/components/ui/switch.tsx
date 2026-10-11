@@ -11,10 +11,11 @@ import { composeTailwindRenderProps } from "@/lib/primitive";
 import { cn } from "@/lib/utils";
 
 const switchVariants = tv({
+  // Track padding is 2px; thumb = track height − 4px, travel = width − height.
   slots: {
     track: [
-      "inline-flex shrink-0 items-center rounded-(--radius-pill) border border-transparent bg-input p-px shadow-inner transition-colors duration-200",
-      "group-data-hovered/switch:bg-foreground/25 group-data-selected/switch:bg-brand group-data-selected/switch:group-data-hovered/switch:bg-brand/90",
+      "inline-flex shrink-0 items-center rounded-(--radius-pill) bg-input p-0.5 shadow-inner transition-colors duration-200 dark:bg-foreground/20",
+      "group-data-hovered/switch:bg-foreground/25 dark:group-data-hovered/switch:bg-foreground/30 group-data-selected/switch:bg-brand dark:group-data-selected/switch:bg-brand group-data-selected/switch:group-data-hovered/switch:bg-brand/90",
       "group-data-focus-visible/switch:ring-(length:--ring-width) group-data-focus-visible/switch:ring-ring/25",
     ],
     thumb:
@@ -24,15 +25,15 @@ const switchVariants = tv({
     size: {
       sm: {
         track: "h-4 w-7",
-        thumb: "size-3.5 group-data-selected/switch:translate-x-3",
+        thumb: "size-3 group-data-selected/switch:translate-x-3",
       },
       md: {
         track: "h-5 w-9",
-        thumb: "size-4.5 group-data-selected/switch:translate-x-4",
+        thumb: "size-4 group-data-selected/switch:translate-x-4",
       },
       lg: {
         track: "h-6 w-11",
-        thumb: "size-5.5 group-data-selected/switch:translate-x-5",
+        thumb: "size-5 group-data-selected/switch:translate-x-5",
       },
     },
   },
