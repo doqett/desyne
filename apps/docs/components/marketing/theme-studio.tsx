@@ -68,7 +68,7 @@ export function ThemeStudio() {
         aria-hidden
         className="-inset-6 absolute rounded-[2rem] bg-[radial-gradient(60%_60%_at_70%_30%,color-mix(in_oklab,var(--brand)_22%,transparent),transparent)] blur-2xl"
       />
-      <div className="relative overflow-hidden rounded-2xl border bg-background/70 shadow-[0_30px_80px_-30px_rgb(0_0_0/0.35)] backdrop-blur">
+      <div className="relative overflow-hidden rounded-2xl border bg-background/70 shadow-(--ds-shadow-stage) backdrop-blur">
         {/* toolbar */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b bg-muted/40 px-3 py-2.5 text-xs">
           <span className="font-medium text-muted-foreground">Theme</span>

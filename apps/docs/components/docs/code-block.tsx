@@ -23,7 +23,7 @@ function Caption({ title, lang }: { title?: ReactNode; lang?: string }) {
     <span className="flex min-w-0 items-center gap-2">
       <span className="truncate">{isFile ? title : languageLabel(lang)}</span>
       {isFile && lang && (
-        <span className="rounded-[4px] border border-white/10 px-1 text-[0.625rem] text-white/45 uppercase tracking-wider">
+        <span className="rounded-[4px] border border-white/10 px-1 text-[0.6875rem] text-white/45">
           {lang}
         </span>
       )}

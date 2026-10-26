@@ -454,7 +454,7 @@ function ContrastTable({ design }: { design: Design }) {
 }
 
 function Ratio({ value, min }: { value: number | null; min: number }) {
-  if (value === null) return <span className="text-muted-foreground">–</span>;
+  if (value === null) return <span className="text-muted-foreground">n/a</span>;
   const pass = value >= min;
   const large = !pass && value >= 3;
   return (

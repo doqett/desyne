@@ -1,6 +1,11 @@
 "use client";
 
-import { FileCode2Icon, FolderIcon, TerminalIcon } from "lucide-react";
+import {
+  CheckIcon,
+  FileCode2Icon,
+  FolderIcon,
+  TerminalIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -93,10 +98,21 @@ export function CodeTour({
           <pre className="overflow-x-auto p-5 font-mono text-[0.8125rem] leading-7">
             <span className="text-zinc-500">$</span> npx shadcn@latest add
             @desyne/switch{"\n"}
-            <span className="text-emerald-400">✔</span> Checking registry.{"\n"}
-            <span className="text-emerald-400">✔</span> Installing dependencies:
-            react-aria-components{"\n"}
-            <span className="text-emerald-400">✔</span> Created 3 files:{"\n"}
+            <CheckIcon
+              aria-hidden
+              className="inline size-3.5 align-[-0.125em] text-emerald-400"
+            />{" "}
+            Checking registry.{"\n"}
+            <CheckIcon
+              aria-hidden
+              className="inline size-3.5 align-[-0.125em] text-emerald-400"
+            />{" "}
+            Installing dependencies: react-aria-components{"\n"}
+            <CheckIcon
+              aria-hidden
+              className="inline size-3.5 align-[-0.125em] text-emerald-400"
+            />{" "}
+            Created 3 files:{"\n"}
             {"  "}
             <span className="text-zinc-400">- components/ui/switch.tsx</span>
             {"\n"}

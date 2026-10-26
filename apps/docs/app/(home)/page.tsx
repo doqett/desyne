@@ -157,12 +157,6 @@ export default function HomePage() {
               <span className="truncate">
                 {stats.blocks} Pro blocks and {stats.templates} templates
               </span>
-              <span
-                aria-hidden
-                className="text-muted-foreground transition-transform group-hover:translate-x-0.5"
-              >
-                →
-              </span>
             </a>
             <Heading as="h1" className="mt-6 lg:text-[3.6rem]">
               Accessible components that <Dim>look finished on day one.</Dim>

@@ -261,7 +261,7 @@ export function DesignSwitcher({
             borderRadius: `${Math.min(design.radius * 0.6, 0.4375)}rem`,
           }}
         />
-        <span className={alwaysShowLabel ? undefined : "max-sm:hidden"}>
+        <span className={alwaysShowLabel ? undefined : "max-xl:hidden"}>
           {styles[design.style].label}
         </span>
         {custom && (

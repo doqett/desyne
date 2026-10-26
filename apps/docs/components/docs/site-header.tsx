@@ -88,7 +88,7 @@ export function SiteHeader() {
         <div className="ms-auto flex items-center gap-1.5">
           <FullSearchTrigger
             hideIfDisabled
-            className="hidden h-8 w-52 rounded-full bg-muted/50 ps-3 pe-1.5 text-[0.8125rem] hover:bg-muted md:inline-flex lg:w-60 [&_kbd]:rounded-full [&_kbd]:font-mono [&_kbd]:text-[0.7rem]"
+            className="hidden h-8 w-44 rounded-full bg-muted/50 ps-3 pe-1.5 text-[0.8125rem] hover:bg-muted md:inline-flex xl:w-60 [&_kbd]:rounded-full [&_kbd]:font-mono [&_kbd]:text-[0.7rem]"
           />
           <SearchTrigger
             hideIfDisabled
