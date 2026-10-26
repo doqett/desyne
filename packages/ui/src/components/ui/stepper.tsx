@@ -249,7 +249,7 @@ export function Step({
           onPress={() => onStepChange?.(index)}
           className={cn(
             triggerClass,
-            "cursor-default data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25",
+            "cursor-default data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
             "data-hovered:[&_[data-slot=step-title]]:underline data-hovered:[&_[data-slot=step-title]]:underline-offset-4",
           )}
         >

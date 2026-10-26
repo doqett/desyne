@@ -134,7 +134,7 @@ export function Slider<T extends number | number[]>({
                     aria-label={labels?.[i]}
                     data-slot="slider-thumb"
                     className={cn(
-                      "rounded-full border-2 border-(--tone) bg-white shadow-sm outline-none ring-(--tone)/20 transition-[box-shadow,width,height] data-dragging:ring-[5px] data-focus-visible:ring-[5px] data-hovered:ring-4",
+                      "rounded-full border-2 border-(--tone) bg-white shadow-sm outline-none ring-(--tone)/20 transition-[box-shadow,width,height] data-dragging:ring-[5px] data-focus-visible:ring-[5px] data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-2 data-focus-visible:outline-(--tone) data-hovered:ring-4",
                       vertical ? "left-1/2" : "top-1/2",
                       sm ? "size-3" : "size-4",
                     )}

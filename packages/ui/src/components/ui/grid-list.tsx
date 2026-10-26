@@ -35,7 +35,7 @@ export function GridList<T extends object>({
       className={composeTailwindRenderProps(
         className,
         cn(
-          "group/list flex max-h-[inherit] flex-col overflow-auto outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25",
+          "group/list flex max-h-[inherit] flex-col overflow-auto outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
           "data-empty:p-8 data-empty:text-center data-empty:text-muted-foreground data-empty:text-sm",
           variant === "bordered" &&
             "gap-px rounded-lg border bg-card p-1 shadow-xs",
@@ -65,7 +65,7 @@ export function GridListItem({
           "group/item relative flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm outline-none transition-colors",
           "group-data-[variant=separated]/list:rounded-none group-data-[variant=separated]/list:py-3",
           "data-hovered:bg-muted/60 data-selected:bg-accent data-selected:text-accent-foreground",
-          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:ring-inset data-disabled:opacity-50",
+          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-ring data-focus-visible:-outline-offset-[1.5px] data-focus-visible:ring-inset data-disabled:opacity-50",
           "data-dragging:opacity-50",
         ].join(" "),
       )}

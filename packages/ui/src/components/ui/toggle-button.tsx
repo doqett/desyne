@@ -12,7 +12,7 @@ export const toggleVariants = tv({
   base: [
     "inline-flex shrink-0 cursor-default select-none items-center justify-center gap-2 whitespace-nowrap rounded-(--radius-control) border-(length:--border-width) font-(weight:--button-weight) text-sm outline-none",
     "transition-[color,background-color,border-color,box-shadow] duration-150",
-    "data-focus-visible:z-10 data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25",
+    "data-focus-visible:z-10 data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
     "data-disabled:pointer-events-none data-disabled:opacity-50",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   ],

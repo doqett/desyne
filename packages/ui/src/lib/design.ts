@@ -369,7 +369,7 @@ const fixedLight: VarMap = {
 
 const fixedDark: VarMap = {
   destructive: "oklch(0.66 0.2 22)",
-  "destructive-foreground": "oklch(0.99 0 0)",
+  "destructive-foreground": "oklch(0.2 0.05 22)",
   success: "oklch(0.72 0.15 150)",
   "success-foreground": "oklch(0.2 0.05 150)",
   warning: "oklch(0.8 0.15 75)",
@@ -556,7 +556,8 @@ const defaultStyle: StylePreset = {
     "radius-pill": "calc(infinity * 1px)",
     "border-width": "1px",
     "field-bg": "var(--card)",
-    "field-border": "var(--input)",
+    "field-border":
+      "color-mix(in oklab, var(--muted-foreground) 80%, var(--card))",
     "field-shadow": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
     "shadow-control": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
     "shadow-solid":
@@ -575,7 +576,8 @@ const defaultStyle: StylePreset = {
   },
   dark: {
     "field-bg": "color-mix(in oklab, var(--input) 20%, transparent)",
-    "field-border": "var(--input)",
+    "field-border":
+      "color-mix(in oklab, var(--muted-foreground) 95%, var(--card))",
     "shadow-box": NONE,
     "shadow-elevated":
       "0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.3)",
@@ -600,7 +602,8 @@ export const styles: Record<StyleId, StylePreset> = {
       "radius-pill": "calc(infinity * 1px)",
       "border-width": "1px",
       "field-bg": "var(--muted)",
-      "field-border": "color-mix(in oklab, var(--input) 80%, transparent)",
+      "field-border":
+        "color-mix(in oklab, var(--muted-foreground) 80%, var(--card))",
       "field-shadow": NONE,
       "shadow-control": "0 1px 2px 0 rgb(0 0 0 / 0.04)",
       "shadow-solid":
@@ -620,7 +623,8 @@ export const styles: Record<StyleId, StylePreset> = {
     },
     dark: {
       "field-bg": "var(--muted)",
-      "field-border": "color-mix(in oklab, var(--input) 75%, transparent)",
+      "field-border":
+        "color-mix(in oklab, var(--muted-foreground) 95%, var(--card))",
       "shadow-box": NONE,
       "shadow-elevated": "0 16px 40px -12px rgb(0 0 0 / 0.5)",
       "shadow-overlay":
@@ -647,7 +651,8 @@ export const styles: Record<StyleId, StylePreset> = {
       "radius-pill": "calc(var(--radius) * 0.5)",
       "border-width": "1px",
       "field-bg": "var(--card)",
-      "field-border": "var(--input)",
+      "field-border":
+        "color-mix(in oklab, var(--muted-foreground) 80%, var(--card))",
       "field-shadow": NONE,
       "shadow-control": NONE,
       "shadow-solid": NONE,
@@ -663,7 +668,8 @@ export const styles: Record<StyleId, StylePreset> = {
     },
     dark: {
       "field-bg": "transparent",
-      "field-border": "var(--input)",
+      "field-border":
+        "color-mix(in oklab, var(--muted-foreground) 95%, var(--card))",
     },
     borders: {
       border: { light: -0.02, dark: 1.4 },
@@ -684,7 +690,7 @@ export const styles: Record<StyleId, StylePreset> = {
       "radius-pill": "calc(infinity * 1px)",
       "border-width": "2px",
       "field-bg": "var(--card)",
-      "field-border": "var(--input)",
+      "field-border": "var(--muted-foreground)",
       "field-shadow": NONE,
       "shadow-control": "0 2px 0 0 var(--input)",
       "shadow-solid":
@@ -703,7 +709,7 @@ export const styles: Record<StyleId, StylePreset> = {
     },
     dark: {
       "field-bg": "color-mix(in oklab, var(--input) 20%, transparent)",
-      "field-border": "var(--input)",
+      "field-border": "var(--muted-foreground)",
       "shadow-overlay":
         "0 4px 0 0 var(--border), 0 18px 40px -12px rgb(0 0 0 / 0.5)",
       "shadow-dialog": "0 32px 64px -16px rgb(0 0 0 / 0.6)",

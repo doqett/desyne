@@ -47,7 +47,7 @@
           "radius-pill": "calc(infinity * 1px)",
           "border-width": "1px",
           "field-bg": "var(--card)",
-          "field-border": "var(--input)",
+          "field-border": "color-mix(in oklab, var(--muted-foreground) 80%, var(--card))",
           "field-shadow": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
           "shadow-control": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
           "shadow-solid": "inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px rgb(0 0 0 / 0.12)",
@@ -74,7 +74,7 @@
         "dark": {
           "brand": "oklch(0.67 0.18 277)",
           "brand-foreground": "oklch(0.22 0.06 277)",
-          "destructive-foreground": "oklch(0.99 0 0)",
+          "destructive-foreground": "oklch(0.2 0.05 22)",
           "success": "oklch(0.72 0.15 150)",
           "success-foreground": "oklch(0.2 0.05 150)",
           "warning": "oklch(0.8 0.15 75)",
@@ -82,7 +82,7 @@
           "info": "oklch(0.7 0.14 240)",
           "info-foreground": "oklch(0.2 0.05 240)",
           "field-bg": "color-mix(in oklab, var(--input) 20%, transparent)",
-          "field-border": "var(--input)",
+          "field-border": "color-mix(in oklab, var(--muted-foreground) 95%, var(--card))",
           "shadow-box": "0 0 #0000",
           "shadow-elevated": "0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.3)",
           "shadow-overlay": "0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3)"

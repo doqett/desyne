@@ -9,7 +9,7 @@ import {
 import { tv, type VariantProps } from "tailwind-variants";
 
 export const linkVariants = tv({
-  base: "inline-flex cursor-pointer items-center gap-0.5 rounded-xs underline-offset-4 outline-none transition-colors data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-disabled:cursor-not-allowed data-disabled:opacity-50",
+  base: "inline-flex cursor-pointer items-center gap-0.5 rounded-xs underline-offset-4 outline-none transition-colors data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring data-disabled:cursor-not-allowed data-disabled:opacity-50",
   variants: {
     variant: {
       default:

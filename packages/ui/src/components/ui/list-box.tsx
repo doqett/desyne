@@ -27,7 +27,7 @@ export function ListBox<T extends object>({
       {...props}
       className={composeTailwindRenderProps(
         className,
-        "flex max-h-[inherit] flex-col gap-px overflow-auto rounded-(--radius-overlay) border-(length:--border-width) bg-popover p-1 text-popover-foreground outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-empty:p-4 data-empty:text-center data-empty:text-muted-foreground data-empty:text-sm",
+        "flex max-h-[inherit] flex-col gap-px overflow-auto rounded-(--radius-overlay) border-(length:--border-width) bg-popover p-1 text-popover-foreground outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring data-empty:p-4 data-empty:text-center data-empty:text-muted-foreground data-empty:text-sm",
       )}
     />
   );

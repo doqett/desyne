@@ -205,7 +205,7 @@ export function Column({
         className,
         cn(
           "group/column relative whitespace-nowrap border-b text-left align-middle font-medium text-muted-foreground text-xs outline-none",
-          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:ring-inset data-allows-sorting:cursor-default data-allows-sorting:data-hovered:text-foreground",
+          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-ring data-focus-visible:-outline-offset-[1.5px] data-focus-visible:ring-inset data-allows-sorting:cursor-default data-allows-sorting:data-hovered:text-foreground",
           cellPadding[density],
           bordered && "border-r last:border-r-0",
           bleed && bleedEdges,
@@ -292,7 +292,7 @@ export function Row<T extends object>({
         className,
         cn(
           "group/row outline-none transition-colors data-hovered:bg-muted/40 data-selected:bg-accent/60",
-          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:ring-inset",
+          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-ring data-focus-visible:-outline-offset-[1.5px] data-focus-visible:ring-inset",
           "[&:last-child>*]:border-b-0",
           !divided && "[&>*]:border-b-transparent",
           striped && "even:bg-muted/30",
@@ -324,7 +324,7 @@ export function Cell({ className, ...props }: CellProps) {
       className={composeTailwindRenderProps(
         className,
         cn(
-          "whitespace-nowrap border-b align-middle outline-none data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:ring-inset",
+          "whitespace-nowrap border-b align-middle outline-none data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-ring data-focus-visible:-outline-offset-[1.5px] data-focus-visible:ring-inset",
           cellPadding[density],
           bordered && "border-r last:border-r-0",
           resizable && "truncate",
@@ -377,7 +377,7 @@ export function TableExpandButton({
       {...props}
       className={composeTailwindRenderProps(
         className,
-        "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors data-hovered:bg-muted data-hovered:text-foreground data-focus-visible:ring-2 data-focus-visible:ring-ring/30",
+        "inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors data-hovered:bg-muted data-hovered:text-foreground data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
       )}
     >
       <ChevronRightIcon

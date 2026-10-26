@@ -501,7 +501,7 @@ const toneCss = {
   dark: {
     brand: "oklch(0.67 0.18 277)",
     "brand-foreground": "oklch(0.22 0.06 277)",
-    "destructive-foreground": "oklch(0.99 0 0)",
+    "destructive-foreground": "oklch(0.2 0.05 22)",
     success: "oklch(0.72 0.15 150)",
     "success-foreground": "oklch(0.2 0.05 150)",
     warning: "oklch(0.8 0.15 75)",

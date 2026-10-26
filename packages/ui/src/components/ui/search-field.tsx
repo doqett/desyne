@@ -59,7 +59,7 @@ export function SearchField({
             {shortcut}
           </Keyboard>
         )}
-        <Button className="-mr-1 flex size-5 cursor-default items-center justify-center rounded-sm text-muted-foreground outline-none data-hovered:bg-muted data-hovered:text-foreground data-focus-visible:ring-2 data-focus-visible:ring-ring/30 group-data-empty/field:hidden">
+        <Button className="-mr-1 flex size-5 cursor-default items-center justify-center rounded-sm text-muted-foreground outline-none data-hovered:bg-muted data-hovered:text-foreground data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring group-data-empty/field:hidden">
           <XIcon aria-hidden className="size-3.5!" />
         </Button>
       </FieldGroup>

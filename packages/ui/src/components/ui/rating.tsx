@@ -247,7 +247,7 @@ export function Rating({
                 styles.item(),
                 "group/rating-item cursor-default outline-none transition-transform",
                 "data-pressed:scale-90 data-disabled:cursor-not-allowed data-disabled:opacity-50",
-                "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/30",
+                "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
               )}
             >
               <RatingIcon

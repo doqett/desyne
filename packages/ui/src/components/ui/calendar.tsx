@@ -37,7 +37,7 @@ import { Popover } from "./popover";
 const cellBase = [
   "relative flex size-8 cursor-default items-center justify-center rounded-md text-sm tabular-nums outline-none transition-colors",
   "data-hovered:bg-muted",
-  "data-focus-visible:ring-2 data-focus-visible:ring-ring/25",
+  "data-focus-visible:ring-2 data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
   "data-outside-month:text-muted-foreground/40",
   "data-today:font-semibold data-today:text-brand data-today:after:absolute data-today:after:bottom-1 data-today:after:size-1 data-today:after:rounded-full data-today:after:bg-brand",
   "data-disabled:pointer-events-none data-disabled:text-muted-foreground/40",
@@ -82,7 +82,7 @@ export interface CalendarCaptionProps {
 const captionTrigger = [
   "flex h-6 cursor-default items-center gap-0.5 rounded-md border-0 bg-transparent px-1.5 font-medium text-[0.8125rem] outline-none transition-colors",
   "data-hovered:bg-muted data-pressed:bg-muted group-data-open/caption:bg-muted",
-  "data-focus-visible:ring-2 data-focus-visible:ring-ring/25",
+  "data-focus-visible:ring-2 data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
   "data-disabled:opacity-50",
 ].join(" ");
 

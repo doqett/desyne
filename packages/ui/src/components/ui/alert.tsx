@@ -119,7 +119,7 @@ export function Alert({
         <Button
           aria-label="Dismiss"
           onPress={onDismiss}
-          className="-mt-0.5 -mr-1.5 flex size-6 shrink-0 cursor-default items-center justify-center rounded-md opacity-60 outline-none transition-opacity data-hovered:bg-black/5 data-hovered:opacity-100 data-focus-visible:ring-2 data-focus-visible:ring-ring/30 dark:data-hovered:bg-white/10"
+          className="-mt-0.5 -mr-1.5 flex size-6 shrink-0 cursor-default items-center justify-center rounded-md opacity-60 outline-none transition-opacity data-hovered:bg-black/5 data-hovered:opacity-100 data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring dark:data-hovered:bg-white/10"
         >
           <XIcon className="size-4" />
         </Button>

@@ -76,7 +76,7 @@ export function Breadcrumb({
           {link ? (
             <Link
               href={href}
-              className="inline-flex items-center gap-1.5 rounded-sm px-0.5 outline-none transition-colors data-current:font-medium data-current:text-foreground data-hovered:text-foreground data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-disabled:not-data-current:cursor-not-allowed data-disabled:not-data-current:opacity-50 [&_svg]:size-3.5"
+              className="inline-flex items-center gap-1.5 rounded-sm px-0.5 outline-none transition-colors data-current:font-medium data-current:text-foreground data-hovered:text-foreground data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring data-disabled:not-data-current:cursor-not-allowed data-disabled:not-data-current:opacity-50 [&_svg]:size-3.5"
             >
               {icon}
               {children}

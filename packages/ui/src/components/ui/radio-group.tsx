@@ -125,7 +125,7 @@ export function RadioCard({
           "group/radio relative flex cursor-default items-start gap-3 rounded-lg border bg-card p-3.5 text-sm shadow-xs outline-none transition-[border-color,background-color,box-shadow]",
           "data-hovered:border-brand/50",
           "data-selected:border-brand data-selected:bg-brand/[0.04] data-selected:ring-1 data-selected:ring-brand",
-          "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-disabled:opacity-50",
+          "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring data-disabled:opacity-50",
         ].join(" "),
       )}
     >

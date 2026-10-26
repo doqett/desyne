@@ -37,7 +37,7 @@ export function Tree<T extends object>({
       className={composeTailwindRenderProps(
         className,
         cn(
-          "flex max-h-[inherit] flex-col gap-px overflow-auto outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25",
+          "flex max-h-[inherit] flex-col gap-px overflow-auto outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
           "data-empty:p-6 data-empty:text-center data-empty:text-muted-foreground data-empty:text-sm",
           variant === "bordered" && "rounded-lg border bg-card p-1 shadow-xs",
         ),
@@ -79,7 +79,7 @@ export function TreeItem<T extends object = object>({
         [
           "group/tree-item relative flex cursor-default select-none items-center rounded-md py-1 pr-2 pl-1 text-sm outline-none transition-colors",
           "data-hovered:bg-muted/60 data-selected:bg-accent data-selected:text-accent-foreground",
-          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:ring-inset",
+          "data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-ring data-focus-visible:-outline-offset-[1.5px] data-focus-visible:ring-inset",
           "data-disabled:opacity-50",
         ].join(" "),
       )}
@@ -109,7 +109,7 @@ export function TreeItem<T extends object = object>({
                 <Button
                   slot="chevron"
                   isDisabled={isDisabled}
-                  className="flex size-5 shrink-0 cursor-default items-center justify-center rounded-sm text-muted-foreground outline-none data-hovered:bg-foreground/5 data-focus-visible:ring-2 data-focus-visible:ring-ring/30"
+                  className="flex size-5 shrink-0 cursor-default items-center justify-center rounded-sm text-muted-foreground outline-none data-hovered:bg-foreground/5 data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring"
                 >
                   <ChevronRightIcon
                     aria-hidden

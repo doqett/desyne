@@ -21,7 +21,7 @@
 
   /* Fields (input, select, textarea, checkbox, radio, otp) */
   --field-bg: var(--card);
-  --field-border: var(--input);
+  --field-border: color-mix(in oklab, var(--muted-foreground) 80%, var(--card));
   --field-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 
   /* Elevation */
@@ -127,7 +127,7 @@
   --accent-foreground: oklch(0.97 0.002 286);
 
   --destructive: oklch(0.66 0.2 22);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive-foreground: oklch(0.2 0.05 22);
   --success: oklch(0.72 0.15 150);
   --success-foreground: oklch(0.2 0.05 150);
   --warning: oklch(0.8 0.15 75);
@@ -158,7 +158,7 @@
 /* Structural tokens that change in dark mode (own rule, so the palette keeps its color fallbacks). */
 .dark {
   --field-bg: color-mix(in oklab, var(--input) 20%, transparent);
-  --field-border: var(--input);
+  --field-border: color-mix(in oklab, var(--muted-foreground) 95%, var(--card));
   --shadow-box: 0 0 #0000;
   --shadow-elevated:
     0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -8px rgb(0 0 0 / 0.3);

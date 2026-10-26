@@ -78,6 +78,7 @@ html > body[data-scroll-locked] {
   --ds-code-line: oklch(1 0 0 / 7%);
   --ds-code-border-light: oklch(0.2 0.006 286);
   --ds-code-hover: oklch(1 0 0 / 8%);
+  --ds-code-comment: oklch(0.7 0.015 250);
   --ds-shade-6: oklch(0 0 0 / 6%);
   --ds-shade-8: oklch(0 0 0 / 8%);
   --ds-shadow-stage: 0 30px 80px -30px rgb(0 0 0 / 0.35);
@@ -195,6 +196,10 @@ html > body[data-scroll-locked] {
 .ds-code figure.shiki button[aria-live]:hover {
   background: var(--ds-code-hover);
   color: var(--foreground);
+}
+/* GitHub's comment grey (#6A737D) is 3.9:1 on the code surface; lift it to 4.5:1+. */
+.ds-code .shiki span[style*="--shiki-dark:#6A737D"] {
+  color: var(--ds-code-comment) !important;
 }
 .ds-code .shiki .highlighted {
   background: color-mix(in oklab, var(--brand) 16%, transparent);

@@ -10,7 +10,7 @@ export const itemVariants = tv({
   base: [
     "group/item flex w-full min-w-0 items-center gap-3 rounded-lg border border-transparent text-sm outline-none transition-colors",
     "[a&]:cursor-pointer [a&]:hover:bg-muted/70 [button&]:cursor-default [button&]:text-left [button&]:hover:bg-muted/70",
-    "focus-visible:ring-(length:--ring-width) focus-visible:ring-ring/25",
+    "focus-visible:ring-(length:--ring-width) focus-visible:ring-ring/25 focus-visible:outline-solid focus-visible:outline-[1.5px] focus-visible:outline-offset-[1.5px] focus-visible:outline-ring",
   ],
   variants: {
     variant: {

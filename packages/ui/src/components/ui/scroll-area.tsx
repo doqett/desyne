@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 export const scrollAreaVariants = tv({
   base: [
     "relative min-h-0 min-w-0 overscroll-contain rounded-[inherit] outline-none",
-    "focus-visible:ring-(length:--ring-width) focus-visible:ring-ring/25",
+    "focus-visible:ring-(length:--ring-width) focus-visible:ring-ring/25 focus-visible:outline-solid focus-visible:outline-[1.5px] focus-visible:outline-offset-[1.5px] focus-visible:outline-ring",
     "[&::-webkit-scrollbar-corner]:bg-transparent [&::-webkit-scrollbar-track]:bg-transparent",
     "[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-transparent [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:bg-clip-padding",
     "[&::-webkit-scrollbar]:size-2.5",

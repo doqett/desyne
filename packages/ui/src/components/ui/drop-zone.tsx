@@ -13,7 +13,7 @@ const dropZoneVariants = tv({
     "flex w-full flex-col items-center justify-center gap-2 rounded-lg border border-input border-dashed bg-muted/30 text-center text-sm outline-none transition-[border-color,background-color,box-shadow]",
     "data-hovered:border-brand/60",
     "data-drop-target:border-brand data-drop-target:border-solid data-drop-target:bg-accent data-drop-target:text-accent-foreground",
-    "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-disabled:opacity-50",
+    "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring data-disabled:opacity-50",
   ],
   variants: {
     size: {

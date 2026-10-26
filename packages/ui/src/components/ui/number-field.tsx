@@ -36,7 +36,7 @@ export interface NumberFieldProps
 }
 
 const stepButton =
-  "flex cursor-default items-center justify-center text-muted-foreground outline-none transition-colors data-hovered:bg-muted data-hovered:text-foreground data-pressed:bg-accent data-pressed:text-accent-foreground data-disabled:opacity-40 data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:ring-inset";
+  "flex cursor-default items-center justify-center text-muted-foreground outline-none transition-colors data-hovered:bg-muted data-hovered:text-foreground data-pressed:bg-accent data-pressed:text-accent-foreground data-disabled:opacity-40 data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-ring data-focus-visible:-outline-offset-[1.5px] data-focus-visible:ring-inset";
 
 export function NumberField({
   label,

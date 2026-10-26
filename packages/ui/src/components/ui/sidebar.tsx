@@ -439,7 +439,7 @@ export const sidebarMenuButtonVariants = tv({
     "peer/menu-button flex w-full cursor-default items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding]",
     "text-sidebar-foreground/80 data-hovered:bg-sidebar-foreground/5 data-hovered:text-sidebar-foreground data-pressed:bg-sidebar-foreground/10 data-focus-visible:ring-2",
     "data-disabled:pointer-events-none data-disabled:opacity-50",
-    "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:shadow-[0_1px_2px_rgb(0_0_0/0.06)] data-[active=true]:ring-1 data-[active=true]:ring-sidebar-border data-[active=true]:text-sidebar-accent-foreground data-[active=true]:[&>svg]:text-sidebar-primary",
+    "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:shadow-[0_1px_2px_rgb(0_0_0/0.06)] data-[active=true]:ring-1 data-[active=true]:ring-sidebar-border data-[active=true]:data-focus-visible:ring-2 data-[active=true]:data-focus-visible:ring-sidebar-ring data-[active=true]:text-sidebar-accent-foreground data-[active=true]:[&>svg]:text-sidebar-primary",
     "group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   ],
   variants: {

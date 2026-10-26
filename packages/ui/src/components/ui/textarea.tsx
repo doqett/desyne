@@ -30,7 +30,7 @@ export const textareaVariants = tv({
         "data-invalid:border-destructive",
       ],
       underlined: [
-        "rounded-none border-input border-b bg-transparent px-0 py-2",
+        "rounded-none border-(--field-border) border-b bg-transparent px-0 py-2",
         "data-hovered:border-foreground/40 data-focused:border-ring data-focused:shadow-[inset_0_-1px_0_var(--ring)]",
         "data-invalid:border-destructive",
       ],

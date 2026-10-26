@@ -21,7 +21,7 @@ import { Description, Label } from "./field";
 const tagVariants = tv({
   base: [
     "inline-flex cursor-default items-center gap-1 border font-medium outline-none transition-colors",
-    "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-disabled:opacity-50",
+    "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring data-disabled:opacity-50",
     "[&_svg:not([class*='size-'])]:size-3",
   ],
   variants: {
@@ -161,7 +161,7 @@ export function Tag({
           {allowsRemoving && (
             <Button
               slot="remove"
-              className="-mr-1 flex cursor-default items-center justify-center rounded-sm p-0.5 opacity-60 outline-none transition-opacity data-hovered:opacity-100 data-focus-visible:ring-2 data-focus-visible:ring-ring/30"
+              className="-mr-1 flex cursor-default items-center justify-center rounded-sm p-0.5 opacity-60 outline-none transition-opacity data-hovered:opacity-100 data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring"
             >
               <XIcon aria-hidden className="size-3" />
             </Button>

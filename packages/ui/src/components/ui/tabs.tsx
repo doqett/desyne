@@ -43,7 +43,7 @@ const tabsStyles = tv({
     tab: [
       "relative inline-flex cursor-default select-none items-center justify-center gap-1.5 whitespace-nowrap font-(weight:--button-weight) text-muted-foreground outline-none transition-colors",
       "data-hovered:text-foreground data-selected:text-foreground",
-      "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring data-disabled:pointer-events-none data-disabled:opacity-50",
       "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     ],
     indicator:
@@ -252,7 +252,7 @@ export function TabPanel({ className, ...props }: TabPanelProps) {
       {...props}
       className={composeTailwindRenderProps(
         className,
-        "flex-1 rounded-md text-sm outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25",
+        "flex-1 rounded-md text-sm outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
       )}
     />
   );

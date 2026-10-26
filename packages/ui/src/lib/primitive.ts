@@ -15,9 +15,9 @@ export function composeTailwindRenderProps<T>(
     : cn(tw, className);
 }
 
-/** Keyboard focus ring: a soft colored glow (applied on `data-focus-visible`). */
+/** Keyboard focus ring: a soft colored glow with a solid 1.5px edge (applied on `data-focus-visible`). */
 export const focusRing =
-  "outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25";
+  "outline-none data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring";
 
 /**
  * Tones set `--tone` / `--tone-fg` CSS variables. Components style themselves with

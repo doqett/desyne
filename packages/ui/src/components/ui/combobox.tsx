@@ -75,7 +75,7 @@ export function ComboBox<T extends object>({
       <FieldGroup variant={variant} size={size} className="pr-1">
         {prefix}
         <FieldInput placeholder={placeholder} />
-        <Button className="flex size-6 cursor-default items-center justify-center rounded-sm text-muted-foreground outline-none data-hovered:bg-muted data-focus-visible:ring-2 data-focus-visible:ring-ring/30">
+        <Button className="flex size-6 cursor-default items-center justify-center rounded-sm text-muted-foreground outline-none data-hovered:bg-muted data-focus-visible:ring-2 data-focus-visible:ring-ring/30 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring">
           <ChevronsUpDownIcon aria-hidden />
         </Button>
       </FieldGroup>

@@ -44,7 +44,7 @@ export function DialogCloseIcon({ className }: { className?: string }) {
       slot="close"
       aria-label="Close"
       className={cn(
-        "absolute top-4 right-4 flex size-7 cursor-default items-center justify-center rounded-(--radius-control) text-muted-foreground outline-none transition-colors data-hovered:bg-muted data-hovered:text-foreground data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 [&_svg]:size-4",
+        "absolute top-4 right-4 flex size-7 cursor-default items-center justify-center rounded-(--radius-control) text-muted-foreground outline-none transition-colors data-hovered:bg-muted data-hovered:text-foreground data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring [&_svg]:size-4",
         className,
       )}
     >

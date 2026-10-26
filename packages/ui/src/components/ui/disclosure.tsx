@@ -24,7 +24,7 @@ const styles = tv({
     group: "w-full",
     item: "group/disclosure",
     trigger:
-      "flex flex-1 cursor-default items-center justify-between gap-4 text-left font-medium text-sm outline-none transition-colors data-disabled:opacity-50 data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25",
+      "flex flex-1 cursor-default items-center justify-between gap-4 text-left font-medium text-sm outline-none transition-colors data-disabled:opacity-50 data-focus-visible:ring-(length:--ring-width) data-focus-visible:ring-ring/25 data-focus-visible:outline-solid data-focus-visible:outline-[1.5px] data-focus-visible:outline-offset-[1.5px] data-focus-visible:outline-ring",
     panel: "text-muted-foreground",
   },
   variants: {
