@@ -39,7 +39,7 @@ export const fieldVariants = tv({
         "data-disabled:bg-muted",
       ],
       filled: [
-        "rounded-(--radius-control) border-(length:--border-width) border-transparent bg-muted",
+        "rounded-(--radius-control) border-(length:--border-width) border-transparent border-b-(--field-border) bg-muted",
         "data-hovered:bg-muted/70 dark:data-hovered:bg-muted/80",
         "data-focus-within:border-ring data-focus-within:bg-card data-focus-within:ring-(length:--ring-width) data-focus-within:ring-ring/20",
         "data-invalid:border-destructive data-invalid:data-focus-within:ring-destructive/20",
@@ -153,7 +153,7 @@ export const inputVariants = tv({
         "data-disabled:bg-muted",
       ],
       filled: [
-        "rounded-(--radius-control) border-(length:--border-width) border-transparent bg-muted",
+        "rounded-(--radius-control) border-(length:--border-width) border-transparent border-b-(--field-border) bg-muted",
         "data-hovered:bg-muted/70",
         "data-focused:border-ring data-focused:bg-card data-focused:ring-(length:--ring-width) data-focused:ring-ring/20",
         "data-invalid:border-destructive",

@@ -25,7 +25,7 @@ export const textareaVariants = tv({
         "data-invalid:border-destructive data-invalid:data-focused:ring-destructive/20 data-disabled:bg-muted",
       ],
       filled: [
-        "rounded-(--radius-control) border-(length:--border-width) border-transparent bg-muted px-(--control-px-sm) py-2",
+        "rounded-(--radius-control) border-(length:--border-width) border-transparent border-b-(--field-border) bg-muted px-(--control-px-sm) py-2",
         "data-hovered:bg-muted/70 data-focused:border-ring data-focused:bg-card data-focused:ring-(length:--ring-width) data-focused:ring-ring/20",
         "data-invalid:border-destructive",
       ],
